@@ -26,22 +26,23 @@ _LAST_PLAN: dict = {}
 
 
 @lru_cache(maxsize=2)
-def load_tech_graph(path: Path = TECH_GRAPH_FILE) -> tuple[dict, dict[int, int], bool]:
+def load_tech_graph(path: Path = TECH_GRAPH_FILE) -> tuple[dict, dict[int, int], bool, str]:
     try:
         data = json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, ValueError, json.JSONDecodeError):
-        return {}, {}, True
+        return {}, {}, True, "unknown"
     raw_rules = data.get("rules") if isinstance(data, dict) else {}
     raw_gates = data.get("gates") if isinstance(data, dict) else {}
     partial = bool(data.get("partial", True)) if isinstance(data, dict) else True
+    release = str(data.get("baseline_release") or "unknown") if isinstance(data, dict) else "unknown"
     rules = {k: v for k, v in raw_rules.items() if isinstance(k, str) and isinstance(v, dict)}
     gates = {int(k): int(v) for k, v in raw_gates.items() if str(k).isdigit() and isinstance(v, int)}
-    return rules, gates, partial
+    return rules, gates, partial, release
 
 
 def web_research_overview(snapshot: dict) -> dict:
     """Provide research labels and Tier 2 gate counts from the bundled web tech graph."""
-    rules, thresholds, partial = load_tech_graph()
+    rules, thresholds, partial, _ = load_tech_graph()
     technology = snapshot.get("technology") or {}
     if not rules or technology.get("researched_status") != "complete":
         return {"status": "unverified", "labels": {}, "gates": {}}
@@ -75,7 +76,7 @@ def web_research_overview(snapshot: dict) -> dict:
 
 
 def web_route_targets(snapshot: dict) -> list[dict]:
-    rules, _, _ = load_tech_graph()
+    rules, _, _, _ = load_tech_graph()
     technology = snapshot.get("technology") or {}
     researched = set(technology.get("researched") or {})
     branches = technology.get("branches") or {}
@@ -95,7 +96,7 @@ def web_route_targets(snapshot: dict) -> list[dict]:
 
 def web_route_for_target(snapshot: dict, target: str) -> dict:
     """Compute a cautious, DLC-aware technology route from the bundled web graph."""
-    rules, gates, partial = load_tech_graph()
+    rules, gates, partial, graph_release = load_tech_graph()
     campaign = snapshot.get("campaign") or {}
     technology = snapshot.get("technology") or {}
     researched = set(technology.get("researched") or {})
@@ -211,8 +212,10 @@ def web_route_for_target(snapshot: dict, target: str) -> dict:
         "target_id": target, "name": rule["name"], "area": rule.get("area", ""),
         "tier": tier, "state": state_of(target),
         "status": "limited",
-        "reason": ("Save lists mods; bundled base-game graph may differ." if mods
-                   else "Derived from bundled core 4.5.2 graph; verify exact draw weights and mod/4.6 changes in game."),
+        "reason": ("Save lists mods; exported base-game graph may differ." if mods
+                   else f"Derived from exported {graph_release} structural tech graph ({len(rules)} techs); verify draw weights and mod changes in game."
+                   if not partial
+                   else f"Derived from bundled core {graph_release} graph; verify exact draw weights and mod/patch changes in game."),
         "steps": steps, "one_of": one_of, "next_unlocks": next_unlocks,
         "dlc": dlc_info,
         "tier_gate": {"tier": tier, "required_previous_tier": threshold,
@@ -474,9 +477,9 @@ def _demo_presets() -> dict[str, dict]:
                     "researched_count": 29, "researched_status": "complete",
                     "researched": {"tech_corvettes": 1, "tech_thrusters_2": 1},
                     "branches": {
-                        "physics": {"current": "Tachyon Sensors", "current_id": "tech_sensors_3", "progress": 720.0, "progress_known": True, "started": "2263.10.01", "alternatives": ["Hyperlane Breach Points"], "alternative_ids": ["tech_hyperlane_breach"], "recommendation": "Hyperlane Breach Points", "reason": "Compare its in-game effect with your current goal."},
-                        "society": {"current": "Operational Reserves", "current_id": "tech_operational_reserves", "progress": 840.0, "progress_known": True, "started": "2263.07.01", "alternatives": ["Naval Contractors"], "alternative_ids": ["tech_doctrine_navy_size_2"], "recommendation": "Naval Contractors", "reason": "It can widen the empire's strategic options."},
-                        "engineering": {"current": "Plasma Thrusters", "current_id": "tech_thrusters_3", "progress": 1120.0, "progress_known": True, "started": "2263.04.01", "alternatives": ["Arkship Mastery"], "alternative_ids": ["tech_arkship_mastery"], "recommendation": "Arkship Mastery", "reason": "It supports Nomad fleet mobility or Arkship progression."},
+                        "physics": {"current": "Tachyon Sensors", "current_id": "tech_sensors_4", "progress": 720.0, "progress_known": True, "started": "2263.10.01", "alternatives": ["Hyperlane Breach Points"], "alternative_ids": ["tech_hyper_drive_2"], "recommendation": "Hyperlane Breach Points", "reason": "Compare its in-game effect with your current goal."},
+                        "society": {"current": "Operational Reserves", "current_id": "tech_doctrine_navy_size_1", "progress": 840.0, "progress_known": True, "started": "2263.07.01", "alternatives": ["Naval Contractors"], "alternative_ids": ["tech_doctrine_navy_size_2"], "recommendation": "Naval Contractors", "reason": "It can widen the empire's strategic options."},
+                        "engineering": {"current": "Plasma Thrusters", "current_id": "tech_thrusters_3", "progress": 1120.0, "progress_known": True, "started": "2263.04.01", "alternatives": ["Arkship Tier 3"], "alternative_ids": ["tech_arkship_tier_3"], "recommendation": "Arkship Tier 3", "reason": "It supports Nomad fleet mobility or Arkship progression."},
                     },
                 },
                 "ship_builds": {

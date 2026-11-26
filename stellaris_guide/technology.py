@@ -41,7 +41,7 @@ def focus_path(game_dir: str, branch: str, researched: set[str],
     release = parse_release_tuple(save_version)
     if branch == "engineering":
         if profile.get("is_nomad"):
-            candidates = ("tech_arkship_mastery", "tech_destroyers", "tech_cruisers", "tech_battleships")
+            candidates = ("tech_arkship_tier_2", "tech_arkship_tier_3", "tech_military_arkship", "tech_destroyers", "tech_cruisers", "tech_battleships")
         elif profile.get("shipset_kind") == "biological":
             candidates = ("tech_stingers", "tech_harbingers", "tech_weavers", "tech_destroyers", "tech_cruisers", "tech_battleships")
         else:

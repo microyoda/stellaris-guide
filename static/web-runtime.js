@@ -427,10 +427,11 @@
               <div class="web-route-shortcuts">
                 <button type="button" data-route-jump="tech_cruisers">Cruisers</button>
                 <button type="button" data-route-jump="tech_battleships">Battleships</button>
-                <button type="button" data-route-jump="tech_mega_engineering">Mega-Engineering</button>
+                <button type="button" data-route-jump="tech_mega_engineering">Mega Engineering</button>
                 <button type="button" data-route-jump="tech_galactic_administration">Galactic Admin</button>
                 <button type="button" data-route-jump="tech_hyper_relays">Hyper Relays</button>
-                <button type="button" data-route-jump="tech_arkship_mastery">Arkship Mastery</button>
+                <button type="button" data-route-jump="tech_arkship_tier_3">Arkship Tier 3</button>
+                <button type="button" data-route-jump="tech_galactic_halls">Galactic Halls</button>
               </div>
               <select id="web-route-select" class="web-select" aria-label="Choose target technology"></select>
             </div>

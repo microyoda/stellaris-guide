@@ -356,13 +356,21 @@ class WebBridgeAndBuildTests(unittest.TestCase):
         self.assertIn("overview", snap["technology"])
         self.assertIn("tech_cruisers", snap["technology"]["overview"]["labels"])
         route = web_route_for_target(snap, "tech_mega_engineering")
-        self.assertEqual(route["name"], "Mega-Engineering")
+        self.assertIn("mega", route["name"].casefold())
         step_ids = [s["id"] for s in route["steps"]]
         self.assertIn("tech_zero_point_power", step_ids)
         self.assertTrue(route["one_of"])
-        # Missing DLC tech reports not_listed cleanly.
-        nomad_route = web_route_for_target(snap, "tech_arkship_mastery")
-        self.assertEqual(nomad_route["dlc"][0]["status"], "not_listed")
+        # Real 4.6.0 exported graph: DLC-gated techs report not_listed when absent and present when active.
+        willpower_route = web_route_for_target(snap, "tech_galactic_halls")
+        self.assertEqual(willpower_route["dlc"][0]["id"], "willpower")
+        self.assertEqual(willpower_route["dlc"][0]["status"], "not_listed")
+        wp_snap = build_demo_state("willpower-460")["snapshot"]
+        self.assertEqual(web_route_for_target(wp_snap, "tech_galactic_halls")["dlc"][0]["status"], "present")
+        relic_route = web_route_for_target(snap, "tech_archaeostudies")
+        self.assertEqual(relic_route["dlc"][0]["id"], "ancient_relics")
+        self.assertEqual(relic_route["dlc"][0]["status"], "not_listed")
+        ark_route = web_route_for_target(snap, "tech_arkship_tier_3")
+        self.assertTrue(ark_route["one_of"])
         # Unknown tech degrades honestly without crashing.
         unknown = web_route_for_target(snap, "tech_modded_mystery")
         self.assertEqual(unknown["status"], "unknown")

@@ -165,8 +165,8 @@ DLC_CATALOG: tuple[dict, ...] = (
         "name": "Galactic Paragons",
         "category": "expansion",
         "base_game_since": None,
-        "aliases": ("Galactic Paragons", "Paragons"),
-        "triggers": ("has_paragons", "has_galactic_paragons", "has_paragons_dlc", "has_galactic_paragons_dlc"),
+        "aliases": ("Galactic Paragons", "Paragons", "Paragon"),
+        "triggers": ("has_paragons", "has_paragon", "has_paragon_dlc", "has_galactic_paragons", "has_paragons_dlc", "has_galactic_paragons_dlc"),
     },
     {
         "id": "astral_planes",
@@ -237,8 +237,8 @@ DLC_CATALOG: tuple[dict, ...] = (
         "name": "Willpower",
         "category": "expansion",
         "base_game_since": None,
-        "aliases": ("Willpower", "Stellaris: Willpower"),
-        "triggers": ("has_willpower", "has_willpower_dlc"),
+        "aliases": ("Willpower", "Stellaris: Willpower", "Force of Will"),
+        "triggers": ("has_willpower", "has_willpower_dlc", "has_force_of_will", "has_force_of_will_dlc"),
     },
 )
 
