@@ -170,6 +170,108 @@ class QuestionRegressionTests(unittest.TestCase):
         self.assertEqual(source, "Built-in guide")
         self.assertIn("Espionage", answer)
 
+    def test_specific_economy_and_howto_questions_differ_from_status_summary(self):
+        save = snapshot()
+        save["player"]["starbase_used"] = 9
+        save["player"]["starbase_capacity"] = 7
+        save["player"]["stock"]["energy"] = 22144.2
+        status = answer_question("/ask What's my economy looking like?", save, ADVICE)
+        energy_howto = answer_question("/ask how to increase my output of energy?", save, ADVICE)
+        self.assertNotEqual(status, energy_howto)
+        self.assertIn("Generator Districts", energy_howto)
+        self.assertIn("Dangal Prime", energy_howto)
+        self.assertIn("over starbase capacity (9/7)", energy_howto)
+
+        # Resource-specific status differs from how-to, and unknown rate stays honest.
+        energy_status = answer_question("What is my energy?", save, ADVICE)
+        self.assertIn("Saved energy: +143.7/month", energy_status)
+        self.assertNotIn("Generator Districts", energy_status)
+        save["player"]["net_known"] = {"energy": False}
+        unknown_energy = answer_question("how to increase my output of energy?", save, ADVICE)
+        self.assertIn("monthly rate unknown in this save", unknown_energy)
+
+        # Gestalt empire does not get standard Consumer Goods Artisan advice.
+        gestalt_save = snapshot()
+        gestalt_save["player"]["profile"] = {"is_gestalt": True, "is_machine": True}
+        cg_gestalt = answer_question("how to increase consumer goods?", gestalt_save, ADVICE)
+        self.assertIn("Gestalt", cg_gestalt)
+        self.assertNotIn("Artisan jobs", cg_gestalt)
+
+        # Generic phrases after "for" do not trigger a false missing-colony error.
+        alloys_for_fleet = answer_question("how to increase alloys for my fleet?", save, ADVICE)
+        self.assertNotIn("could not match", alloys_for_fleet)
+        self.assertIn("Forge World", alloys_for_fleet)
+
+        # General economy improvement targets the biggest saved deficit.
+        improve_econ = answer_question("How do I improve my economy?", save, ADVICE)
+        self.assertNotEqual(status, improve_econ)
+        self.assertIn("consumer goods", improve_econ.lower())
+
+    def test_quick_planet_tech_and_naval_capacity_questions_are_distinct(self):
+        save = snapshot()
+        save["player"]["research"] = {"physics": 173.2, "society": 85.7, "engineering": 59.3}
+        save["player"]["empire_size"] = 378
+        save["player"]["naval_used"] = 322
+        save["player"]["naval_capacity"] = None
+        save["player"]["starbase_used"] = 6
+        save["player"]["starbase_capacity"] = 8
+        save["technology"] = {
+            "branches": {
+                "physics": {"current": "Blue Lasers", "recommendation": "Zero Point Power"},
+                "society": {"current": "Colonial Centralization", "recommendation": "Galactic Administration"},
+                "engineering": {"current": "Cruisers", "recommendation": "Battleships"},
+            }
+        }
+        amenities = answer_question("Do I have an amenities problem?", save, ADVICE)
+        attention = answer_question("Which planet needs attention first?", save, ADVICE)
+        vague = answer_question("How is my colony?", save, ADVICE)
+        self.assertIn("Alpha Centauri Prime", amenities)
+        self.assertIn("Alpha Centauri Prime", attention)
+        self.assertIn("Which colony do you mean?", vague)
+
+        tech_status = answer_question("How is my current research?", save, ADVICE)
+        tech_next = answer_question("What technology should I choose next?", save, ADVICE)
+        tech_branch = answer_question("Which branch needs attention?", save, ADVICE)
+        tech_boost = answer_question("How can I increase research output?", save, ADVICE)
+        self.assertEqual(len({tech_status, tech_next, tech_branch, tech_boost}), 4)
+        self.assertIn("Engineering is your lowest branch", tech_branch)
+        self.assertIn("Tech-World", tech_boost)
+
+        naval = answer_question("How to increase naval capacity?", save, ADVICE)
+        self.assertIn("322 / unknown in save", naval)
+        self.assertIn("Anchorage", naval)
+
+        # Starbase capacity stays distinct from Naval Capacity (does not tell user to build Anchorages).
+        starbase = answer_question("How to increase starbase capacity?", save, ADVICE)
+        self.assertIn("6 / 8", starbase)
+        self.assertIn("owning more systems", starbase)
+        self.assertNotIn("Anchorage", starbase)
+
+        # Trade-led deficit gets dedicated Trade levers, and Influence avoids outdated Faction income claim.
+        trade_save = snapshot()
+        trade_save["player"]["net"] = {"energy": 50.0, "minerals": 80.0, "food": 20.0,
+                                       "consumer_goods": 10.0, "alloys": 30.0, "trade": -65.0}
+        trade_fix = answer_question("How do I improve my economy?", trade_save, ADVICE)
+        self.assertIn("trade", trade_fix.lower())
+        self.assertIn("30%", trade_fix)
+
+        influence = answer_question("How to get influence for claims?", save, ADVICE)
+        self.assertNotIn("could not match", influence)
+        self.assertIn("Power Projection", influence)
+        self.assertNotIn("Factions/Ideologies", influence)
+
+        unity = answer_question("How to increase unity for traditions?", save, ADVICE)
+        self.assertNotIn("could not match", unity)
+        self.assertIn("Unification", unity)
+
+        # Missing/None planet metrics never crash formatting or sorting.
+        sparse = snapshot()
+        sparse["planets"][0]["stability"] = None
+        sparse["planets"][0]["free_amenities"] = -12.0
+        sparse["planets"][1]["stability"] = None
+        self.assertIn("unknown", answer_question("Do I have an amenities problem?", sparse, ADVICE))
+        self.assertIn("not readable", answer_question("How is my stability?", sparse, ADVICE))
+
 
 if __name__ == "__main__":
     unittest.main()

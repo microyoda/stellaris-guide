@@ -54,6 +54,63 @@ class QuestionContext:
     contact: dict | None = None
     missing_name: str | None = None
     ambiguous: bool = False
+    focus: str | None = None
+
+
+_NON_COLONY_PHRASES = {
+    "my", "the", "our", "this", "that", "a", "an", "your", "overall", "whole", "entire",
+    "my overall", "overall economy", "my empire", "the empire", "empire",
+    "my colony", "the colony", "my new colony", "new colony", "my colonies",
+    "colonies", "all colonies", "my planets", "planets", "all planets", "my worlds", "worlds",
+    "the game", "stellaris", "general", "now", "early game", "mid game", "late game", "this save",
+    "energy", "energy credits", "minerals", "food", "consumer goods", "alloys",
+    "unity", "influence", "trade", "research", "science", "tech", "technology",
+    "traditions", "claims", "edicts", "building ships", "my starbases", "starbases",
+    "ships", "my ships", "fleet", "my fleet", "fleets", "my fleets", "navy",
+    "my navy", "war", "defense", "offense", "economy", "my economy",
+}
+
+
+def _detect_focus(topic: str, words: str) -> str | None:
+    if topic == "economy":
+        for key, phrases in (
+            ("consumer_goods", ("consumer good", "consumer goods")),
+            ("alloys", ("alloy", "alloys")),
+            ("energy", ("energy", "energy credit", "energy credits")),
+            ("minerals", ("mineral", "minerals")),
+            ("food", ("food",)),
+            ("unity", ("unity",)),
+            ("influence", ("influence",)),
+        ):
+            if _has(words, *phrases):
+                return key
+    elif topic == "technology":
+        for branch in ("physics", "society", "engineering"):
+            if _has(words, branch):
+                return branch
+        if _has(words, "which branch", "weakest branch", "lowest branch", "branch needs"):
+            return "branch_compare"
+        if _has(words, "increase", "boost", "more research", "more science", "faster research",
+                "research output", "science output", "improve research", "improve science"):
+            return "research_output"
+    elif topic == "ships":
+        if _has(words, "starbase cap", "starbase capacity", "more starbases", "starbases", "starbase"):
+            return "starbase_capacity"
+        if _has(words, "naval capacity", "naval cap", "fleet capacity", "fleet cap"):
+            return "naval_capacity"
+    elif topic == "planet":
+        if _has(words, "amenities", "amenity"):
+            return "amenities"
+        if _has(words, "housing", "overcrowded", "overcrowding"):
+            return "housing"
+        if _has(words, "stability", "unstable", "revolt", "crime"):
+            return "stability"
+        if _has(words, "which planet", "which colony", "needs attention", "attention first",
+                "worst planet", "worst colony", "fix first"):
+            return "attention"
+        if _has(words, "what should i build", "what to build", "build on", "districts", "buildings", "jobs"):
+            return "build"
+    return None
 
 
 def classify_question(question: str, snapshot: dict) -> QuestionContext:
@@ -83,13 +140,21 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
     elif _has(words, "population", "populations", "pop growth", "pops", "migration",
               "immigration", "assembly", "grow pops", "grow population"):
         topic = "population"
-    elif _has(words, "tech", "technology", "research", "physics", "society", "engineering"):
+    elif _has(words, "tech", "technology", "research", "science", "physics", "society", "engineering",
+              "which branch", "research branch", "tech branch"):
         topic = "technology"
+    elif (_has(words, "alloy", "alloys", "energy", "mineral", "minerals", "food",
+               "consumer goods", "consumer good", "unity", "influence")
+          and _has(words, "increase", "improve", "boost", "raise", "output", "income", "deficit", "more", "fix")
+          and not _has(words, "naval capacity", "naval cap", "fleet capacity", "fleet cap", "starbase", "starbases")):
+        topic = "economy"
     elif _has(words, "ship", "ships", "design", "fleet", "fleets", "corvette", "frigate",
-              "destroyer", "cruiser", "battleship"):
+              "destroyer", "cruiser", "battleship", "naval capacity", "naval cap",
+              "fleet capacity", "fleet cap", "starbase", "starbases"):
         topic = "ships"
     elif _has(words, "economy", "economic", "resource", "resources", "alloy", "alloys",
-              "energy", "mineral", "minerals", "food", "consumer goods", "income", "deficit"):
+              "energy", "mineral", "minerals", "food", "consumer goods", "consumer good",
+              "unity", "influence", "income", "deficit", "output", "upkeep"):
         topic = "economy"
     elif _has(words, "attack", "war", "fallen empire", "invade"):
         topic = "war"
@@ -98,26 +163,30 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
     elif _has(words, "next move", "next moves", "what should i do", "goal", "goals",
               "prioritize", "priority"):
         topic = "next_move"
-    elif _has(words, "planet", "colony", "housing", "amenities", "amenity", "stability", "jobs") or planet:
+    elif _has(words, "planet", "planets", "colony", "colonies", "housing", "amenities",
+              "amenity", "stability", "crime", "jobs") or planet:
         topic = "planet"
     elif contact:
         topic = "contact"
     else:
         topic = "unknown"
 
-    mode = "recommendation" if _has(words, "should", "recommend", "best", "improve", "increase",
-                                     "which policy", "which policies", "shall i") else (
-        "how_to" if _has(words, "how to", "how do i", "where do i", "steps") else "status")
+    mode = "how_to" if _has(words, "how to", "how do i", "how can i", "how do you",
+                            "where do i", "steps", "ways to") else (
+        "recommendation" if _has(words, "should", "recommend", "best", "improve", "increase",
+                                 "boost", "raise", "fix", "more", "which policy", "which policies",
+                                 "which branch", "which planet", "which colony", "shall i") else "status")
     scope = "planet" if planet or planet_ambiguous else "contact" if contact or contact_ambiguous else "general"
+    focus = _detect_focus(topic, words)
     missing_name = None
     if not planet and not planet_ambiguous and topic in {"planet", "economy", "population", "policy"}:
         match = (re.search(r"\b(?:in|on|at|for)\s+([\w-]+(?:\s+[\w-]+){0,3})\s*[?.!]*$", text, re.I)
                  or re.search(r"\b(?:improve|fix|grow|develop)\s+([\w-]+(?:\s+[\w-]+){0,3}?)\s+(?:economy|population|colony)\b", text, re.I))
-        if match and _words(match.group(1)) not in {"my empire", "the empire", "my colony", "the game", "stellaris"}:
+        if match and _words(match.group(1)) not in _NON_COLONY_PHRASES:
             missing_name, scope = match.group(1), "planet"
     if not contact and not contact_ambiguous and topic == "espionage":
         match = re.search(r"\b(?:on|from|against)\s+([\w-]+(?:\s+[\w-]+){0,3})\s*[?.!]*$", text, re.I)
         if match and _words(match.group(1)) not in {"other empires", "another empire", "an empire", "the empire", "them"}:
             missing_name, scope = match.group(1), "contact"
     return QuestionContext(text, topic, mode, scope, planet, contact, missing_name,
-                           planet_ambiguous or contact_ambiguous)
+                           planet_ambiguous or contact_ambiguous, focus)
