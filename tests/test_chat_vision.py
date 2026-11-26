@@ -69,7 +69,7 @@ class ChatVisionTests(unittest.TestCase):
             server.CONFIG.update(previous_config)
 
     def test_question_history_persists_only_text_and_frequency(self):
-        with tempfile.TemporaryDirectory(dir=".test-temp") as directory:
+        with tempfile.TemporaryDirectory() as directory:
             with patch.object(server, "QUESTION_HISTORY_PATH", Path(directory) / "history.json"):
                 server.remember_question("What ships should I build?", has_image=True)
                 history = server.remember_question("What ships should I build?", has_image=True)
