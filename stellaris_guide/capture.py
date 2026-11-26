@@ -8,23 +8,29 @@ from __future__ import annotations
 
 import base64
 import ctypes
-from ctypes import wintypes
 from io import BytesIO
 import os
 from pathlib import Path
+import sys
+
+if sys.platform == "win32":
+    from ctypes import wintypes
+
+    class _BitmapInfoHeader(ctypes.Structure):
+        _fields_ = [("size", wintypes.DWORD), ("width", wintypes.LONG),
+                    ("height", wintypes.LONG), ("planes", wintypes.WORD),
+                    ("bits", wintypes.WORD), ("compression", wintypes.DWORD),
+                    ("image_size", wintypes.DWORD), ("xppm", wintypes.LONG),
+                    ("yppm", wintypes.LONG), ("used", wintypes.DWORD),
+                    ("important", wintypes.DWORD)]
 
 
-class _BitmapInfoHeader(ctypes.Structure):
-    _fields_ = [("size", wintypes.DWORD), ("width", wintypes.LONG),
-                ("height", wintypes.LONG), ("planes", wintypes.WORD),
-                ("bits", wintypes.WORD), ("compression", wintypes.DWORD),
-                ("image_size", wintypes.DWORD), ("xppm", wintypes.LONG),
-                ("yppm", wintypes.LONG), ("used", wintypes.DWORD),
-                ("important", wintypes.DWORD)]
-
-
-class _BitmapInfo(ctypes.Structure):
-    _fields_ = [("header", _BitmapInfoHeader), ("colors", wintypes.DWORD * 3)]
+    class _BitmapInfo(ctypes.Structure):
+        _fields_ = [("header", _BitmapInfoHeader), ("colors", wintypes.DWORD * 3)]
+else:
+    wintypes = None
+    _BitmapInfoHeader = None
+    _BitmapInfo = None
 
 
 def available() -> bool:

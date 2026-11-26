@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import ctypes
-from ctypes import wintypes
 import os
 import re
 from pathlib import Path
@@ -13,6 +12,11 @@ import sys
 import threading
 import time
 from urllib.parse import urlencode
+
+if sys.platform == "win32":
+    from ctypes import wintypes
+else:
+    wintypes = None
 
 
 ACTIVE_ROUTES: dict[str, dict] = {}
