@@ -1,0 +1,129 @@
+[
+  {
+    "id": "resource-deficit-recovery",
+    "revision": 1,
+    "title": "Recover a resource deficit",
+    "applies_to": "deficit",
+    "resources": ["food", "energy", "consumer_goods"],
+    "conditions": [
+      {"fact": "player.net.{resource}", "op": "lt", "value": 0},
+      {"fact": "resource_runway.{resource}.status", "op": "eq", "value": "depleting"}
+    ],
+    "validated_release": "4.5.2",
+    "validated_checksum": "9776",
+    "rules_status": "conditional",
+    "strategy_status": "untested",
+    "sources": [
+      {"kind": "installed-game", "ref": "common/static_modifiers/09_static_modifiers_deficit.txt"},
+      {"kind": "guide-heuristic", "ref": "stellaris_guide/strategy.py:resource_runway,resource_steps"}
+    ],
+    "trade_off": "Extra resource jobs and districts cost upkeep and may draw workers away from other production.",
+    "change_course_if": "The next autosave shows a non-negative monthly balance, or open jobs cannot be filled."
+  },
+  {
+    "id": "unstable-colony",
+    "revision": 1,
+    "title": "Stabilize an existing colony",
+    "applies_to": "colony",
+    "conditions": [
+      {"fact": "planet.recommendation.level", "op": "eq", "value": "urgent"},
+      {"any": [
+        {"fact": "planet.stability", "op": "lt", "value": 50},
+        {"fact": "planet.free_amenities", "op": "lt", "value": 0}
+      ]}
+    ],
+    "validated_release": "4.5.2",
+    "validated_checksum": "9776",
+    "rules_status": "conditional",
+    "strategy_status": "untested",
+    "sources": [
+      {"kind": "installed-game", "ref": "common/alerts.txt; common/buildings/07_amenity_buildings.txt"},
+      {"kind": "guide-heuristic", "ref": "stellaris_guide/strategy.py:make_plan"}
+    ],
+    "trade_off": "A corrective building or job change has an upkeep and opportunity cost; inspect the colony before building.",
+    "change_course_if": "Stability and amenities recover, or the colony screen shows a different cause of unrest."
+  },
+  {
+    "id": "trade-and-market-deficit",
+    "revision": 1,
+    "title": "Restore Trade balance before expanding",
+    "applies_to": "deficit",
+    "resources": ["trade"],
+    "conditions": [
+      {"fact": "player.net.{resource}", "op": "lt", "value": 0},
+      {"fact": "resource_runway.{resource}.status", "op": "eq", "value": "depleting"}
+    ],
+    "validated_release": "4.5.2",
+    "validated_checksum": "9776",
+    "rules_status": "conditional",
+    "strategy_status": "untested",
+    "sources": [
+      {"kind": "community-4.5", "ref": "Steam Guide 3829341385 (RedEye, 29 Oct 2026): 4.5 Trade upkeep and local colony deficit fees"},
+      {"kind": "guide-heuristic", "ref": "stellaris_guide/strategy.py:resource_runway,resource_steps"}
+    ],
+    "trade_off": "Adding Trade or Logistics jobs occupies pops that could produce alloys or research; Market buys incur a 30% base fee.",
+    "change_course_if": "Monthly Trade turns positive or local colony resource deficits are eliminated."
+  },
+  {
+    "id": "mineral-alloy-bottleneck",
+    "revision": 1,
+    "title": "Fix industrial mineral deficit",
+    "applies_to": "deficit",
+    "resources": ["minerals"],
+    "conditions": [
+      {"fact": "player.net.{resource}", "op": "lt", "value": 0},
+      {"fact": "resource_runway.{resource}.status", "op": "eq", "value": "depleting"}
+    ],
+    "validated_release": "4.5.2",
+    "validated_checksum": "9776",
+    "rules_status": "conditional",
+    "strategy_status": "untested",
+    "sources": [
+      {"kind": "installed-game", "ref": "common/static_modifiers/09_static_modifiers_deficit.txt"},
+      {"kind": "guide-heuristic", "ref": "stellaris_guide/strategy.py:resource_steps"}
+    ],
+    "trade_off": "Pausing construction or shifting metallurgists slows fleet growth but protects stockpiles and avoids shortage penalties.",
+    "change_course_if": "Mineral monthly balance stabilizes and mining jobs are staffed."
+  },
+  {
+    "id": "nomad-arkship-fleet",
+    "revision": 1,
+    "title": "Coordinate Nomads Arkships, Waystations, and escorts",
+    "applies_to": "fleet",
+    "required_dlcs": ["nomads"],
+    "conditions": [
+      {"fact": "player.profile.is_nomad", "op": "eq", "value": true}
+    ],
+    "validated_release": "4.5.2",
+    "validated_checksum": "9776",
+    "rules_status": "conditional",
+    "strategy_status": "untested",
+    "sources": [
+      {"kind": "official-notes", "ref": "Stellaris 4.5.2 Cygnus notes: Arkship and Waystation preference policies"},
+      {"kind": "community-4.5", "ref": "Nomads DLC Arkship fleet limits and Wayline defense guidance"}
+    ],
+    "trade_off": "Tier III Military Arkships are limited to one per fleet and Waystations need protection or cloaking along exposed Waylines.",
+    "change_course_if": "Waylines are disrupted by hostiles or Operational Reserves cannot sustain further fleet expansion."
+  },
+  {
+    "id": "fleet-apocalypse-capital",
+    "revision": 1,
+    "title": "Plan Apocalypse capital hulls and fleet auras",
+    "applies_to": "fleet",
+    "required_dlcs": ["apocalypse"],
+    "conditions": [
+      {"fact": "player.profile.is_nomad", "op": "eq", "value": false}
+    ],
+    "validated_release": "4.5.2",
+    "validated_checksum": "9776",
+    "rules_status": "conditional",
+    "strategy_status": "untested",
+    "sources": [
+      {"kind": "community-4.5", "ref": "Apocalypse Titan Perdition Beam and fleet aura guidance (verify in Ship Designer)"},
+      {"kind": "official-notes", "ref": "Stellaris 4.5.2 armor upkeep equalization"}
+    ],
+    "base_game_alternative": "Without Apocalypse, pair Cruiser/Battleship artillery cores with Flak/PD Destroyer screens.",
+    "trade_off": "Capital ships and Titans require large alloy investments, naval capacity, and escort screening against swarms.",
+    "change_course_if": "Alloy income turns negative, naval capacity is exceeded, or enemy fleets shift to high-evasion swarms."
+  }
+]

@@ -1,0 +1,99 @@
+[
+  {
+    "id": "espionage-basics",
+    "topic": "espionage",
+    "release": "4.5.2",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["Paradox Nemesis and free 3.0 espionage announcements; verify selected 4.5.2 rules in game"],
+    "steps": [
+      "Open Contacts and select the empire you want to investigate.",
+      "Open its Espionage view. If Establish Spy Network is offered, assign an envoy there.",
+      "Watch the intel and infiltration shown in game before choosing an operation; operation choices may depend on DLC and other conditions."
+    ],
+    "check": "Check the target empire's Espionage screen for the action and its requirements."
+  },
+  {
+    "id": "planet-population",
+    "topic": "population",
+    "release": "4.5.2",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["Official 4.5 Cygnus Pop Group notes; growth drivers need selected-version in-game validation"],
+    "steps": [
+      "Open the colony's Population view and inspect growth, assembly and migration progress.",
+      "Check the relevant tooltips and the colony's housing, habitability and open jobs before changing a building or policy."
+    ],
+    "check": "The save parser does not yet verify this colony's growth rate, assembly, migration or available growth actions."
+  },
+  {
+    "id": "planet-policy",
+    "topic": "policy",
+    "release": "4.5.2",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["Selected policy fields in save; eligibility must be checked in the installed 4.5.2 rules and game UI"],
+    "steps": [
+      "First decide whether you mean an empire-wide Policy or a change on this colony.",
+      "For a colony, inspect its designation, Decisions and job settings; for an empire Policy, open the Policies screen.",
+      "Check the listed effects and eligibility in game before changing anything."
+    ],
+    "check": "The Guide reads selected policies, but cannot prove an alternative policy or planetary decision is available."
+  },
+  {
+    "id": "planet-economy",
+    "topic": "planet_economy",
+    "release": "4.5.2",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["Selected-save colony produces, upkeep and jobs; local in-game totals need reconciliation"],
+    "steps": [
+      "Compare this colony's production and upkeep with the resource your empire needs most.",
+      "Inspect open and disabled jobs before adding another district or building."
+    ],
+    "check": "The saved colony figures may omit modifiers or not match every number shown in the game UI."
+  },
+  {
+    "id": "trade-and-storage",
+    "topic": "trade_storage",
+    "release": "4.5.2",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["Steam Guide 3829341385 (RedEye, 29 Oct 2026, 4.5.2) — verify exact caps and fees in installed defines"],
+    "steps": [
+      "Keep monthly Trade positive before expanding; Trade pays logistics upkeep, covers local colony resource deficits, and funds Market purchases.",
+      "Treat Market purchases as a short-term runway bridge because the base Market fee starts at 30%.",
+      "Watch storage caps (15,000 base per material resource, 50,000 Trade, 1,000 Influence) so surplus production is not wasted."
+    ],
+    "check": "Confirm your current Market fee, storage caps, and local colony deficits in the in-game Economy and Market screens."
+  },
+  {
+    "id": "nomads-mechanics",
+    "topic": "nomads",
+    "release": "4.5.2",
+    "rule_status": "conditional",
+    "required_dlc": ["Nomads"],
+    "sources": ["Official Stellaris 4.5.0/4.5.2 Cygnus notes and Nomads DLC documentation"],
+    "steps": [
+      "Manage onboard colonies, Governors, and Captains directly on your Arkships rather than looking for fixed planets.",
+      "Survey systems and place Waystations to connect Waylines and sustain Operational Reserves; defend exposed Waystations from fauna and raiders.",
+      "Check Weapon Preferences (Arkships) and Defense Preferences (Waystations) in Policies instead of settled starbase policies."
+    ],
+    "check": "Confirm Arkship slots, Wayline connectivity, and active Nomad policies in game."
+  },
+  {
+    "id": "willpower-ideologies",
+    "topic": "ideologies",
+    "release": "4.6.0",
+    "min_release": "4.6.0",
+    "rule_status": "conditional",
+    "required_dlc": ["Willpower"],
+    "sources": ["Stellaris 4.6 Corona Borealis & Willpower expansion notes — verify exact save fields in a 4.6 save"],
+    "steps": [
+      "Check your Fanatic Faction's approval, Ideological Momentum, and ongoing Influence cost before adopting or pushing an Ideology.",
+      "Expand Ideological Reach using Starbases, Ideological Beacons (and Hyper Relays if Overlord is active), and position Galactic Halls over key colonies.",
+      "For Gestalt empires with Willpower, review Gestalt Directives rather than standard pop factions."
+    ],
+    "check": "Confirm Ideologies are enabled in this campaign's galaxy settings and verify current Momentum, Tenets, and Influence upkeep in game."
+  }
+]

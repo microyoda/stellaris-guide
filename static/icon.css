@@ -1,0 +1,6 @@
+.brand-mark img,
+.chat-avatar img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}

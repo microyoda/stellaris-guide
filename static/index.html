@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stellaris Guide</title>
+  <link rel="icon" type="image/png" href="/assets/stellaris-guide-icon.png">
+  <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/icon.css">
+<link rel="stylesheet" href="/v15.css">
+  <link rel="stylesheet" href="/tech-overview.css">
+  <link rel="stylesheet" href="/fleet.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark"><img src="/assets/stellaris-guide-icon.png" alt=""></span><div><strong>STELLARIS GUIDE</strong><small>The clearer way forward</small><span class="version-tag" aria-label="Stellaris Guide version 1.6.4">v1.6.4</span></div></div>
+      <nav class="tabs" aria-label="Dashboard pages">
+        <button class="tab active" data-view="main"><span>⌂</span><div><strong>Main</strong><small>Decisions & trends</small></div></button>
+        <button class="tab" data-view="planets"><span>◉</span><div><strong>Planets</strong><small>Colony build guide</small></div><b id="planet-badge"></b></button>
+        <button class="tab" data-view="empires"><span>◎</span><div><strong>Empires</strong><small>Rivals & intel</small></div></button>
+        <button class="tab" data-view="tech"><span>⌬</span><div><strong>Tech Tree</strong><small>Research choices</small></div></button>
+        <button class="tab" data-view="ships"><span>◇</span><div><strong>Fleet</strong><small>Ships &amp; designs</small></div></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sync-card"><span class="pulse"></span><div><strong id="sync-title">Checking saves…</strong><small id="sync-detail">Automatic every 15 seconds</small></div></div>
+        <button id="feedback-btn" class="side-action" type="button">✦ Share feedback</button>
+        <button id="settings-btn" class="side-action">⚙ Settings</button>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div class="campaign-heading"><img id="empire-flag" class="empire-flag" alt="Empire flag" hidden><div><span id="campaign-label" class="eyebrow">YOUR CAMPAIGN</span><h1 id="page-title">Your command center</h1><p id="page-subtitle">Clear priorities from your latest autosave.</p></div></div>
+        <div class="top-actions"><span id="game-date" class="date-chip">—</span><button id="refresh-btn" class="icon-button" title="Check the save folder now" aria-label="Refresh now">↻</button></div>
+        <div id="watchlist-ticker" class="watchlist-ticker" role="region" aria-label="Watchlist" hidden>
+          <span class="ticker-label">WATCHLIST <span id="watchlist-position"></span></span>
+          <div id="watchlist-current" class="ticker-current"></div>
+          <div class="ticker-controls"><button id="watchlist-prev" type="button" aria-label="Previous watchlist item">‹</button><button id="watchlist-next" type="button" aria-label="Next watchlist item">›</button></div>
+        </div>
+      </header>
+
+      <section class="indicators" aria-label="Campaign indicators">
+        <article><span>Energy / month</span><strong id="metric-energy">—</strong><small id="stock-energy">stock —</small></article>
+        <article><span>Alloys / month</span><strong id="metric-alloys">—</strong><small id="stock-alloys">stock —</small></article>
+        <article><span>Fleet power</span><strong id="metric-fleet">—</strong><small id="metric-naval">naval use —</small></article>
+        <article><span>Colonies</span><strong id="metric-colonies">—</strong><small id="metric-size">empire size —</small></article>
+      </section>
+
+      <details id="empire-health" class="empire-health panel" aria-label="Your empire health">
+        <summary class="panel-head"><div><span class="eyebrow">YOUR EMPIRE</span><h2>At a glance</h2></div><span id="health-preview" class="health-preview"></span><span id="spoiler-banner" class="spoiler-banner" hidden>Spoiler mode ON</span></summary>
+        <div id="health-groups" class="health-groups"></div>
+      </details>
+      <div id="notice" class="notice" hidden></div>
+
+      <section id="view-main" class="view active">
+        <article class="panel priority-panel"><div class="panel-head"><div><span class="eyebrow">NEXT 5–10 YEARS</span><h2>Your next moves</h2></div><span id="plan-window" class="tag"></span></div><div id="critical-risk" class="critical-risk" role="alert" hidden></div><div id="pin-notice" class="pin-notice" hidden></div><div id="goals" class="goal-list"></div></article>
+        <div class="grid two lower-grid">
+          <article class="panel chart-panel"><div class="panel-head"><div><span class="eyebrow">YOUR MOMENTUM</span><h2>Campaign trend</h2></div><div id="trend-switch" class="segmented"><button class="active" data-metric="military">Fleet</button><button data-metric="economy">Economy</button><button data-metric="technology">Science</button></div></div><svg id="trend-chart" viewBox="0 0 700 260" role="img" aria-label="Campaign trend chart"></svg><small>Based on saved snapshots. This does not predict the future.</small></article>
+          <article class="panel galaxy-panel"><div class="panel-head"><div><span class="eyebrow violet">KNOWN GALAXY</span><h2>Other empires</h2></div></div>
+            <div id="galaxy-tabs" class="empire-graph-tabs" role="tablist" aria-label="Known galaxy comparison"><button type="button" class="active" data-galaxy-metric="military" role="tab" aria-selected="true">Military</button><button type="button" data-galaxy-metric="economy" role="tab" aria-selected="false">Economy</button><button type="button" data-galaxy-metric="technology" role="tab" aria-selected="false">Technology</button><button type="button" data-galaxy-metric="opinion" role="tab" aria-selected="false">Opinion</button></div>
+            <div id="galaxy-summary" class="galaxy-summary"></div><div id="empires" class="galaxy-rankings"></div><small id="galaxy-note" class="galaxy-note"></small><button class="text-action" id="open-empires" type="button">Explore empires →</button>
+          </article>
+        </div>
+      </section>
+
+      <section id="view-planets" class="view">
+        <div class="split-view">
+          <article class="panel list-panel"><div class="panel-head"><div><span class="eyebrow">YOUR COLONIES</span><h2>Build priority</h2></div><span id="planet-count" class="tag"></span></div><div id="planet-list" class="select-list"></div></article>
+          <article id="planet-detail" class="panel detail-panel"></article>
+        </div>
+      </section>
+
+      <section id="view-empires" class="view">
+        <div class="empire-category-tabs" id="empire-category-tabs" role="tablist" aria-label="Empire comparisons">
+          <button data-category="military" class="active">Military</button><button data-category="economy">Economy</button><button data-category="technology">Technology</button><button data-category="diplomacy">Diplomacy</button><button data-category="intel">Intel</button>
+        </div>
+        <div class="split-view">
+          <article class="panel list-panel"><div class="panel-head"><div><span class="eyebrow">KNOWN GALAXY</span><h2>Compare empires</h2></div></div><div id="empire-list" class="select-list"></div></article>
+          <article id="empire-detail" class="panel detail-panel"></article>
+        </div>
+      </section>
+
+      <section id="view-tech" class="view">
+        <div class="research-slots-title"><div><span class="eyebrow">RESEARCH SLOTS</span><h2>Your current research choices</h2></div><p>Choose a card or tier gate to explore what comes next.</p></div>
+        <p id="tech-route-status" role="status"></p>
+        <div id="tech-branches" class="tech-grid"></div>
+        <article class="panel explainer"><span class="eyebrow">HOW TO USE THIS</span><h2>Choose for the next bottleneck</h2><p>Research cards are recorded from your selected save. The route shows installed base-game prerequisites. A tier count or completed arrow does not guarantee the game will offer a particular technology.</p></article>
+      </section>
+
+      <section id="view-ships" class="view">
+        <div id="fleet-dashboard"></div>
+      </section>
+    </main>
+
+    <aside class="chat-rail">
+      <div class="chat-head"><div class="chat-avatar"><img src="/assets/stellaris-guide-icon.png" alt=""></div><div><strong>Campaign guide</strong><small id="provider-label">Built-in guide</small></div><div class="history-wrap"><button id="history-toggle" class="history-toggle" type="button" aria-expanded="false" aria-controls="question-history">History</button><div id="question-history" class="history-panel" hidden><div class="history-head"><strong>Previous questions</strong><button id="clear-history" type="button">Clear</button></div><div id="history-content" class="history-content"></div><small>Questions stay on this PC. Screenshots are not saved.</small></div></div><span class="online-dot"></span></div>
+      <div id="quick-actions" class="quick-actions"></div>
+      <div id="chat-log" class="chat-log" aria-live="polite"><div class="message assistant">Your latest save will appear here. Ask about the page you are viewing.</div></div>
+      <div id="command-menu" class="command-menu" hidden><button data-command="/ask "><strong>/ask</strong><small>Ask about this campaign</small><kbd>Tab</kbd></button></div>
+      <div id="attachment-preview" class="attachment-preview" hidden><img id="attachment-image" alt="Selected screenshot preview"><span>Screenshot ready</span><button id="remove-attachment" type="button" aria-label="Remove screenshot">×</button></div>
+      <form id="ask-form" class="ask-form"><label class="sr-only" for="question">Ask the campaign guide</label><textarea id="question" rows="1" maxlength="1000" placeholder="Type /ask or ask normally…"></textarea><button id="capture-btn" class="capture-btn" type="button" title="Capture a screenshot" aria-label="Capture a screenshot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button><button id="send-btn" class="send-btn" type="submit" aria-label="Send question">↗</button></form>
+      <small id="chat-hint" class="chat-hint"><kbd>Tab</kbd> completes a command · <kbd>Enter</kbd> sends</small>
+    </aside>
+  </div>
+
+  <div id="settings-overlay" class="overlay" hidden>
+    <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="drawer-head"><div><span class="eyebrow">YOUR SETUP</span><h2 id="settings-title">Settings</h2></div><button id="close-settings" class="icon-button" aria-label="Close settings">×</button></div>
+      <p>Stellaris Guide reads saves locally and never changes them.</p>
+      <form id="settings-form">
+        <label for="save-folder">Stellaris save folder</label><div class="path-row"><input id="save-folder"><button id="browse-folder" type="button">Browse…</button></div>
+        <label for="game-folder">Stellaris game folder (optional artwork)</label><input id="game-folder" placeholder="Steam\steamapps\common\Stellaris"><small>Leave blank if you only want save analysis. The guide reads images from your installed game.</small>
+        <small>Usually Documents → Paradox Interactive → Stellaris → save games.</small>
+        <hr>
+        <label for="provider">Chat brain</label><select id="provider"><option value="off">Built-in guide — no setup</option><option value="ollama">Ollama — local AI</option><option value="lmstudio">LM Studio — local AI</option><option value="openrouter">OpenRouter — online AI</option></select>
+        <label for="model">Model name or ID</label><input id="model" placeholder="Example: llama3.2 or provider/model:free"><small id="model-help"></small>
+        <div id="key-wrap" hidden><label for="api-key">OpenRouter API key</label><input id="api-key" type="password" autocomplete="off" placeholder="Kept only for this app session"><small>Your question, compact save summary, and any screenshot you attach are sent to OpenRouter when you ask.</small></div>
+        <div id="settings-error" class="form-error" role="alert"></div>
+        <button class="primary-button" type="submit">Save settings</button>
+      </form>
+      <div class="spoiler-setting"><label class="setting-check"><input id="spoiler-toggle" type="checkbox"><span><strong>Show hidden save information (spoilers)</strong><small>Reveals data you may not know in game. For safety, turns off when the selected save changes, including the next autosave.</small></span></label></div>
+      <div class="privacy-card"><strong>Save files stay on your PC</strong><p>Question history is saved locally without images. A screenshot is sent only when you press Send: to your local Ollama or LM Studio model, or to OpenRouter if selected.</p></div>
+      <button id="quit-btn" class="danger-button" type="button">Quit Stellaris Guide</button>
+    </div>
+  </div>
+    <div id="feedback-overlay" class="overlay" hidden>
+      <div class="drawer feedback-drawer" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
+        <div class="drawer-head"><div><span class="eyebrow">HELP US IMPROVE</span><h2 id="feedback-title">Was this guide useful?</h2></div><button id="close-feedback" class="icon-button" type="button" aria-label="Close feedback">×</button></div>
+        <p>Your feedback stays on this PC for now. No save file, screenshot, or account is sent.</p>
+        <form id="feedback-form">
+          <div class="feedback-rating"><button type="button" data-feedback-rating="useful">Useful</button><button type="button" data-feedback-rating="not_useful">Not useful</button></div>
+          <input id="feedback-rating" type="hidden">
+          <label for="feedback-reason">What best describes it? <span>(optional)</span></label>
+          <select id="feedback-reason"><option value="">Choose one</option><option value="helpful">Helpful and clear</option><option value="incorrect">Some facts seemed incorrect</option><option value="unclear">I did not understand the advice</option><option value="too_generic">Too generic</option><option value="missing_context">Missing campaign context</option></select>
+          <label for="feedback-comment">Anything else? <span>(optional)</span></label>
+          <textarea id="feedback-comment" maxlength="500" rows="5" placeholder="Tell us what would make this better…"></textarea>
+          <div id="feedback-error" class="form-error" role="alert"></div><button class="primary-button" type="submit">Save feedback</button>
+        </form>
+      </div>
+    </div>
+    <div id="screenshot-overlay" class="overlay screenshot-overlay" hidden>
+    <div class="screenshot-dialog" role="dialog" aria-modal="true" aria-labelledby="screenshot-title">
+      <div class="screenshot-dialog-head"><div><span class="eyebrow">SCREENSHOT</span><h2 id="screenshot-title">Select the area to ask about</h2></div><button id="close-screenshot" class="icon-button" type="button" aria-label="Cancel screenshot">×</button></div>
+      <p>Drag across the game area. Only the selected region is attached when you send your question.</p>
+      <div id="capture-stage" class="capture-stage"><canvas id="capture-canvas" aria-label="Captured screen; drag to select a region"></canvas><div id="crop-selection" class="crop-selection" hidden></div></div>
+      <div class="screenshot-actions"><button id="use-full-screenshot" type="button">Use full image</button><button id="use-crop" type="button" disabled>Use selected region</button></div>
+    </div>
+  </div>
+
+  <div id="spoiler-overlay" class="overlay" hidden><div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="spoiler-title">
+    <span class="eyebrow coral">SPOILER WARNING</span><h2 id="spoiler-title">Reveal hidden save information?</h2>
+    <p>Save files may reveal other empires' resources, technology, plans, and unexplored galaxy details before you discover them in game. Seeing these can reduce the fun of exploration and strategy. Consent applies only to the currently selected save and turns off after the next autosave.</p>
+    <label class="setting-check"><input id="spoiler-ack" type="checkbox"><span>I understand this may spoil my game.</span></label>
+    <div class="confirm-actions"><button id="spoiler-cancel" type="button">Cancel</button><button id="spoiler-enable" class="primary-button" type="button" disabled>Enable spoilers</button></div>
+  </div></div>
+  <div id="capture-choice-overlay" class="overlay" hidden><div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="capture-choice-title">
+    <div class="screenshot-dialog-head"><div><span class="eyebrow">CAMERA</span><h2 id="capture-choice-title">Choose what to capture</h2></div><button id="close-capture-choice" class="icon-button" type="button" aria-label="Cancel capture">×</button></div>
+    <p id="capture-choice-hint">Stellaris was not found. Choose another window or your entire screen.</p><div id="capture-choices" class="capture-choices"></div>
+  </div></div>
+  <script src="/tech-overview.js"></script>
+  <script src="/fleet.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

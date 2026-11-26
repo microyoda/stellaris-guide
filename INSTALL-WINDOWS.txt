@@ -1,0 +1,47 @@
+STELLARIS GUIDE 1.6.4 — WINDOWS
+
+1. Right-click StellarisGuide-Windows-1.6.4.zip and choose Extract All.
+2. Open the extracted folder. Double-click StellarisGuide.exe. No mod, Node,
+   terminal, or AI account is needed. Check the badge says v1.6.4.
+3. Open Stellaris 4.5.2 Cygnus and load your campaign. The Guide reads the
+   newest save in your chosen save folder every 15 seconds. Click the round
+   refresh button to check now. It never changes your save.
+4. If the wrong campaign appears, open Settings and choose its save folder.
+   The usual location is Documents\Paradox Interactive\Stellaris\save games.
+   Save your desired campaign in Stellaris, then refresh the Guide.
+
+START OFFLINE
+The built-in guide, next moves, planets, empire view, technology choices and
+ship advice work without the internet. Main shows a pinned campaign goal and
+any serious resource warning. Expand a goal to see how to make progress.
+
+TECHNOLOGY ROUTE
+On Tech Tree, choose a target and click Explore route. A separate Microsoft
+Edge window shows completed, current and possible prerequisites. Its Close
+button closes that route window. If Edge is missing, the main Guide still
+works, but Explore route cannot open. A route marked Limited means the game
+version, DLC, mods, or some rules could not be verified; check Stellaris before
+spending research. This release is checked against 4.5.2 Cygnus; later game
+versions need a new compatibility check.
+
+OPTIONAL AI AND CAMERA
+In Settings you may choose Ollama, LM Studio, or OpenRouter. These are optional.
+For screenshots, choose an image-capable model. The camera first tries the
+Stellaris window; if unavailable, choose another window or the whole screen.
+Select the region, then press Send. OpenRouter receives your question, a
+relevant summary from the selected save, and any attached image online.
+Local models keep them on your PC. If a model fails, text
+questions use the built-in guide; screenshot questions say the image was not
+analyzed. Check AI suggestions in game.
+
+HIDDEN INFORMATION
+Settings has Show hidden save information (spoilers). It starts off and needs
+two confirmations. It turns off again when the selected save changes,
+including the next autosave. This prevents a new campaign from inheriting
+permission. While off, rival details the player cannot verify stay Unknown.
+
+REOPEN OR QUIT
+Closing the browser leaves the Guide running. Right-click its icon near the
+Windows clock (click ^ if hidden) to reopen, refresh, or quit. You can also
+open Settings and click Quit Stellaris Guide. An older release may run beside
+v1.6.4; quit the older icon when you no longer need it.

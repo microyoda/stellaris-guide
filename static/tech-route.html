@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stellaris Guide · Research route</title>
+  <link rel="stylesheet" href="/tech-route.css">
+  <script src="/tech-route.js" defer></script>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div><span class="eyebrow">STELLARIS GUIDE · V1.6.2</span><h1>How do I get there?</h1>
+        <p>Pick a technology. Follow its prerequisite branches and see what to check next.</p></div>
+      <button id="close-route" class="button ghost" type="button">Close route window</button>
+    </header>
+    <div class="chips"><span id="save-context" class="chip">Reading selected save…</span><span id="route-status" class="chip">Loading route…</span></div>
+    <p id="message" role="status"></p>
+
+    <section class="chooser panel">
+      <div class="section-head"><div><span class="eyebrow">YOUR GOAL</span><h2>What do you want to unlock?</h2></div>
+        <label class="search-label">Find a technology <input id="target-search" type="search" placeholder="Search by name or ID" autocomplete="off"></label></div>
+      <div id="goal-cards" class="goal-cards"></div>
+      <label class="target-picker">All installed technologies <select id="target-select" aria-label="Choose technology"></select></label>
+    </section>
+
+    <div id="route-content" hidden>
+      <section class="hero">
+        <div class="panel target"><div class="target-art"><img id="target-icon" alt="" hidden><span id="target-fallback">✦</span></div>
+          <div class="target-copy"><span class="eyebrow">FOCUSED TARGET</span><h2 id="route-title"></h2><p id="route-meta"></p><p id="target-description" class="detail-explanation"></p><p id="target-benefit" class="detail-explanation"></p>
+            <p id="route-warning" class="warning" hidden></p><div id="route-progress" class="progress-label"></div><div class="progress-track"><span id="route-progress-bar"></span></div></div></div>
+        <div class="panel next"><span class="eyebrow">YOUR NEXT MOVE</span><h2>Do this next</h2><ol id="next-actions"></ol></div>
+      </section>
+
+      <section id="next-tech-section" class="panel next-tech" hidden>
+        <div class="section-head"><div><span class="eyebrow">AFTER THIS RESEARCH</span><h2>What it leads toward</h2></div></div>
+        <p class="next-tech-note">These are dependency links from installed game rules, not guaranteed research cards. Other prerequisites, tier gates, DLC, mods and research draws can still apply.</p>
+        <div class="next-tech-groups">
+          <div><h3>Next step</h3><div id="next-tech-direct" class="next-tech-list"></div></div>
+          <div><h3>One step further</h3><div id="next-tech-later" class="next-tech-list"></div></div>
+        </div>
+      </section>
+
+      <section id="future-section" class="panel next-tech" hidden>
+        <div class="section-head"><div><span class="eyebrow">POSSIBLE FUTURE PATHS</span><h2>Where this research could lead</h2></div></div>
+        <p class="next-tech-note">These links come from installed base-game definitions. Other prerequisites, tier gates, DLC, mods and research draws can still block a card. Select one to inspect its own route.</p>
+        <div id="future-list" class="future-list"></div>
+      </section>
+
+      <section class="panel map-panel"><div class="section-head"><div><span class="eyebrow">RESEARCH PATH</span><h2 id="map-title">Your route</h2></div>
+        <div class="legend"><span><i class="dot done"></i>Researched</span><span><i class="dot now"></i>Researching</span><span><i class="dot card"></i>On your cards</span><span><i class="dot pending"></i>Prerequisites met</span><span><i class="dot blocked"></i>Blocked</span></div></div>
+        <div class="map-layout"><div id="route-map-scroll" class="map-scroll"><div id="route-map" class="route-map"></div></div>
+          <aside id="tech-detail" class="tech-detail"><h3>Select a technology</h3><p>Click any card in the route to inspect its requirements.</p></aside></div>
+      </section>
+
+      <section class="lower"><div class="panel"><span class="eyebrow">PROGRESS</span><h2>Route checklist</h2><ol id="route-checklist" class="checklist"></ol></div>
+        <div class="panel"><span class="eyebrow">RESEARCH TIERS</span><h2>Tier gates on this route</h2><div id="route-gates"></div></div>
+        <details class="panel" open><summary>Why isn't the goal on my cards?</summary><p>Research cards are drawn by the game. Prerequisites and a tier gate are only part of eligibility. Other game rules, DLC, events, and mods can affect a draw. Check the in-game research screen.</p></details></section>
+      <p class="footnote">Names and technology artwork come from the installed game when available. Routes use the selected save and matching base-game definitions; active mod rules may remain unverified.</p>
+    </div>
+  </main>
+</body>
+</html>
