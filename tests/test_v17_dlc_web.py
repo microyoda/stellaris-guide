@@ -10,6 +10,7 @@ import zipfile
 from pathlib import Path
 
 from scripts.build_web import build_web
+from scripts.verify_guidelines import audit_game_dir, export_tech_graph, reconcile_save
 from stellaris_guide.advice import answer_question
 from stellaris_guide.dlcs import (
     active_dlcs,
@@ -27,6 +28,8 @@ from stellaris_guide.web_bridge import (
     ask_builtin,
     build_demo_state,
     reproject_current_save,
+    web_route_for_target,
+    web_route_targets,
 )
 
 
@@ -337,12 +340,56 @@ class WebBridgeAndBuildTests(unittest.TestCase):
             py_dir = out / "py" / "stellaris_guide"
             self.assertTrue((py_dir / "dlcs.py").is_file())
             self.assertTrue((py_dir / "web_bridge.py").is_file())
+            self.assertTrue((py_dir / "tech_graph.json").is_file())
+            self.assertTrue((out / "art.js").is_file())
             for forbidden in ("capture.py", "tray.py", "route_window.py", "server.py", "chat_evidence.py"):
                 self.assertFalse((py_dir / forbidden).exists())
             bundle = json.loads((out / "demo-snapshots.json").read_text(encoding="utf-8"))
             self.assertIn("une-452", bundle["states"])
             self.assertIn("nomads-452", bundle["states"])
             self.assertIn("willpower-460", bundle["states"])
+
+    def test_web_tech_route_explorer_and_verifier_script(self):
+        demo = build_demo_state("une-452")
+        snap = demo["snapshot"]
+        # Overview labels and Tier 2 gates are populated in web mode.
+        self.assertIn("overview", snap["technology"])
+        self.assertIn("tech_cruisers", snap["technology"]["overview"]["labels"])
+        route = web_route_for_target(snap, "tech_mega_engineering")
+        self.assertEqual(route["name"], "Mega-Engineering")
+        step_ids = [s["id"] for s in route["steps"]]
+        self.assertIn("tech_zero_point_power", step_ids)
+        self.assertTrue(route["one_of"])
+        # Missing DLC tech reports not_listed cleanly.
+        nomad_route = web_route_for_target(snap, "tech_arkship_mastery")
+        self.assertEqual(nomad_route["dlc"][0]["status"], "not_listed")
+        # Unknown tech degrades honestly without crashing.
+        unknown = web_route_for_target(snap, "tech_modded_mystery")
+        self.assertEqual(unknown["status"], "unknown")
+        self.assertTrue(len(web_route_targets(snap)) >= 50)
+
+        # Verify scripts/verify_guidelines.py against synthetic game dir + save.
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "launcher-settings.json").write_text(json.dumps({"version": "Cygnus v4.5.2 (9776)"}))
+            tech_dir = root / "common" / "technology"
+            tech_dir.mkdir(parents=True)
+            (tech_dir / "00_test.txt").write_text(
+                'tech_alpha = { area = physics tier = 1 }\n'
+                'tech_beta = { area = physics tier = 2 prerequisites = { tech_alpha } potential = { has_overlord_dlc = yes } }\n'
+            )
+            audit = audit_game_dir(root)
+            self.assertEqual(audit["checksum"], "9776")
+            out_graph = root / "exported_graph.json"
+            exported = export_tech_graph(root, out_graph)
+            self.assertEqual(exported["exported_techs"], 2)
+            graph_data = json.loads(out_graph.read_text(encoding="utf-8"))
+            self.assertEqual(graph_data["rules"]["tech_beta"]["required_dlc"], ["overlord"])
+            sav_path = root / "autosave.sav"
+            sav_path.write_bytes(make_sav_bytes(SAMPLE_META_452, SAMPLE_GAME_MACHINE))
+            rec = reconcile_save(sav_path)
+            self.assertEqual(rec["empire"], "Machine Collective")
+            self.assertTrue(rec["profile"]["is_machine"])
 
 
 if __name__ == "__main__":

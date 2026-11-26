@@ -14,6 +14,7 @@ let empireCategory = 'military';
 let selectedShip = null;
 let techRouteWindow = null;
 let flagStamp = '';
+let lastRenderKey = '';
 let questionHistory = {recent:[], frequent:[]};
 let attachedImage = null;
 let cropOrigin = null;
@@ -140,22 +141,25 @@ function renderMain(snapshot, advice) {
   $('critical-risk').textContent = risk.length ? `Resource stock risk: ${risk.map(([key, cover]) => `${key.replaceAll('_',' ')} about ${number(cover.months)} months cover`).join('; ')} at the saved rate. Check the current in-game balance.` : '';
   $('pin-notice').hidden = !dormant;
   $('pin-notice').innerHTML = dormant ? `Pinned goal “${esc(pin.title)}” is unavailable in the latest save. The current suggestion stays first. <button type="button" id="clear-dormant-pin">Clear pin</button>` : '';
-  const expandedGoals = new Set([...document.querySelectorAll('#goals .goal-actions[open]')].map(item => item.dataset.goalKey));
+  const expandedDetails = new Set([...document.querySelectorAll('#goals details[open][data-detail-key]')].map(item => item.dataset.detailKey));
   $('goals').innerHTML = goals.length ? goals.map((goal, index) => {
     const progress = goal.progress || {};
     const percent = Math.max(0, Math.min(100, Number(progress.percent || 0)));
     const steps = goal.steps || [];
+    const pbKey = `pb:${goal.key}`;
+    const actKey = `act:${goal.key}`;
+    const moreKey = `more:${goal.key}`;
     return `<div class="goal ${index === 0 ? 'lead-goal' : 'support-goal'}"><span class="number">${index + 1}</span><div class="goal-body">
       ${index === 0 ? `<span class="eyebrow">${pin && pin.key === goal.key ? 'PINNED CAMPAIGN FOCUS' : 'SUGGESTED FOCUS'}</span>` : ''}
       <div class="goal-heading"><strong>${esc(goal.title)}</strong>${campaignPinId(snapshot) ? `<button type="button" class="goal-pin" data-pin-goal="${esc(goal.key)}" aria-pressed="${Boolean(pin && pin.key === goal.key)}">${pin && pin.key === goal.key ? 'Pinned' : 'Pin goal'}</button>` : ''}</div><p>${esc(goal.detail)}</p><small class="goal-priority">${esc(goal.rank_reason || '')}</small>
-      ${goal.playbook ? `<details class="goal-playbook"><summary>Strategy playbook · ${esc(goal.playbook.match === 'matched' ? 'Conditions match' : 'Check missing facts')} · Rules: ${esc(goal.playbook.rules_status)} · Strategy: ${esc(goal.playbook.strategy_status)}</summary><p>${esc(goal.playbook.rules_status === 'needs recheck' ? 'This playbook was checked for a different game version or checksum. Verify it against your current game before using it.' : goal.playbook.match === 'investigate' ? 'The save lacks a fact needed to confirm this playbook. Check the situation in game first.' : goal.playbook.title)}</p>${goal.playbook.rules_status === 'conditional' ? '<p>Rule details may vary with your game or mods. Confirm in game.</p>' : ''}${goal.playbook.strategy_status === 'untested' ? '<p>This strategy has not yet been validated as an effective build.</p>' : ''}<p>Trade-off: ${esc(goal.playbook.trade_off)}</p><p>Change course if: ${esc(goal.playbook.change_course_if)}</p><small>Checked against ${esc(goal.playbook.validated_release)} · ${esc(goal.playbook.id)} rev ${esc(goal.playbook.revision)}</small><small>Sources: ${(goal.playbook.sources || []).map(source => `${esc(source.kind)} (${esc(source.ref)})`).join('; ')}</small></details>` : ''}
+      ${goal.playbook ? `<details class="goal-playbook" data-detail-key="${esc(pbKey)}" ${expandedDetails.has(pbKey) ? 'open' : ''}><summary>Strategy playbook · ${esc(goal.playbook.match === 'matched' ? 'Conditions match' : 'Check missing facts')} · Rules: ${esc(goal.playbook.rules_status)} · Strategy: ${esc(goal.playbook.strategy_status)}</summary><p>${esc(goal.playbook.rules_status === 'needs recheck' ? 'This playbook was checked for a different game version or checksum. Verify it against your current game before using it.' : goal.playbook.match === 'investigate' ? 'The save lacks a fact needed to confirm this playbook. Check the situation in game first.' : goal.playbook.title)}</p>${goal.playbook.rules_status === 'conditional' ? '<p>Rule details may vary with your game or mods. Confirm in game.</p>' : ''}${goal.playbook.strategy_status === 'untested' ? '<p>This strategy has not yet been validated as an effective build.</p>' : ''}<p>Trade-off: ${esc(goal.playbook.trade_off)}</p><p>Change course if: ${esc(goal.playbook.change_course_if)}</p><small>Checked against ${esc(goal.playbook.validated_release)} · ${esc(goal.playbook.id)} rev ${esc(goal.playbook.revision)}</small><small>Sources: ${(goal.playbook.sources || []).map(source => `${esc(source.kind)} (${esc(source.ref)})`).join('; ')}</small></details>` : ''}
       <div class="goal-progress"><span>Progress ${esc(progress.label || 'check next autosave')}</span><b>${percent}%</b></div>
       <div class="goal-progress-track"><i style="width:${percent}%"></i></div>
-      ${steps.length ? `<details class="goal-actions" data-goal-key="${esc(goal.key)}" ${expandedGoals.has(goal.key) ? 'open' : ''}>
+      ${steps.length ? `<details class="goal-actions" data-goal-key="${esc(goal.key)}" data-detail-key="${esc(actKey)}" ${expandedDetails.has(actKey) ? 'open' : ''}>
         <summary>How to achieve this <span>${steps.length} ${steps.length === 1 ? 'step' : 'steps'}</span></summary>
         <div class="goal-steps">
-        ${steps.slice(0, 2).map((step, i) => `<div class="goal-step"><b>${i+1}</b><div><strong>${esc(step.action)}</strong><details><summary>Why and what to check</summary><small>${esc(step.reason)}</small><em>Check: ${esc(step.check)}</em></details></div></div>`).join('')}
-        ${steps.length > 2 ? `<details><summary>Show ${steps.length - 2} more step(s)</summary>${steps.slice(2).map(step => `<p>${esc(step.action)} ${esc(step.check)}</p>`).join('')}</details>` : ''}
+        ${steps.slice(0, 2).map((step, i) => { const stepKey = `step:${goal.key}:${i}`; return `<div class="goal-step"><b>${i+1}</b><div><strong>${esc(step.action)}</strong><details data-detail-key="${esc(stepKey)}" ${expandedDetails.has(stepKey) ? 'open' : ''}><summary>Why and what to check</summary><small>${esc(step.reason)}</small><em>Check: ${esc(step.check)}</em></details></div></div>`; }).join('')}
+        ${steps.length > 2 ? `<details data-detail-key="${esc(moreKey)}" ${expandedDetails.has(moreKey) ? 'open' : ''}><summary>Show ${steps.length - 2} more step(s)</summary>${steps.slice(2).map(step => `<p>${esc(step.action)} ${esc(step.check)}</p>`).join('')}</details>` : ''}
         </div></details>` : ''}</div><time>BY ${esc(goal.due)}</time></div>`;
   }).join('') : '<div class="empty">No plan is available from this save yet.</div>';
   watchlistItems = advice?.alerts || [];
@@ -303,7 +307,8 @@ function renderPlanets(snapshot) {
   if (!planet) { $('planet-detail').innerHTML = '<div class="empty">Choose a colony to see its details.</div>'; return; }
   const rec = planet.recommendation;
   const profitEntries = Object.entries(planet.profits || {}).filter(([,v]) => v !== 0).slice(0,8);
-  const planetArt = window.STELLARIS_WEB_MODE ? '' : `<img src="/api/planet-icon?id=${encodeURIComponent(planet.class_key || '')}" alt="" onerror="this.hidden=true">`;
+  const planetSvg = window.StellarisArt?.planetSvg ? window.StellarisArt.planetSvg(planet.class_key || planet.class) : '';
+  const planetArt = window.STELLARIS_WEB_MODE ? planetSvg : `<img src="/api/planet-icon?id=${encodeURIComponent(planet.class_key || '')}" alt="" onerror="this.hidden=true">${planetSvg}`;
   $('planet-detail').innerHTML = `<div class="detail-hero"><div><span class="eyebrow">COLONY ${planet.id}</span><h2>${esc(planet.name)}</h2><p>${esc(planet.class)} · Size ${planet.size_known ? number(planet.size) : 'unknown'} · ${esc(planet.designation)}${planet.system ? ` · ${esc(planet.system)} system` : ''}</p></div><div class="planet-orb">${planetArt}</div></div>` +
     `<div class="detail-stats"><div><span>Stability</span><strong class="${planet.stability < 50 ? 'negative' : ''}">${number(planet.stability)}%</strong></div><div><span>Population</span><strong>${number(planet.pops)}</strong></div><div><span>Free housing</span><strong class="${planet.free_housing < 2 ? 'negative' : ''}">${signed(planet.free_housing)}</strong></div><div><span>Free amenities</span><strong class="${planet.free_amenities < 0 ? 'negative' : ''}">${signed(planet.free_amenities)}</strong></div></div>` +
     `<div class="recommendation"><span class="eyebrow">BUILD RECOMMENDATION</span><h3>${esc(rec.title)}</h3><p>${esc(rec.action)}</p><p>${esc(rec.reason)}</p></div>` +
@@ -342,13 +347,30 @@ function renderQuickActions() {
   document.querySelectorAll('[data-quick]').forEach(button => button.addEventListener('click', () => { $('question').value = `/ask ${button.dataset.quick}`; $('question').focus(); updateCommandMenu(); }));
 }
 
-function render(data) {
+function renderSignature(data) {
+  const s = data?.snapshot;
+  return JSON.stringify([
+    data?.status, data?.error, data?.demo_preset, data?.save_token,
+    s?.path, s?.modified, s?.date, s?.version, s?.campaign?.id,
+    s?.campaign?.required_dlcs, s?.technology?.overview?.status,
+    data?.config?.game_folder, data?.config?.provider, data?.config?.spoilers_active,
+    data?.config?.fleet_limit, data?.pin?.key, (data?.history || []).length,
+  ]);
+}
+
+function render(data, force = false) {
   state = data; token = data.token || token;
   setText('provider-label', providerName(data.config?.provider));
   $('spoiler-toggle').checked = Boolean(data.config?.spoilers_active);
+  const sig = renderSignature(data);
+  if (!force && sig === lastRenderKey && data.status === 'ready') {
+    if ($('notice').textContent === 'Checking the save folder now…') showNotice('');
+    return;
+  }
+  lastRenderKey = sig;
   if (data.status !== 'ready' || !data.snapshot) {
     setText('sync-title', data.status === 'error' ? 'Save check failed' : 'Waiting for a save');
-    setText('sync-detail', 'Automatic every 15 seconds');
+    setText('sync-detail', data.web_mode ? 'Drop a .sav file or pick a demo' : 'Automatic every 15 seconds');
     $('goals').innerHTML = '<div class="empty">Choose a readable save to see your next moves.</div>';
     $('critical-risk').hidden = true;
     $('pin-notice').hidden = true;
@@ -363,15 +385,24 @@ function render(data) {
   const initialMessage = $('chat-log').querySelector('.message:only-child');
   if (initialMessage && initialMessage.textContent.startsWith('Your latest save will')) initialMessage.textContent = `Save ${snapshot.date} is ready. Ask about the page you are viewing.`;
   setText('campaign-label', snapshot.empire);
-  const stamp = `${snapshot.path || ''}:${snapshot.modified || ''}`;
+  const stamp = `${snapshot.path || ''}:${snapshot.modified || ''}:${JSON.stringify(snapshot.flag?.colors || [])}`;
   if (stamp !== flagStamp) {
     flagStamp = stamp;
     const flag = $('empire-flag');
     if (data.web_mode) {
-      flag.hidden = true;
+      if (window.StellarisArt?.flagDataUrl) {
+        flag.hidden = false;
+        flag.src = window.StellarisArt.flagDataUrl(snapshot.flag);
+      } else {
+        flag.hidden = true;
+      }
     } else {
       flag.hidden = false;
-      flag.onerror = () => { flag.hidden = true; };
+      flag.onerror = () => {
+        flag.onerror = null;
+        if (window.StellarisArt?.flagDataUrl) flag.src = window.StellarisArt.flagDataUrl(snapshot.flag);
+        else flag.hidden = true;
+      };
       flag.src = `/api/flag?v=${encodeURIComponent(stamp)}`;
     }
   } setText('game-date', `${snapshot.date} · ${snapshot.version}`);
@@ -617,8 +648,9 @@ $('tech-branches').addEventListener('click', async event => {
   const campaign = state?.snapshot?.campaign?.id;
   if (!button || !campaign) return;
   const target = button.dataset.techRoute;
-  if (window.STELLARIS_WEB_MODE) {
-    setText('tech-route-status', `Selected ${target}. Interactive prerequisite maps require your local Stellaris game folder in the desktop app; saved choices and DLC checks are shown above.`);
+  if (window.STELLARIS_WEB_MODE && window.STELLARIS_API?.openTechRouteModal) {
+    setText('tech-route-status', '');
+    window.STELLARIS_API.openTechRouteModal(target);
     return;
   }
   if (/Edg\//.test(navigator.userAgent) && !window.chrome?.webview) {

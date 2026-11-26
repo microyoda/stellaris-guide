@@ -40,6 +40,7 @@
   let spoilerToken = '';
   let currentDemoPreset = 'une-452';
   let currentDemoDlcs = null;
+  let routeRequestSeq = 0;
 
   const config = Object.assign(
     {save_folder: 'Browser local (.sav drop or folder watch)', game_folder: '', provider: 'off', model: ''},
@@ -399,8 +400,116 @@
         const res = await callWorker('ask', {question, snapshot, advice: currentState.advice});
         return {...res, history};
       }
+      if (path === '/api/tech-route') {
+        if (!snapshot) throw new Error('Load a save or demo campaign first.');
+        const target = String(body.target || '').trim();
+        if (!target) throw new Error('Choose a technology target.');
+        return await callWorker('tech_route', {snapshot, target});
+      }
       if (path === '/api/capture-targets') return {native: false, windows: [], stellaris: []};
       throw new Error('This desktop-only action is not used in browser web mode.');
+    },
+    async openTechRouteModal(targetId) {
+      await ensureDemoLoaded();
+      let overlay = document.getElementById('web-tech-route-overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'web-tech-route-overlay';
+        overlay.className = 'overlay';
+        overlay.hidden = true;
+        overlay.innerHTML = `
+          <div class="web-route-dialog" role="dialog" aria-modal="true" aria-labelledby="web-route-title">
+            <div class="drawer-head">
+              <div><span class="eyebrow">TECH ROUTE EXPLORER · IN-BROWSER</span><h2 id="web-route-title">Loading technology route…</h2></div>
+              <button id="close-web-route" class="icon-button" type="button" aria-label="Close technology route">×</button>
+            </div>
+            <div class="web-route-toolbar">
+              <div class="web-route-shortcuts">
+                <button type="button" data-route-jump="tech_cruisers">Cruisers</button>
+                <button type="button" data-route-jump="tech_battleships">Battleships</button>
+                <button type="button" data-route-jump="tech_mega_engineering">Mega-Engineering</button>
+                <button type="button" data-route-jump="tech_galactic_administration">Galactic Admin</button>
+                <button type="button" data-route-jump="tech_hyper_relays">Hyper Relays</button>
+                <button type="button" data-route-jump="tech_arkship_mastery">Arkship Mastery</button>
+              </div>
+              <select id="web-route-select" class="web-select" aria-label="Choose target technology"></select>
+            </div>
+            <div id="web-route-body" class="web-route-body">Loading…</div>
+          </div>`;
+        document.body.appendChild(overlay);
+        const close = () => { overlay.hidden = true; };
+        overlay.querySelector('#close-web-route').addEventListener('click', close);
+        overlay.addEventListener('click', ev => { if (ev.target === overlay) close(); });
+        window.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !overlay.hidden) close(); });
+        overlay.addEventListener('click', ev => {
+          const jump = ev.target.closest('[data-route-jump]');
+          if (jump) window.STELLARIS_API.openTechRouteModal(jump.dataset.routeJump);
+        });
+        overlay.querySelector('#web-route-select').addEventListener('change', ev => {
+          if (ev.target.value) window.STELLARIS_API.openTechRouteModal(ev.target.value);
+        });
+      }
+      overlay.hidden = false;
+      const seq = ++routeRequestSeq;
+      const bodyEl = overlay.querySelector('#web-route-body');
+      const titleEl = overlay.querySelector('#web-route-title');
+      const selectEl = overlay.querySelector('#web-route-select');
+      titleEl.textContent = 'Loading route…';
+      bodyEl.innerHTML = '<p class="web-route-note">Computing prerequisites and DLC status in browser…</p>';
+      try {
+        const {route, targets} = await window.STELLARIS_API.post('/api/tech-route', {target: targetId});
+        if (seq !== routeRequestSeq || overlay.hidden) return;
+        titleEl.textContent = `${route.name}${route.tier != null ? ` · Tier ${route.tier}` : ''}`;
+        if (Array.isArray(targets) && targets.length) {
+          selectEl.innerHTML = '<option value="">Jump to technology…</option>' + targets.map(t =>
+            `<option value="${esc(t.id)}" ${t.id === route.target_id ? 'selected' : ''}>${esc(t.name)} (${esc(t.area || 'other')} · ${esc(t.state.replaceAll('_', ' '))})</option>`
+          ).join('');
+        }
+        const badgeLabel = state => ({
+          researched: 'Researched', researching: 'Researching',
+          saved_option: 'On your cards', unmet: 'Unmet',
+        }[state] || state);
+        const artFor = (area, id) => window.StellarisArt?.techSvg ? window.StellarisArt.techSvg(area, id) : '';
+        const dlcChips = (items) => (items || []).length
+          ? `<div class="web-route-dlcs">${items.map(d => `<span class="route-dlc ${esc(d.status)}">${esc(d.name)} · ${esc(d.base_game ? 'base game' : d.status.replaceAll('_', ' '))}</span>`).join('')}</div>`
+          : '';
+        const stepsHtml = (route.steps || []).map((step, idx) => `
+          ${idx > 0 ? '<span class="web-route-arrow" aria-hidden="true">→</span>' : ''}
+          <button type="button" class="web-route-node state-${esc(step.state)} ${step.id === route.target_id ? 'target' : ''}" data-route-jump="${esc(step.id)}">
+            <span class="web-route-icon">${artFor(step.area, step.id)}</span>
+            <span><strong>${esc(step.name)}</strong><small>${esc(badgeLabel(step.state))}${step.tier != null ? ` · T${step.tier}` : ''}</small></span>
+          </button>`).join('');
+        const oneOfHtml = (route.one_of || []).length
+          ? `<div class="web-route-section"><h3>Alternative prerequisites (choose one)</h3>${route.one_of.map(group =>
+              `<div class="web-route-alt"><span>For ${esc(group.for_name)}:</span><div class="web-route-chain">${group.options.map(opt =>
+                `<button type="button" class="web-route-node state-${esc(opt.state)}" data-route-jump="${esc(opt.id)}"><span><strong>${esc(opt.name)}</strong><small>${esc(badgeLabel(opt.state))}</small></span></button>`
+              ).join('')}</div></div>`
+            ).join('')}</div>` : '';
+        const gate = route.tier_gate || {};
+        const gateStatusLabel = String(gate.status || 'unknown').replaceAll('_', ' ');
+        const gateHtml = gate.required_previous_tier != null
+          ? `<p class="web-route-gate"><strong>Tier ${esc(gate.tier)} gate:</strong> ${esc(gate.researched_previous_tier)} / ${esc(gate.required_previous_tier)} previous-tier ${esc(route.area)} techs in graph (${esc(gateStatusLabel)}).</p>`
+          : '';
+        const unlocksHtml = (route.next_unlocks || []).length
+          ? `<div class="web-route-section"><h3>Leads to</h3><div class="web-route-chain">${route.next_unlocks.map(item =>
+              `<button type="button" class="web-route-node state-${esc(item.state)}" data-route-jump="${esc(item.id)}">
+                <span class="web-route-icon">${artFor(item.area, item.id)}</span>
+                <span><strong>${esc(item.name)}</strong><small>${esc(badgeLabel(item.state))}${item.relation === 'one_of' ? ' · alt' : ''}</small></span>
+              </button>`
+            ).join('')}</div></div>`
+          : '<div class="web-route-section"><h3>Leads to</h3><p class="web-route-note">No further direct unlocks recorded in the bundled core graph.</p></div>';
+        bodyEl.innerHTML = `
+          <p class="web-route-next"><strong>Next check:</strong> ${esc(route.next_check || '')}</p>
+          ${dlcChips(route.dlc)}
+          ${gateHtml}
+          <div class="web-route-section"><h3>Prerequisite path</h3><div class="web-route-chain">${stepsHtml}</div></div>
+          ${oneOfHtml}
+          ${unlocksHtml}
+          <p class="web-route-note">${esc(route.reason || '')}</p>`;
+      } catch (err) {
+        titleEl.textContent = 'Route unavailable';
+        bodyEl.innerHTML = `<p class="web-route-note">${esc(err.message)}</p>`;
+      }
     },
   };
 

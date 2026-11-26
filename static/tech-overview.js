@@ -9,6 +9,9 @@ function renderTechOverview(snapshot) {
   const routeButton = (id, label, accessibleLabel=label) => id ? `<button type="button" class="research-route-link" data-tech-route="${esc(id)}" aria-label="${esc(accessibleLabel)}">${esc(label)} ↗</button>` : '';
   const isWeb = typeof window !== 'undefined' && Boolean(window.STELLARIS_WEB_MODE);
   const techImg = id => (!isWeb && id) ? `<img src="/api/tech-icon?id=${encodeURIComponent(id)}" alt="">` : '';
+  const techFallback = (area, id) => (typeof window !== 'undefined' && window.StellarisArt?.techSvg)
+    ? window.StellarisArt.techSvg(area, id)
+    : `<i>${icons[area]}</i>`;
   const card = area => {
     const branch = branches[area] || {};
     const currentId = branch.current_id || '';
@@ -24,7 +27,7 @@ function renderTechOverview(snapshot) {
     return `<article class="research-slot ${area}">
       <div class="research-slot-head"><span class="research-area-icon">${icons[area]}</span><strong>${title(area)}</strong><small>Research slot</small></div>
       <div class="research-current"><span class="eyebrow">RESEARCHING NOW</span><div class="research-project">
-        <span class="research-art">${techImg(currentId)}<i>${icons[area]}</i></span>
+        <span class="research-art">${techImg(currentId)}${techFallback(area, currentId)}</span>
         <div><strong>${esc(currentName)}</strong><small>${branch.progress_known ? `${number(branch.progress)} saved progress` : 'Progress not recorded'}${branch.started ? ` · since ${esc(branch.started)}` : ''}</small></div></div>
         <p>${esc(branch.trend?.observation || 'A completion estimate is not available from this save.')}</p>
         ${routeButton(currentId, 'See current route', `Explore route for ${currentName}`)}</div>
@@ -32,7 +35,7 @@ function renderTechOverview(snapshot) {
         ${alternatives.length ? alternatives.map((id, index) => {
           const name = names[id] || branch.alternatives?.[index] || id;
           const suggested = String(branch.alternatives?.[index] || name).toLowerCase() === String(branch.recommendation || '').toLowerCase();
-          return `<div class="research-option ${suggested ? 'suggested' : ''}"><span class="research-art">${techImg(id)}<i>${icons[area]}</i></span>
+          return `<div class="research-option ${suggested ? 'suggested' : ''}"><span class="research-art">${techImg(id)}${techFallback(area, id)}</span>
             <div><strong>${esc(name)}</strong><small>${suggested ? 'Suggested for your current bottleneck · ' : ''}On your saved research cards</small></div>${routeButton(id, 'Route', `Explore route for ${name}`)}</div>`;
         }).join('') : '<p class="research-empty">No alternatives could be read from this save. Check the in-game research screen.</p>'}</div>
       <button type="button" class="research-tier" data-tier-toggle="${area}" aria-expanded="false">

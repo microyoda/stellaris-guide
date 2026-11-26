@@ -11,6 +11,7 @@ const PYTHON_FILES = [
   'guide_knowledge.json',
   'question_context.py',
   'advice.py',
+  'tech_graph.json',
   'web_bridge.py',
 ];
 
@@ -59,6 +60,13 @@ def _dispatch_demo(preset, dlcs_json, spoilers):
 
 def _dispatch_ask(question, snapshot_json, advice_json):
     return json.dumps(web_bridge.ask_builtin(question, json.loads(snapshot_json), json.loads(advice_json)), ensure_ascii=False)
+
+def _dispatch_tech_route(snapshot_json, target):
+    snap = json.loads(snapshot_json)
+    return json.dumps({
+        "route": web_bridge.web_route_for_target(snap, target),
+        "targets": web_bridge.web_route_targets(snap),
+    }, ensure_ascii=False)
 `);
       self.postMessage({type: 'status', message: 'In-browser engine ready'});
       return pyodide;
@@ -120,6 +128,17 @@ async function handleMessage(event) {
           String(payload.question || ''),
           JSON.stringify(payload.snapshot || {}),
           JSON.stringify(payload.advice || {}),
+        );
+        result = JSON.parse(out);
+      } finally {
+        fn.destroy();
+      }
+    } else if (action === 'tech_route') {
+      const fn = py.globals.get('_dispatch_tech_route');
+      try {
+        const out = fn(
+          JSON.stringify(payload.snapshot || {}),
+          String(payload.target || ''),
         );
         result = JSON.parse(out);
       } finally {

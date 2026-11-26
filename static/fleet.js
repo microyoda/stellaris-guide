@@ -109,8 +109,12 @@ function fleetArt(size, className = '') {
   const icons = {corvette:'tech_corvettes', frigate:'tech_torpedoes_1',
     destroyer:'tech_destroyers', cruiser:'tech_cruisers',
     battleship:'tech_battleships', titan:'tech_titans'};
-  const icon = (typeof window !== 'undefined' && window.STELLARIS_WEB_MODE) ? null : icons[size];
-  return `<span class="fleet-art ${esc(className)}">${icon ? `<img src="/api/tech-icon?id=${encodeURIComponent(icon)}" alt="" onerror="this.hidden=true">` : ''}<span aria-hidden="true">◇</span></span>`;
+  const isWeb = typeof window !== 'undefined' && Boolean(window.STELLARIS_WEB_MODE);
+  const icon = isWeb ? null : icons[size];
+  const fallback = (typeof window !== 'undefined' && window.StellarisArt?.shipSvg)
+    ? window.StellarisArt.shipSvg(size)
+    : '<span aria-hidden="true">◇</span>';
+  return `<span class="fleet-art ${esc(className)}">${icon ? `<img src="/api/tech-icon?id=${encodeURIComponent(icon)}" alt="" onerror="this.hidden=true">` : ''}<span class="fleet-art-fallback" aria-hidden="true">${fallback}</span></span>`;
 }
 
 function fleetSlots(design) {

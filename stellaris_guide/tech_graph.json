@@ -1,0 +1,6947 @@
+{
+  "schema": 1,
+  "baseline_release": "Corona Borealis v4.6.0 (3d1a)",
+  "partial": false,
+  "source_note": "Derived structural tech graph (IDs, tiers, prerequisites, DLC triggers). No copyrighted game text or art.",
+  "gates": {
+    "1": 0,
+    "2": 6,
+    "3": 6,
+    "4": 6,
+    "5": 6
+  },
+  "rules": {
+    "tech_arcane_deciphering": {
+      "name": "Arcane Deciphering",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_archeology_lab_ancrel": {
+      "name": "Archeology Lab Ancrel",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeostudies": {
+      "name": "Archaeostudies",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_secrets_cybrex": {
+      "name": "Secrets Cybrex",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_secrets_league": {
+      "name": "Secrets League",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_secrets_irassian": {
+      "name": "Secrets Irassian",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_secrets_vultaum": {
+      "name": "Secrets Vultaum",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_secrets_yuht": {
+      "name": "Secrets Yuht",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_secrets_baol": {
+      "name": "Secrets Baol",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_secrets_zroni": {
+      "name": "Secrets Zroni",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeoshield": {
+      "name": "Archaeoshield",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeoarmor": {
+      "name": "Archaeoarmor",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeo_detection_scrambler": {
+      "name": "Archaeo Detection Scrambler",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeo_titan_beam": {
+      "name": "Archaeo Titan Beam",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeo_pk_devolving_beam": {
+      "name": "Archaeo Pk Devolving Beam",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "apocalypse",
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeo_mass_drivers": {
+      "name": "Archaeo Mass Drivers",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeo_lasers": {
+      "name": "Archaeo Lasers",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeo_point_defence": {
+      "name": "Archaeo Point Defence",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeo_missiles": {
+      "name": "Archaeo Missiles",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeo_mass_accelerator": {
+      "name": "Archaeo Mass Accelerator",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeo_strike_crafts": {
+      "name": "Archaeo Strike Crafts",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeo_rampart": {
+      "name": "Archaeo Rampart",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeo_overcharger": {
+      "name": "Archaeo Overcharger",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_archaeo_refinery": {
+      "name": "Archaeo Refinery",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_archaeostudies"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "ancient_relics"
+      ]
+    },
+    "tech_colossus": {
+      "name": "Colossus",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [
+        "tech_titans"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "apocalypse"
+      ]
+    },
+    "tech_pk_cracker": {
+      "name": "Pk Cracker",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [
+        "tech_colossus"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "apocalypse"
+      ]
+    },
+    "tech_pk_shielder": {
+      "name": "Pk Shielder",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [
+        "tech_colossus"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "apocalypse"
+      ]
+    },
+    "tech_pk_neutron": {
+      "name": "Pk Neutron",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [
+        "tech_colossus"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "apocalypse"
+      ]
+    },
+    "tech_pk_godray": {
+      "name": "Pk Godray",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_colossus"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "apocalypse"
+      ]
+    },
+    "tech_pk_nanobots": {
+      "name": "Pk Nanobots",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [
+        "tech_colossus"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "apocalypse"
+      ]
+    },
+    "tech_btc_1": {
+      "name": "Btc 1",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "nemesis"
+      ]
+    },
+    "tech_pk_smelter": {
+      "name": "Pk Smelter",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [
+        "tech_colossus"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "apocalypse"
+      ]
+    },
+    "tech_rift_sphere": {
+      "name": "Rift Sphere",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "astral_planes"
+      ]
+    },
+    "tech_astral_harvesting": {
+      "name": "Astral Harvesting",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "astral_planes"
+      ]
+    },
+    "tech_maulers": {
+      "name": "Maulers",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mauler_build_speed": {
+      "name": "Mauler Build Speed",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_maulers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mauler_growth_1": {
+      "name": "Mauler Growth 1",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_maulers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mauler_growth_2": {
+      "name": "Mauler Growth 2",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_mauler_growth_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weavers": {
+      "name": "Weavers",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_maulers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_build_speed": {
+      "name": "Weaver Build Speed",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_weavers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_growth_1": {
+      "name": "Weaver Growth 1",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_weavers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_growth_2": {
+      "name": "Weaver Growth 2",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_weaver_growth_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_harbingers": {
+      "name": "Harbingers",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_weavers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_harbinger_build_speed": {
+      "name": "Harbinger Build Speed",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_harbingers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_harbinger_growth_1": {
+      "name": "Harbinger Growth 1",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_harbingers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_harbinger_growth_2": {
+      "name": "Harbinger Growth 2",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_harbinger_growth_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_stingers": {
+      "name": "Stingers",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_harbingers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_stinger_build_speed": {
+      "name": "Stinger Build Speed",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_stingers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_stinger_growth_1": {
+      "name": "Stinger Growth 1",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_stingers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_stinger_growth_2": {
+      "name": "Stinger Growth 2",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_stinger_growth_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_growth_chamber_1": {
+      "name": "Growth Chamber 1",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_stingers"
+      ],
+      "one_of": [
+        [
+          "tech_mauler_growth_1",
+          "tech_stinger_growth_1",
+          "tech_weaver_growth_1",
+          "tech_harbinger_growth_1"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_growth_chamber_2": {
+      "name": "Growth Chamber 2",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_growth_chamber_1"
+      ],
+      "one_of": [
+        [
+          "tech_mauler_growth_2",
+          "tech_stinger_growth_2",
+          "tech_weaver_growth_2",
+          "tech_harbinger_growth_2"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_mandibles_2": {
+      "name": "Mandibles 2",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_maulers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mandibles_3": {
+      "name": "Mandibles 3",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_mandibles_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_healing_1": {
+      "name": "Weaver Bio Healing 1",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_weavers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_healing_2": {
+      "name": "Weaver Bio Healing 2",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_weaver_bio_healing_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_healing_3": {
+      "name": "Weaver Bio Healing 3",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_weaver_bio_healing_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_healing_4": {
+      "name": "Weaver Bio Healing 4",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_weaver_bio_healing_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_healing_5": {
+      "name": "Weaver Bio Healing 5",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_weaver_bio_healing_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_healing_6": {
+      "name": "Weaver Bio Healing 6",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_weaver_bio_healing_5"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_evasion_1": {
+      "name": "Weaver Bio Evasion 1",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_weavers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_evasion_2": {
+      "name": "Weaver Bio Evasion 2",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_weaver_bio_evasion_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_evasion_3": {
+      "name": "Weaver Bio Evasion 3",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_weaver_bio_evasion_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_evasion_4": {
+      "name": "Weaver Bio Evasion 4",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_weaver_bio_evasion_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_evasion_5": {
+      "name": "Weaver Bio Evasion 5",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_weaver_bio_evasion_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_evasion_6": {
+      "name": "Weaver Bio Evasion 6",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_weaver_bio_evasion_5"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_fire_rate_1": {
+      "name": "Weaver Bio Fire Rate 1",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_weavers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_fire_rate_2": {
+      "name": "Weaver Bio Fire Rate 2",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_weaver_bio_fire_rate_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_fire_rate_3": {
+      "name": "Weaver Bio Fire Rate 3",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_weaver_bio_fire_rate_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_fire_rate_4": {
+      "name": "Weaver Bio Fire Rate 4",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_weaver_bio_fire_rate_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_fire_rate_5": {
+      "name": "Weaver Bio Fire Rate 5",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_weaver_bio_fire_rate_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_fire_rate_6": {
+      "name": "Weaver Bio Fire Rate 6",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_weaver_bio_fire_rate_5"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_confuser_1": {
+      "name": "Weaver Bio Confuser 1",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_weavers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_confuser_2": {
+      "name": "Weaver Bio Confuser 2",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_weaver_bio_confuser_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_confuser_3": {
+      "name": "Weaver Bio Confuser 3",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_weaver_bio_confuser_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_confuser_4": {
+      "name": "Weaver Bio Confuser 4",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_weaver_bio_confuser_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_confuser_5": {
+      "name": "Weaver Bio Confuser 5",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_weaver_bio_confuser_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_confuser_6": {
+      "name": "Weaver Bio Confuser 6",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_weaver_bio_confuser_5"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_anti_evasion_1": {
+      "name": "Weaver Bio Anti Evasion 1",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_weavers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_anti_evasion_2": {
+      "name": "Weaver Bio Anti Evasion 2",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_weaver_bio_anti_evasion_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_anti_evasion_3": {
+      "name": "Weaver Bio Anti Evasion 3",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_weaver_bio_anti_evasion_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_anti_evasion_4": {
+      "name": "Weaver Bio Anti Evasion 4",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_weaver_bio_anti_evasion_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_anti_evasion_5": {
+      "name": "Weaver Bio Anti Evasion 5",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_weaver_bio_anti_evasion_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_anti_evasion_6": {
+      "name": "Weaver Bio Anti Evasion 6",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_weaver_bio_anti_evasion_5"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_anti_fire_rate_1": {
+      "name": "Weaver Bio Anti Fire Rate 1",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_weavers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_anti_fire_rate_2": {
+      "name": "Weaver Bio Anti Fire Rate 2",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_weaver_bio_anti_fire_rate_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_anti_fire_rate_3": {
+      "name": "Weaver Bio Anti Fire Rate 3",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_weaver_bio_anti_fire_rate_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_anti_fire_rate_4": {
+      "name": "Weaver Bio Anti Fire Rate 4",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_weaver_bio_anti_fire_rate_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_anti_fire_rate_5": {
+      "name": "Weaver Bio Anti Fire Rate 5",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_weaver_bio_anti_fire_rate_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_weaver_bio_anti_fire_rate_6": {
+      "name": "Weaver Bio Anti Fire Rate 6",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_weaver_bio_anti_fire_rate_5"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_deep_space_citadel": {
+      "name": "Deep Space Citadel",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_starbase_3"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "biogenesis"
+      ]
+    },
+    "tech_wilderness_terraform": {
+      "name": "Wilderness Terraform",
+      "area": "society",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_storm_manipulation": {
+      "name": "Storm Manipulation",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_industrial_storm_protection"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "cosmic_storms"
+      ]
+    },
+    "tech_advanced_storm_manipulation": {
+      "name": "Advanced Storm Manipulation",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_storm_manipulation"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "cosmic_storms"
+      ]
+    },
+    "tech_industrial_storm_protection": {
+      "name": "Industrial Storm Protection",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "cosmic_storms"
+      ]
+    },
+    "tech_advanced_industrial_storm_protection": {
+      "name": "Advanced Industrial Storm Protection",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_industrial_storm_protection"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "cosmic_storms"
+      ]
+    },
+    "tech_storm_prediction_1": {
+      "name": "Storm Prediction 1",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_industrial_storm_protection"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "cosmic_storms"
+      ]
+    },
+    "tech_storm_prediction_2": {
+      "name": "Storm Prediction 2",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_storm_prediction_1"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "cosmic_storms"
+      ]
+    },
+    "tech_ship_hull_storm_breaker_1": {
+      "name": "Ship Hull Storm Breaker 1",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_storm_prediction_1"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "cosmic_storms"
+      ]
+    },
+    "tech_ship_hull_storm_breaker_2": {
+      "name": "Ship Hull Storm Breaker 2",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_ship_hull_storm_breaker_1"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "cosmic_storms"
+      ]
+    },
+    "tech_ship_storm_weapons_1": {
+      "name": "Ship Storm Weapons 1",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_storm_prediction_1"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "cosmic_storms"
+      ]
+    },
+    "tech_ship_storm_weapons_2": {
+      "name": "Ship Storm Weapons 2",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_ship_storm_weapons_1"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "cosmic_storms"
+      ]
+    },
+    "tech_gargantuan_evolution": {
+      "name": "Gargantuan Evolution",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_lgate_activation": {
+      "name": "Lgate Activation",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_lcluster_clue": {
+      "name": "Repeatable Lcluster Clue",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_experimental_subspace_navigation": {
+      "name": "Experimental Subspace Navigation",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_sensors_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_neuroregeneration": {
+      "name": "Neuroregeneration",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_nanite_repair_system": {
+      "name": "Nanite Repair System",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_nanite_autocannon": {
+      "name": "Nanite Autocannon",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_nanite_flak_batteries": {
+      "name": "Nanite Flak Batteries",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_solar_panel_network": {
+      "name": "Solar Panel Network",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [
+        "tech_starbase_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_corvettes": {
+      "name": "Corvettes",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_destroyers": {
+      "name": "Destroyers",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_corvettes"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_cruisers": {
+      "name": "Cruisers",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_destroyers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_battleships": {
+      "name": "Battleships",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_cruisers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_titans": {
+      "name": "Titans",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_battleships",
+          "tech_stinger_growth_2"
+        ]
+      ],
+      "required_dlc": [
+        "apocalypse"
+      ]
+    },
+    "tech_juggernaut": {
+      "name": "Juggernaut",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_starbase_5",
+          "tech_arkship_construction"
+        ],
+        [
+          "tech_battleships",
+          "tech_harbinger_growth_2"
+        ]
+      ],
+      "required_dlc": [
+        "federations"
+      ]
+    },
+    "tech_corvette_build_speed": {
+      "name": "Corvette Build Speed",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_corvettes"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_corvette_hull_1": {
+      "name": "Corvette Hull 1",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_corvettes"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_corvette_hull_2": {
+      "name": "Corvette Hull 2",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_corvette_hull_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_destroyer_build_speed": {
+      "name": "Destroyer Build Speed",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_destroyers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_destroyer_hull_1": {
+      "name": "Destroyer Hull 1",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_destroyers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_destroyer_hull_2": {
+      "name": "Destroyer Hull 2",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_destroyer_hull_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_cruiser_build_speed": {
+      "name": "Cruiser Build Speed",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_cruisers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_cruiser_hull_1": {
+      "name": "Cruiser Hull 1",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_cruisers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_cruiser_hull_2": {
+      "name": "Cruiser Hull 2",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_cruiser_hull_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_battleship_build_speed": {
+      "name": "Battleship Build Speed",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_battleships"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_battleship_hull_1": {
+      "name": "Battleship Hull 1",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_battleships"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_battleship_hull_2": {
+      "name": "Battleship Hull 2",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [
+        "tech_battleship_hull_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_titan_hull_1": {
+      "name": "Titan Hull 1",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [
+        "tech_titans"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_titan_hull_2": {
+      "name": "Titan Hull 2",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [
+        "tech_titan_hull_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_starbase_1": {
+      "name": "Starbase 1",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [
+        "tech_space_construction"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_starbase_2": {
+      "name": "Starbase 2",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [
+        "tech_starbase_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_starbase_3": {
+      "name": "Starbase 3",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_starbase_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_starbase_4": {
+      "name": "Starbase 4",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_starbase_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_starbase_5": {
+      "name": "Starbase 5",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_starbase_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_habitat_1": {
+      "name": "Habitat 1",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_starbase_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_habitat_2": {
+      "name": "Habitat 2",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_habitat_1",
+        "tech_starbase_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_habitat_3": {
+      "name": "Habitat 3",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_habitat_2",
+        "tech_starbase_5"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_modular_engineering": {
+      "name": "Modular Engineering",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_starbase_3",
+          "tech_waystation_2"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_space_defense_station_improvement": {
+      "name": "Space Defense Station Improvement",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_starbase_4",
+        "tech_modular_engineering"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_strike_craft_1": {
+      "name": "Strike Craft 1",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_strike_craft_2": {
+      "name": "Strike Craft 2",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_strike_craft_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_strike_craft_3": {
+      "name": "Strike Craft 3",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_strike_craft_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_strike_craft_skrand": {
+      "name": "Strike Craft Skrand",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "paragon"
+      ]
+    },
+    "tech_assault_armies": {
+      "name": "Assault Armies",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [
+        "tech_planetary_defenses"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_ship_armor_1": {
+      "name": "Ship Armor 1",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_ship_armor_2": {
+      "name": "Ship Armor 2",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_ship_armor_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_ship_armor_3": {
+      "name": "Ship Armor 3",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_ship_armor_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_ship_armor_4": {
+      "name": "Ship Armor 4",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_ship_armor_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_ship_armor_5": {
+      "name": "Ship Armor 5",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_ship_armor_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_crystal_armor_1": {
+      "name": "Crystal Armor 1",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_crystal_armor_2": {
+      "name": "Crystal Armor 2",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_armor_hardeners_1": {
+      "name": "Armor Hardeners 1",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_advanced_metallurgy_1",
+        "tech_rare_crystals"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_armor_hardeners_2": {
+      "name": "Armor Hardeners 2",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [
+        "tech_armor_hardeners_1",
+        "tech_mine_living_metal"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_thrusters_1": {
+      "name": "Thrusters 1",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_thrusters_2": {
+      "name": "Thrusters 2",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_thrusters_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_thrusters_3": {
+      "name": "Thrusters 3",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_thrusters_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_thrusters_4": {
+      "name": "Thrusters 4",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_thrusters_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_defense_station_1": {
+      "name": "Space Defense Station 1",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [
+        "tech_starbase_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_defense_platform_hull_1": {
+      "name": "Defense Platform Hull 1",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_starbase_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_basic_industry": {
+      "name": "Basic Industry",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mechanized_mining": {
+      "name": "Mechanized Mining",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_powered_exoskeletons": {
+      "name": "Powered Exoskeletons",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_basic_industry"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_mining_1": {
+      "name": "Space Mining 1",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_space_construction"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_mining_2": {
+      "name": "Space Mining 2",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_space_mining_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_mining_3": {
+      "name": "Space Mining 3",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_space_mining_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_mining_4": {
+      "name": "Space Mining 4",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_space_mining_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_mining_5": {
+      "name": "Space Mining 5",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_space_mining_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mining_1": {
+      "name": "Mining 1",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_basic_industry"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mining_2": {
+      "name": "Mining 2",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_mining_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mining_3": {
+      "name": "Mining 3",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_mining_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mineral_purification_1": {
+      "name": "Mineral Purification 1",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_mining_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mineral_purification_2": {
+      "name": "Mineral Purification 2",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_mineral_purification_1",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_alloys_1": {
+      "name": "Alloys 1",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_basic_industry"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_alloys_2": {
+      "name": "Alloys 2",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_alloys_1",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_advanced_metallurgy_1": {
+      "name": "Advanced Metallurgy 1",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_alloys_1",
+        "tech_ship_armor_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_advanced_metallurgy_2": {
+      "name": "Advanced Metallurgy 2",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_advanced_metallurgy_1",
+        "tech_alloys_2",
+        "tech_ship_armor_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_luxuries_1": {
+      "name": "Luxuries 1",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_basic_industry"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_luxuries_2": {
+      "name": "Luxuries 2",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_luxuries_1",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_engineering_1": {
+      "name": "Engineering 1",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_basic_science_lab_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_engineering_2": {
+      "name": "Engineering 2",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_engineering_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_engineering_3": {
+      "name": "Engineering 3",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_engineering_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_robotic_workers": {
+      "name": "Robotic Workers",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_powered_exoskeletons"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_droid_workers": {
+      "name": "Droid Workers",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_robotic_workers",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_synthetic_workers": {
+      "name": "Synthetic Workers",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_droid_workers",
+        "tech_galactic_administration",
+        "tech_sapient_ai"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_synthetic_leaders": {
+      "name": "Synthetic Leaders",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_synthetic_workers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_robot_assembly_complex": {
+      "name": "Robot Assembly Complex",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_robomodding",
+        "tech_galactic_administration"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_integrated_cybernetics": {
+      "name": "Integrated Cybernetics",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_powered_exoskeletons",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_construction": {
+      "name": "Space Construction",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_afterburners_1": {
+      "name": "Afterburners 1",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_thrusters_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_afterburners_2": {
+      "name": "Afterburners 2",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_afterburners_1",
+        "tech_thrusters_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_assembly_pattern": {
+      "name": "Assembly Pattern",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_construction_templates": {
+      "name": "Construction Templates",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_assembly_pattern"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_housing_1": {
+      "name": "Housing 1",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_housing_2": {
+      "name": "Housing 2",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_housing_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_leviathan_techgenesis": {
+      "name": "Leviathan Techgenesis",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_repeatable_improved_tile_mineral_output": {
+      "name": "Repeatable Improved Tile Mineral Output",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_mineral_purification_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_improved_military_station_damage": {
+      "name": "Repeatable Improved Military Station Damage",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_defense_platform_hull_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_improved_military_station_health": {
+      "name": "Repeatable Improved Military Station Health",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_defense_platform_hull_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_improved_armor_output": {
+      "name": "Repeatable Improved Armor Output",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_ship_armor_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_weapon_type_explosive_damage": {
+      "name": "Repeatable Weapon Type Explosive Damage",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_missiles_3",
+          "tech_swarmer_missiles_2"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_repeatable_weapon_type_explosive_fire_rate": {
+      "name": "Repeatable Weapon Type Explosive Fire Rate",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_missiles_3",
+          "tech_swarmer_missiles_2"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_repeatable_weapon_type_kinetic_damage": {
+      "name": "Repeatable Weapon Type Kinetic Damage",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_mass_drivers_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_weapon_type_kinetic_fire_rate": {
+      "name": "Repeatable Weapon Type Kinetic Fire Rate",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_mass_drivers_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_reduced_building_time": {
+      "name": "Repeatable Reduced Building Time",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_construction_templates"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mass_drivers_1": {
+      "name": "Mass Drivers 1",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mass_drivers_2": {
+      "name": "Mass Drivers 2",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_mass_drivers_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mass_drivers_3": {
+      "name": "Mass Drivers 3",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_mass_drivers_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mass_drivers_4": {
+      "name": "Mass Drivers 4",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_mass_drivers_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mass_drivers_5": {
+      "name": "Mass Drivers 5",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_mass_drivers_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_kinetic_artillery_1": {
+      "name": "Kinetic Artillery 1",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_mass_drivers_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_kinetic_artillery_2": {
+      "name": "Kinetic Artillery 2",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_mass_drivers_5",
+        "tech_kinetic_artillery_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mass_accelerator_1": {
+      "name": "Mass Accelerator 1",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_mass_drivers_4"
+      ],
+      "one_of": [
+        [
+          "tech_battleships",
+          "tech_stingers"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_mass_accelerator_2": {
+      "name": "Mass Accelerator 2",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_mass_drivers_5",
+        "tech_mass_accelerator_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_autocannons_1": {
+      "name": "Autocannons 1",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_mass_drivers_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_autocannons_2": {
+      "name": "Autocannons 2",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_autocannons_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_autocannons_3": {
+      "name": "Autocannons 3",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_autocannons_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_flak_batteries_1": {
+      "name": "Flak Batteries 1",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_flak_batteries_2": {
+      "name": "Flak Batteries 2",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_flak_batteries_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_flak_batteries_3": {
+      "name": "Flak Batteries 3",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_flak_batteries_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_missiles_1": {
+      "name": "Missiles 1",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_missiles_2": {
+      "name": "Missiles 2",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_missiles_1",
+        "tech_fusion_power"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_missiles_3": {
+      "name": "Missiles 3",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_missiles_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_missiles_4": {
+      "name": "Missiles 4",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_missiles_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_missiles_5": {
+      "name": "Missiles 5",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_missiles_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_swarmer_missiles_1": {
+      "name": "Swarmer Missiles 1",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_harbingers",
+          "tech_stingers",
+          "tech_missiles_2"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_swarmer_missiles_2": {
+      "name": "Swarmer Missiles 2",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_swarmer_missiles_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_torpedoes_1": {
+      "name": "Torpedoes 1",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_corvettes"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_torpedoes_2": {
+      "name": "Torpedoes 2",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_torpedoes_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_torpedoes_3": {
+      "name": "Torpedoes 3",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_torpedoes_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_pyroclastic_resonation": {
+      "name": "Pyroclastic Resonation",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_alloy_fossilization": {
+      "name": "Alloy Fossilization",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_orbital_maneuvers": {
+      "name": "Orbital Maneuvers",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_cryovault": {
+      "name": "Cryovault",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_living_test_subjects": {
+      "name": "Living Test Subjects",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_georadiation_terraforming": {
+      "name": "Georadiation Terraforming",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_dark_matter_deflector": {
+      "name": "Dark Matter Deflector",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [
+        "tech_shields_5"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_dark_matter_power_core": {
+      "name": "Dark Matter Power Core",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [
+        "tech_zero_point_power"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_dark_matter_propulsion": {
+      "name": "Dark Matter Propulsion",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_thrusters_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_affluence_1": {
+      "name": "Fe Affluence 1",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_affluence_2": {
+      "name": "Fe Affluence 2",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_affluence_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_nourishment_1": {
+      "name": "Fe Nourishment 1",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_nourishment_2": {
+      "name": "Fe Nourishment 2",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_nourishment_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_fabricator_1": {
+      "name": "Fe Fabricator 1",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_fabricator_2": {
+      "name": "Fe Fabricator 2",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_fabricator_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_singularity_1": {
+      "name": "Fe Singularity 1",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_singularity_2": {
+      "name": "Fe Singularity 2",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_singularity_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_forge_1": {
+      "name": "Fe Forge 1",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_forge_2": {
+      "name": "Fe Forge 2",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_forge_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_dome_1": {
+      "name": "Fe Dome 1",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_dome_2": {
+      "name": "Fe Dome 2",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_dome_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_fortress_1": {
+      "name": "Fe Fortress 1",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_fortress_2": {
+      "name": "Fe Fortress 2",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_fortress_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_administration_1": {
+      "name": "Fe Administration 1",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_administration_2": {
+      "name": "Fe Administration 2",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_administration_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_assembly_1": {
+      "name": "Fe Assembly 1",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_robomodding",
+          "tech_robomodding_m"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_fe_assembly_2": {
+      "name": "Fe Assembly 2",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_assembly_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_clinic_1": {
+      "name": "Fe Clinic 1",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_clinic_2": {
+      "name": "Fe Clinic 2",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_clinic_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_security_1": {
+      "name": "Fe Security 1",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_security_2": {
+      "name": "Fe Security 2",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_security_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_market_1": {
+      "name": "Fe Market 1",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_market_2": {
+      "name": "Fe Market 2",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_market_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_silo_1": {
+      "name": "Fe Silo 1",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_silo_2": {
+      "name": "Fe Silo 2",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_silo_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_entertainment_1": {
+      "name": "Fe Entertainment 1",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_entertainment_2": {
+      "name": "Fe Entertainment 2",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_entertainment_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_lab_1": {
+      "name": "Fe Lab 1",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_lab_2": {
+      "name": "Fe Lab 2",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_lab_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_mine_1": {
+      "name": "Fe Mine 1",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fe_mine_2": {
+      "name": "Fe Mine 2",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [
+        "tech_fe_mine_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_cloaking_1": {
+      "name": "Cloaking 1",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_shields_2"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_cloaking_2": {
+      "name": "Cloaking 2",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_cloaking_1",
+        "tech_shields_3"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_cloaking_3": {
+      "name": "Cloaking 3",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_cloaking_2",
+        "tech_shields_4"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_cloaking_dark_matter": {
+      "name": "Cloaking Dark Matter",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [
+        "tech_dark_matter_deflector",
+        "tech_cloaking_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_cloaking_psi": {
+      "name": "Cloaking Psi",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_psi_jump_drive_1"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud",
+        "first_contact"
+      ]
+    },
+    "tech_detection_array": {
+      "name": "Detection Array",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_sensors_2"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_dark_matter_detection": {
+      "name": "Dark Matter Detection",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [
+        "tech_detection_array",
+        "tech_mine_dark_matter"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_assisted_detection": {
+      "name": "Assisted Detection",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_detection_array"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_subspace_drive": {
+      "name": "Subspace Drive",
+      "area": "physics",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_unusual_senses": {
+      "name": "Unusual Senses",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_new_numbers": {
+      "name": "New Numbers",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_trinary_computing": {
+      "name": "Trinary Computing",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_atmospheric_orbital_mechanics": {
+      "name": "Atmospheric Orbital Mechanics",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_predatory_tactics": {
+      "name": "Predatory Tactics",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_satisfying_insults": {
+      "name": "Satisfying Insults",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_compact_living": {
+      "name": "Compact Living",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_alien_topography": {
+      "name": "Alien Topography",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_xeno_aesthetics": {
+      "name": "Xeno Aesthetics",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_lost_building_methods": {
+      "name": "Lost Building Methods",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_supreme_alloy": {
+      "name": "Supreme Alloy",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_ordered_retreat": {
+      "name": "Ordered Retreat",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_temple_of_transportation": {
+      "name": "Temple Of Transportation",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "first_contact"
+      ]
+    },
+    "tech_galactic_halls": {
+      "name": "Galactic Halls",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "force_of_will"
+      ]
+    },
+    "tech_ideology_projection_1": {
+      "name": "Ideology Projection 1",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_galactic_halls"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "force_of_will"
+      ]
+    },
+    "tech_ideology_projection_2": {
+      "name": "Ideology Projection 2",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_ideology_projection_1"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "force_of_will"
+      ]
+    },
+    "tech_cultural_envoys": {
+      "name": "Cultural Envoys",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "force_of_will"
+      ]
+    },
+    "tech_galactic_archivism": {
+      "name": "Galactic Archivism",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "grand_archive"
+      ]
+    },
+    "tech_gravity_wells": {
+      "name": "Gravity Wells",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "grand_archive"
+      ]
+    },
+    "tech_gravity_snare_capacity_1": {
+      "name": "Gravity Snare Capacity 1",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_gravity_wells"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "grand_archive"
+      ]
+    },
+    "tech_gravity_snare_capacity_2": {
+      "name": "Gravity Snare Capacity 2",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_gravity_snare_capacity_1"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "grand_archive"
+      ]
+    },
+    "tech_gravity_snare_capacity_3": {
+      "name": "Gravity Snare Capacity 3",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_gravity_snare_capacity_2"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "grand_archive"
+      ]
+    },
+    "tech_containment_vessel": {
+      "name": "Containment Vessel",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_gravity_wells"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "grand_archive"
+      ]
+    },
+    "tech_voidworm_immunity": {
+      "name": "Voidworm Immunity",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "grand_archive"
+      ]
+    },
+    "tech_asteroidal_carapace": {
+      "name": "Asteroidal Carapace",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "grand_archive"
+      ]
+    },
+    "tech_alien_cloning": {
+      "name": "Alien Cloning",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_gravity_wells"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "grand_archive"
+      ]
+    },
+    "tech_improved_incubators": {
+      "name": "Improved Incubators",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_alien_cloning"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "grand_archive"
+      ]
+    },
+    "tech_metabolic_gases": {
+      "name": "Metabolic Gases",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_improved_incubators"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "grand_archive"
+      ]
+    },
+    "tech_boarding_cables": {
+      "name": "Boarding Cables",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "grand_archive"
+      ]
+    },
+    "tech_controlled_mutations": {
+      "name": "Controlled Mutations",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_alien_cloning"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_controlled_mutations_2": {
+      "name": "Controlled Mutations 2",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_controlled_mutations"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_unique_mutation_space_amoeba": {
+      "name": "Unique Mutation Space Amoeba",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_controlled_mutations_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_unique_mutation_tiyanki": {
+      "name": "Unique Mutation Tiyanki",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_controlled_mutations_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_unique_mutation_voidworm": {
+      "name": "Unique Mutation Voidworm",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_controlled_mutations_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_unique_mutation_cutholoid": {
+      "name": "Unique Mutation Cutholoid",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_controlled_mutations_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_unique_mutation_crystalline_entity": {
+      "name": "Unique Mutation Crystalline Entity",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_controlled_mutations_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_unique_mutation_restorative_enzymes": {
+      "name": "Unique Mutation Restorative Enzymes",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_controlled_mutations_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_unique_mutation_starborne_biology": {
+      "name": "Unique Mutation Starborne Biology",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_controlled_mutations_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_thrusters_bio_integration": {
+      "name": "Thrusters Bio Integration",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_controlled_mutations"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_hyper_drive_bio_integration": {
+      "name": "Hyper Drive Bio Integration",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_controlled_mutations"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_sensors_bio_integration": {
+      "name": "Sensors Bio Integration",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_controlled_mutations"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_combat_computers_bio_integration": {
+      "name": "Combat Computers Bio Integration",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_controlled_mutations"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_akx_worm_1": {
+      "name": "Akx Worm 1",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_akx_worm_2": {
+      "name": "Akx Worm 2",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_akx_worm_3": {
+      "name": "Akx Worm 3",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [
+        "tech_akx_worm_1",
+        "tech_akx_worm_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_dragon_armor": {
+      "name": "Dragon Armor",
+      "area": "engineering",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_enigmatic_encoder": {
+      "name": "Enigmatic Encoder",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_enigmatic_decoder": {
+      "name": "Enigmatic Decoder",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_identity_copy": {
+      "name": "Identity Copy",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_identity_fusion": {
+      "name": "Identity Fusion",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_identity_initialization": {
+      "name": "Identity Initialization",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_synth_queen_knowledge": {
+      "name": "Synth Queen Knowledge",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_crisis_1": {
+      "name": "Cosmogenesis Crisis 1",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_crisis_2": {
+      "name": "Cosmogenesis Crisis 2",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_crisis_3": {
+      "name": "Cosmogenesis Crisis 3",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_crisis_4": {
+      "name": "Cosmogenesis Crisis 4",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_crisis_5": {
+      "name": "Cosmogenesis Crisis 5",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_escort": {
+      "name": "Cosmogenesis Escort",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_battlecruiser": {
+      "name": "Cosmogenesis Battlecruiser",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_weaver": {
+      "name": "Cosmogenesis Weaver",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_mauler": {
+      "name": "Cosmogenesis Mauler",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_harbinger": {
+      "name": "Cosmogenesis Harbinger",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_stinger": {
+      "name": "Cosmogenesis Stinger",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_world": {
+      "name": "Cosmogenesis World",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_cosmogenesis_thesis": {
+      "name": "Cosmogenesis Thesis",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_lathe_resonator": {
+      "name": "Lathe Resonator",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_cosmogenesis_world"
+        ]
+      ],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_lathe_overclocker": {
+      "name": "Lathe Overclocker",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_cosmogenesis_world"
+        ]
+      ],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_lathe_preserver": {
+      "name": "Lathe Preserver",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_cosmogenesis_world"
+        ]
+      ],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_lathe_life_support": {
+      "name": "Lathe Life Support",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_cosmogenesis_world"
+        ]
+      ],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_lathe_cogitator": {
+      "name": "Lathe Cogitator",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_cosmogenesis_world"
+        ]
+      ],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_lathe_validator": {
+      "name": "Lathe Validator",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_cosmogenesis_world"
+        ]
+      ],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_orbital_arc_furnace": {
+      "name": "Orbital Arc Furnace",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_dyson_swarm": {
+      "name": "Dyson Swarm",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_nanite_repair_system_synth_queen": {
+      "name": "Nanite Repair System Synth Queen",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "machine_age"
+      ]
+    },
+    "tech_orbital_trash_dispersal": {
+      "name": "Orbital Trash Dispersal",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_xeno_tourism_agency": {
+      "name": "Xeno Tourism Agency",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_executive_retreat": {
+      "name": "Executive Retreat",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mega_engineering": {
+      "name": "Mega Engineering",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [
+        "tech_zero_point_power"
+      ],
+      "one_of": [
+        [
+          "tech_starbase_5",
+          "tech_arkship_tier_3"
+        ],
+        [
+          "tech_battleships",
+          "tech_stingers"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_science_nexus": {
+      "name": "Science Nexus",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [
+        "tech_mega_engineering"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_sentry_array": {
+      "name": "Sentry Array",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [
+        "tech_mega_engineering"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_strategic_coordination": {
+      "name": "Strategic Coordination",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_mega_engineering"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "megacorp"
+      ]
+    },
+    "tech_interstellar_assembly": {
+      "name": "Interstellar Assembly",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_mega_engineering"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "megacorp"
+      ]
+    },
+    "tech_mega_art": {
+      "name": "Mega Art",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_mega_engineering"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "megacorp"
+      ]
+    },
+    "tech_gateway_activation": {
+      "name": "Gateway Activation",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_hyper_drive_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_gateway_construction": {
+      "name": "Gateway Construction",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [
+        "tech_gateway_activation",
+        "tech_mega_engineering"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_dyson_sphere": {
+      "name": "Dyson Sphere",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [
+        "tech_mega_engineering"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_matter_decompressor": {
+      "name": "Matter Decompressor",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [
+        "tech_mega_engineering"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "megacorp"
+      ]
+    },
+    "tech_ring_world": {
+      "name": "Ring World",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [
+        "tech_mega_engineering"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mega_shipyard": {
+      "name": "Mega Shipyard",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_mega_engineering"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "federations"
+      ]
+    },
+    "tech_arkship_construction": {
+      "name": "Arkship Construction",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_destroyers",
+          "tech_weavers"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_arkship_tier_2": {
+      "name": "Arkship Tier 2",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_arkship_construction"
+      ],
+      "one_of": [
+        [
+          "tech_cruisers",
+          "tech_harbingers"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_arkship_tier_3": {
+      "name": "Arkship Tier 3",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_arkship_tier_2"
+      ],
+      "one_of": [
+        [
+          "tech_stingers",
+          "tech_battleships"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_civilian_arkship": {
+      "name": "Civilian Arkship",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_planetary_engineering",
+        "tech_arkship_construction"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_science_arkship": {
+      "name": "Science Arkship",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_sensors_2",
+        "tech_arkship_construction"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_military_arkship": {
+      "name": "Military Arkship",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_arkship_construction"
+      ],
+      "one_of": [
+        [
+          "tech_destroyers",
+          "tech_mauler_growth_2"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_arkship_planetary_refinery": {
+      "name": "Arkship Planetary Refinery",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_arkship_tier_3",
+        "tech_planetary_engineering"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_arkship_stellar_igniter": {
+      "name": "Arkship Stellar Igniter",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_arkship_tier_3",
+        "tech_mine_dark_matter"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_arkship_system_scanner": {
+      "name": "Arkship System Scanner",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_arkship_tier_3",
+        "tech_sensors_2",
+        "tech_automated_exploration"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_arkship_exodus_jump": {
+      "name": "Arkship Exodus Jump",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_arkship_tier_3",
+        "tech_jump_drive_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_nomads_mechanized_mining": {
+      "name": "Nomads Mechanized Mining",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_waystation_1": {
+      "name": "Waystation 1",
+      "area": "engineering",
+      "tier": 0,
+      "prerequisites": [
+        "tech_space_construction"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_waystation_2": {
+      "name": "Waystation 2",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_waystation_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_waystation_3": {
+      "name": "Waystation 3",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_waystation_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_planetary_engineering": {
+      "name": "Planetary Engineering",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_space_exploration",
+        "tech_space_mining_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_dyson_gun": {
+      "name": "Dyson Gun",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_wormhole_stabilization",
+        "tech_lasers_3"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "nomads"
+      ]
+    },
+    "tech_quantum_catapult": {
+      "name": "Quantum Catapult",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "overlord"
+      ]
+    },
+    "tech_orbital_ring_tier_1": {
+      "name": "Orbital Ring Tier 1",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_starbase_3",
+        "tech_galactic_administration",
+        "tech_planetary_infrastructure_1"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "overlord"
+      ]
+    },
+    "tech_hyper_relays": {
+      "name": "Hyper Relays",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_hyper_drive_2"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "overlord"
+      ]
+    },
+    "tech_space_exploration": {
+      "name": "Space Exploration",
+      "area": "physics",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_basic_science_lab_1": {
+      "name": "Basic Science Lab 1",
+      "area": "physics",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_basic_science_lab_2": {
+      "name": "Basic Science Lab 2",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_basic_science_lab_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_basic_science_lab_3": {
+      "name": "Basic Science Lab 3",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_basic_science_lab_2",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_global_research_initiative": {
+      "name": "Global Research Initiative",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_basic_science_lab_2",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_curator_lab": {
+      "name": "Curator Lab",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_archeology_lab": {
+      "name": "Archeology Lab",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_science_1": {
+      "name": "Space Science 1",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_space_construction"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_science_2": {
+      "name": "Space Science 2",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_space_science_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_science_3": {
+      "name": "Space Science 3",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_space_science_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_science_4": {
+      "name": "Space Science 4",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_space_science_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_science_5": {
+      "name": "Space Science 5",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_space_science_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_physics_1": {
+      "name": "Physics 1",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_basic_science_lab_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_physics_2": {
+      "name": "Physics 2",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_physics_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_physics_3": {
+      "name": "Physics 3",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_physics_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_administrative_ai": {
+      "name": "Administrative Ai",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_basic_science_lab_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_cryostasis_1": {
+      "name": "Cryostasis 1",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_administrative_ai",
+        "tech_colonization_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_cryostasis_2": {
+      "name": "Cryostasis 2",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_self_aware_logic",
+        "tech_cryostasis_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_self_aware_logic": {
+      "name": "Self Aware Logic",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_administrative_ai"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_automated_exploration": {
+      "name": "Automated Exploration",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_sapient_ai": {
+      "name": "Sapient Ai",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_self_aware_logic"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_positronic_implants": {
+      "name": "Positronic Implants",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_self_aware_logic"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_combat_computers_1": {
+      "name": "Combat Computers 1",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_administrative_ai"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_combat_computers_2": {
+      "name": "Combat Computers 2",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_combat_computers_1",
+        "tech_self_aware_logic"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_combat_computers_3": {
+      "name": "Combat Computers 3",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_combat_computers_2",
+        "tech_sapient_ai"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_combat_computers_autonomous": {
+      "name": "Combat Computers Autonomous",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_combat_computers_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_auxiliary_fire_control": {
+      "name": "Auxiliary Fire Control",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_combat_computers_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_synchronized_defences": {
+      "name": "Synchronized Defences",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_self_aware_logic"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_consumer_good_refinement_1": {
+      "name": "Consumer Good Refinement 1",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_luxuries_1",
+        "tech_administrative_ai"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_consumer_good_refinement_2": {
+      "name": "Consumer Good Refinement 2",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_luxuries_2",
+        "tech_consumer_good_refinement_1",
+        "tech_self_aware_logic"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_neuro_quantum_links": {
+      "name": "Neuro Quantum Links",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_basic_science_lab_2",
+        "tech_integrated_cybernetics"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_encryption_1": {
+      "name": "Encryption 1",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_colonial_bureaucracy"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_encryption_2": {
+      "name": "Encryption 2",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_encryption_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_encryption_3": {
+      "name": "Encryption 3",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_encryption_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_decryption_1": {
+      "name": "Decryption 1",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_colonial_bureaucracy"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_decryption_2": {
+      "name": "Decryption 2",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_decryption_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_decryption_3": {
+      "name": "Decryption 3",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_decryption_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fission_power": {
+      "name": "Fission Power",
+      "area": "physics",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_fusion_power": {
+      "name": "Fusion Power",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_fission_power"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_cold_fusion_power": {
+      "name": "Cold Fusion Power",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_fusion_power"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_antimatter_power": {
+      "name": "Antimatter Power",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_cold_fusion_power"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_zero_point_power": {
+      "name": "Zero Point Power",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_antimatter_power"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_reactor_boosters_1": {
+      "name": "Reactor Boosters 1",
+      "area": "physics",
+      "tier": 0,
+      "prerequisites": [
+        "tech_fission_power"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_reactor_boosters_2": {
+      "name": "Reactor Boosters 2",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_fusion_power",
+        "tech_reactor_boosters_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_reactor_boosters_3": {
+      "name": "Reactor Boosters 3",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_antimatter_power",
+        "tech_reactor_boosters_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_shields_1": {
+      "name": "Shields 1",
+      "area": "physics",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_shields_2": {
+      "name": "Shields 2",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_shields_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_shields_3": {
+      "name": "Shields 3",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_shields_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_shields_4": {
+      "name": "Shields 4",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_shields_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_shields_5": {
+      "name": "Shields 5",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_shields_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_shield_rechargers_1": {
+      "name": "Shield Rechargers 1",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_shields_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_shield_hardeners_1": {
+      "name": "Shield Hardeners 1",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_shield_rechargers_1",
+        "tech_exotic_gases"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_shield_hardeners_2": {
+      "name": "Shield Hardeners 2",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [
+        "tech_shield_hardeners_1",
+        "tech_mine_zro"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_planetary_shield_generator": {
+      "name": "Planetary Shield Generator",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_shields_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_sensors_2": {
+      "name": "Sensors 2",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_sensors_3": {
+      "name": "Sensors 3",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_sensors_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_sensors_4": {
+      "name": "Sensors 4",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_sensors_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_power_plant_1": {
+      "name": "Power Plant 1",
+      "area": "physics",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_power_plant_2": {
+      "name": "Power Plant 2",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_power_plant_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_power_plant_3": {
+      "name": "Power Plant 3",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_power_plant_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_power_plant_4": {
+      "name": "Power Plant 4",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_power_plant_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_power_hub_1": {
+      "name": "Power Hub 1",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_power_plant_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_power_hub_2": {
+      "name": "Power Hub 2",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_power_hub_1",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_hyper_drive_1": {
+      "name": "Hyper Drive 1",
+      "area": "physics",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_hyper_drive_2": {
+      "name": "Hyper Drive 2",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_hyper_drive_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_hyper_drive_3": {
+      "name": "Hyper Drive 3",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_hyper_drive_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_wormhole_stabilization": {
+      "name": "Wormhole Stabilization",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_hyper_drive_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_jump_drive_1": {
+      "name": "Jump Drive 1",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [
+        "tech_zero_point_power"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_ftl_inhibitor": {
+      "name": "Ftl Inhibitor",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_hyper_drive_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_improved_tile_energy_output": {
+      "name": "Repeatable Improved Tile Energy Output",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [
+        "tech_power_plant_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_improved_shield_output": {
+      "name": "Repeatable Improved Shield Output",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [
+        "tech_shields_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_weapon_type_energy_damage": {
+      "name": "Repeatable Weapon Type Energy Damage",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [
+        "tech_lasers_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_weapon_type_energy_fire_rate": {
+      "name": "Repeatable Weapon Type Energy Fire Rate",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [
+        "tech_lasers_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_reduced_building_cost": {
+      "name": "Repeatable Reduced Building Cost",
+      "area": "physics",
+      "tier": null,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_lasers_1": {
+      "name": "Lasers 1",
+      "area": "physics",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_lasers_2": {
+      "name": "Lasers 2",
+      "area": "physics",
+      "tier": 1,
+      "prerequisites": [
+        "tech_lasers_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_lasers_3": {
+      "name": "Lasers 3",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_lasers_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_lasers_4": {
+      "name": "Lasers 4",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_lasers_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_lasers_5": {
+      "name": "Lasers 5",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_lasers_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_energy_lance_1": {
+      "name": "Energy Lance 1",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_lasers_4"
+      ],
+      "one_of": [
+        [
+          "tech_battleships",
+          "tech_stingers"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_energy_lance_2": {
+      "name": "Energy Lance 2",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_lasers_5",
+        "tech_energy_lance_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_plasma_1": {
+      "name": "Plasma 1",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_lasers_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_plasma_2": {
+      "name": "Plasma 2",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_plasma_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_plasma_3": {
+      "name": "Plasma 3",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_plasma_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_arc_emitter_1": {
+      "name": "Arc Emitter 1",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_disruptors_3"
+      ],
+      "one_of": [
+        [
+          "tech_battleships",
+          "tech_stingers"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_arc_emitter_2": {
+      "name": "Arc Emitter 2",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_arc_emitter_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_disruptors_1": {
+      "name": "Disruptors 1",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_lasers_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_disruptors_2": {
+      "name": "Disruptors 2",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_disruptors_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_disruptors_3": {
+      "name": "Disruptors 3",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_disruptors_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_energy_torpedoes_1": {
+      "name": "Energy Torpedoes 1",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_lasers_4"
+      ],
+      "one_of": [
+        [
+          "tech_torpedoes_1",
+          "tech_harbingers"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_energy_torpedoes_2": {
+      "name": "Energy Torpedoes 2",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_energy_torpedoes_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_pd_tracking_1": {
+      "name": "Pd Tracking 1",
+      "area": "physics",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_pd_tracking_2": {
+      "name": "Pd Tracking 2",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_pd_tracking_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_pd_tracking_3": {
+      "name": "Pd Tracking 3",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [
+        "tech_pd_tracking_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_extradimensional_weapon_1": {
+      "name": "Extradimensional Weapon 1",
+      "area": "physics",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mining_drone_weapon_1": {
+      "name": "Mining Drone Weapon 1",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_cloud_weapon_1": {
+      "name": "Space Cloud Weapon 1",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_starfire_cannon": {
+      "name": "Starfire Cannon",
+      "area": "physics",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_critter_feeder": {
+      "name": "Critter Feeder",
+      "area": "society",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_psionic_aura": {
+      "name": "Psionic Aura",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_aura_intensification": {
+      "name": "Aura Intensification",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_psionic_aura"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_psionic_suppression": {
+      "name": "Psionic Suppression",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_aura_resonation": {
+      "name": "Aura Resonation",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_psionic_aura"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_materiality_engine": {
+      "name": "Materiality Engine",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_psionic_bombers": {
+      "name": "Psionic Bombers",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_psionic_lightning": {
+      "name": "Psionic Lightning",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_psionic_disruptor": {
+      "name": "Psionic Disruptor",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_zro_launcher": {
+      "name": "Zro Launcher",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_planetary_defenses": {
+      "name": "Planetary Defenses",
+      "area": "society",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_interplanetary_commerce": {
+      "name": "Interplanetary Commerce",
+      "area": "society",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_trading": {
+      "name": "Space Trading",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_interplanetary_commerce"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_interstellar_economics": {
+      "name": "Interstellar Economics",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_space_trading"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_galactic_markets": {
+      "name": "Galactic Markets",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_colonial_centralization",
+        "tech_interstellar_economics"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_prescient_data_modeling": {
+      "name": "Prescient Data Modeling",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_industrial_farming": {
+      "name": "Industrial Farming",
+      "area": "society",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_eco_simulation": {
+      "name": "Eco Simulation",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_industrial_farming"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_gene_crops": {
+      "name": "Gene Crops",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_eco_simulation"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_nano_vitality_crops": {
+      "name": "Nano Vitality Crops",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_gene_crops"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_nutrient_replication": {
+      "name": "Nutrient Replication",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_nano_vitality_crops"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_hydroponics": {
+      "name": "Hydroponics",
+      "area": "society",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_food_processing_1": {
+      "name": "Food Processing 1",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_eco_simulation"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_food_processing_2": {
+      "name": "Food Processing 2",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_food_processing_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_society_1": {
+      "name": "Society 1",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_basic_science_lab_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_society_2": {
+      "name": "Society 2",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_society_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_society_3": {
+      "name": "Society 3",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_society_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_alien_life_studies": {
+      "name": "Alien Life Studies",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_colonization_1": {
+      "name": "Colonization 1",
+      "area": "society",
+      "tier": 0,
+      "prerequisites": [
+        "tech_space_exploration"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_colonization_2": {
+      "name": "Colonization 2",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_colonization_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_colonization_3": {
+      "name": "Colonization 3",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_colonization_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_colonization_4": {
+      "name": "Colonization 4",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_colonization_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_colonization_5": {
+      "name": "Colonization 5",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_colonization_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_tomb_world_adaption": {
+      "name": "Tomb World Adaption",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_colonization_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_basic_health": {
+      "name": "Basic Health",
+      "area": "society",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_frontier_health": {
+      "name": "Frontier Health",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_basic_health",
+        "tech_genome_mapping"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_frontier_hospital": {
+      "name": "Frontier Hospital",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_frontier_health",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mountain_range": {
+      "name": "Mountain Range",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_colonization_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_volcano": {
+      "name": "Volcano",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_colonization_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_dangerous_wildlife": {
+      "name": "Dangerous Wildlife",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_colonization_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_dense_jungle": {
+      "name": "Dense Jungle",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_colonization_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_quicksand_basin": {
+      "name": "Quicksand Basin",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_colonization_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_noxious_swamp": {
+      "name": "Noxious Swamp",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_colonization_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_massive_glacier": {
+      "name": "Massive Glacier",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_colonization_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_toxic_kelp": {
+      "name": "Toxic Kelp",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_colonization_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_deep_sinkhole": {
+      "name": "Deep Sinkhole",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_colonization_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_terrestrial_sculpting": {
+      "name": "Terrestrial Sculpting",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [
+        [
+          "tech_colonization_1",
+          "tech_planetary_engineering"
+        ]
+      ],
+      "required_dlc": []
+    },
+    "tech_ecological_adaptation": {
+      "name": "Ecological Adaptation",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_terrestrial_sculpting"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_climate_restoration": {
+      "name": "Climate Restoration",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_terrestrial_sculpting"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_volcanic_forge": {
+      "name": "Volcanic Forge",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_volcanic_terraforming": {
+      "name": "Volcanic Terraforming",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_terrestrial_sculpting",
+        "tech_volcano"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "infernals"
+      ]
+    },
+    "tech_genome_mapping": {
+      "name": "Genome Mapping",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_vitality_boosters": {
+      "name": "Vitality Boosters",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_genome_mapping"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_epigenetic_triggers": {
+      "name": "Epigenetic Triggers",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_genome_mapping"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_cloning": {
+      "name": "Cloning",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_genome_mapping"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_gene_banks": {
+      "name": "Gene Banks",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_cloning"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_gene_seed_purification": {
+      "name": "Gene Seed Purification",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_gene_tailoring"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_morphogenetic_field_mastery": {
+      "name": "Morphogenetic Field Mastery",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_epigenetic_triggers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_gene_tailoring": {
+      "name": "Gene Tailoring",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_genome_mapping"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_glandular_acclimation": {
+      "name": "Glandular Acclimation",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_gene_tailoring"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_gene_expressions": {
+      "name": "Gene Expressions",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_gene_tailoring"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_selected_lineages": {
+      "name": "Selected Lineages",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_vitality_boosters"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_capacity_boosters": {
+      "name": "Capacity Boosters",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_selected_lineages"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_regenerative_hull_tissue": {
+      "name": "Regenerative Hull Tissue",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_doctrine_fleet_size_1": {
+      "name": "Doctrine Fleet Size 1",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_doctrine_fleet_size_2": {
+      "name": "Doctrine Fleet Size 2",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_doctrine_fleet_size_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_doctrine_fleet_size_3": {
+      "name": "Doctrine Fleet Size 3",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_doctrine_fleet_size_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_doctrine_fleet_size_4": {
+      "name": "Doctrine Fleet Size 4",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_doctrine_fleet_size_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_doctrine_fleet_size_5": {
+      "name": "Doctrine Fleet Size 5",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_doctrine_fleet_size_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_interstellar_fleet_traditions": {
+      "name": "Interstellar Fleet Traditions",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_refit_standards": {
+      "name": "Refit Standards",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_interstellar_fleet_traditions"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_command_matrix": {
+      "name": "Command Matrix",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_refit_standards"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_doctrine_navy_size_1": {
+      "name": "Doctrine Navy Size 1",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_doctrine_navy_size_2": {
+      "name": "Doctrine Navy Size 2",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_doctrine_navy_size_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_doctrine_navy_size_3": {
+      "name": "Doctrine Navy Size 3",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_doctrine_navy_size_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_doctrine_navy_size_4": {
+      "name": "Doctrine Navy Size 4",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_doctrine_navy_size_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_centralized_command": {
+      "name": "Centralized Command",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_combat_training": {
+      "name": "Combat Training",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_centralized_command"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_ground_defense_planning": {
+      "name": "Ground Defense Planning",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_planetary_defenses"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_global_defense_grid": {
+      "name": "Global Defense Grid",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_ground_defense_planning"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_psionic_theory": {
+      "name": "Psionic Theory",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_telepathy": {
+      "name": "Telepathy",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_psionic_theory"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_precognition_interface": {
+      "name": "Precognition Interface",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_telepathy"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_thought_enforcement": {
+      "name": "Thought Enforcement",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_telepathy"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_psi_jump_drive_1": {
+      "name": "Psi Jump Drive 1",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_precognition_interface"
+      ],
+      "one_of": [],
+      "required_dlc": [
+        "shadows_of_the_shroud"
+      ]
+    },
+    "tech_galactic_ambitions": {
+      "name": "Galactic Ambitions",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_manifest_destiny": {
+      "name": "Manifest Destiny",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_galactic_ambitions"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_interstellar_campaigns": {
+      "name": "Interstellar Campaigns",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_galactic_ambitions"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_galactic_campaigns": {
+      "name": "Galactic Campaigns",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_interstellar_campaigns"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_existential_campaigns": {
+      "name": "Existential Campaigns",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_galactic_campaigns"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_planetary_government": {
+      "name": "Planetary Government",
+      "area": "society",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_planetary_unification": {
+      "name": "Planetary Unification",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_planetary_government"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_colonial_centralization": {
+      "name": "Colonial Centralization",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_planetary_unification"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_galactic_administration": {
+      "name": "Galactic Administration",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_planetary_infrastructure_1": {
+      "name": "Planetary Infrastructure 1",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_colonial_centralization",
+        "tech_ship_armor_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_planetary_infrastructure_2": {
+      "name": "Planetary Infrastructure 2",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_galactic_administration",
+        "tech_ship_armor_4",
+        "tech_planetary_infrastructure_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_subdermal_stimulation": {
+      "name": "Subdermal Stimulation",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_genome_mapping"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_tracking_implants": {
+      "name": "Tracking Implants",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_subdermal_stimulation",
+        "tech_galactic_bureaucracy"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_global_production_strategy": {
+      "name": "Global Production Strategy",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_alloys_1",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_adaptive_bureaucracy": {
+      "name": "Adaptive Bureaucracy",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_planetary_unification"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_effective_bureaucracy": {
+      "name": "Effective Bureaucracy",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_adaptive_bureaucracy"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_colonial_bureaucracy": {
+      "name": "Colonial Bureaucracy",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_adaptive_bureaucracy"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_galactic_bureaucracy": {
+      "name": "Galactic Bureaucracy",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_colonial_bureaucracy"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_living_state": {
+      "name": "Living State",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_collective_self": {
+      "name": "Collective Self",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_autonomous_agents": {
+      "name": "Autonomous Agents",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_embodied_dynamism": {
+      "name": "Embodied Dynamism",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_autonomous_agents"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_neural_implants": {
+      "name": "Neural Implants",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_artificial_moral_codes": {
+      "name": "Artificial Moral Codes",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_synthetic_thought_patterns": {
+      "name": "Synthetic Thought Patterns",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_artificial_moral_codes"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_unity_of_purpose": {
+      "name": "Unity Of Purpose",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_collective_production_methods": {
+      "name": "Collective Production Methods",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_unity_of_purpose"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_resource_processing_algorithms": {
+      "name": "Resource Processing Algorithms",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_unity_of_purpose"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_holo_entertainment": {
+      "name": "Holo Entertainment",
+      "area": "society",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_hyper_entertainment_forum": {
+      "name": "Hyper Entertainment Forum",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_holo_entertainment"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_paradise_dome": {
+      "name": "Paradise Dome",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_housing_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_cultural_heritage": {
+      "name": "Cultural Heritage",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_planetary_unification"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_heritage_site": {
+      "name": "Heritage Site",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_cultural_heritage"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_hypercomms_forum": {
+      "name": "Hypercomms Forum",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_heritage_site",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_autocurating_vault": {
+      "name": "Autocurating Vault",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_administrative_ai",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_holographic_rituals": {
+      "name": "Holographic Rituals",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_planetary_government"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_consecration_fields": {
+      "name": "Consecration Fields",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_holographic_rituals",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_transcendent_faith": {
+      "name": "Transcendent Faith",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_consecration_fields",
+        "tech_galactic_administration"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_hive_node": {
+      "name": "Hive Node",
+      "area": "society",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_hive_cluster": {
+      "name": "Hive Cluster",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_hive_node"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_hive_confluence": {
+      "name": "Hive Confluence",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_hive_cluster",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_wilderness_node": {
+      "name": "Wilderness Node",
+      "area": "society",
+      "tier": 0,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_wilderness_cluster": {
+      "name": "Wilderness Cluster",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_wilderness_node"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_wilderness_confluence": {
+      "name": "Wilderness Confluence",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_wilderness_cluster",
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_ascension_theory": {
+      "name": "Ascension Theory",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_psionic_barrier": {
+      "name": "Psionic Barrier",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_psionic_theory"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_psionic_shield": {
+      "name": "Psionic Shield",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [
+        "tech_psionic_theory"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_penal_colonies": {
+      "name": "Penal Colonies",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_artificial_moral_codes"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_resort_colonies": {
+      "name": "Resort Colonies",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_artificial_moral_codes"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_slave_colonies": {
+      "name": "Slave Colonies",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_neural_implants"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_housing_agrarian_idyll": {
+      "name": "Housing Agrarian Idyll",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_federation_code": {
+      "name": "Federation Code",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_xeno_diplomacy": {
+      "name": "Xeno Diplomacy",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_federation_code"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_xeno_relations": {
+      "name": "Xeno Relations",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_xeno_diplomacy",
+        "tech_galactic_administration"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_capital_productivity_1": {
+      "name": "Capital Productivity 1",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_planetary_unification"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_capital_productivity_2": {
+      "name": "Capital Productivity 2",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_colonial_centralization",
+        "tech_capital_productivity_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_capital_productivity_3": {
+      "name": "Capital Productivity 3",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_galactic_administration",
+        "tech_capital_productivity_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_covenant_composer": {
+      "name": "Covenant Composer",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_psionic_theory"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_covenant_eater": {
+      "name": "Covenant Eater",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_psionic_theory"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_covenant_instrument": {
+      "name": "Covenant Instrument",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_psionic_theory"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_covenant_cradle": {
+      "name": "Covenant Cradle",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_psionic_theory"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_covenant_whisperers": {
+      "name": "Covenant Whisperers",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_psionic_theory"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_xeno_linguistics": {
+      "name": "Xeno Linguistics",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "paragon"
+      ]
+    },
+    "tech_node_reformatting_1": {
+      "name": "Node Reformatting 1",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_node_reformatting_2": {
+      "name": "Node Reformatting 2",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_node_reformatting_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_node_reformatting_3": {
+      "name": "Node Reformatting 3",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_node_reformatting_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_node_culling_1": {
+      "name": "Node Culling 1",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_colonial_centralization"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_node_culling_2": {
+      "name": "Node Culling 2",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_node_culling_1"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_node_culling_3": {
+      "name": "Node Culling 3",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_node_culling_2"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_bio_reactor": {
+      "name": "Bio Reactor",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [
+        "tech_industrial_farming"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_bio_reactor_2": {
+      "name": "Bio Reactor 2",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [
+        "tech_bio_reactor"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_improved_tile_food_output": {
+      "name": "Repeatable Improved Tile Food Output",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_gene_crops"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_improved_core_system_cap": {
+      "name": "Repeatable Improved Core System Cap",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_galactic_bureaucracy"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_improved_army_damage": {
+      "name": "Repeatable Improved Army Damage",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_combat_training"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_improved_army_health": {
+      "name": "Repeatable Improved Army Health",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_combat_training"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_improved_leader_life_span": {
+      "name": "Repeatable Improved Leader Life Span",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_vitality_boosters"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_naval_cap": {
+      "name": "Repeatable Naval Cap",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_doctrine_navy_size_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_command_limit": {
+      "name": "Repeatable Command Limit",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_doctrine_fleet_size_5"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_improved_starbase_capacity": {
+      "name": "Repeatable Improved Starbase Capacity",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_galactic_ambitions"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_weapon_type_strike_craft_fire_damage": {
+      "name": "Repeatable Weapon Type Strike Craft Fire Damage",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_strike_craft_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_repeatable_weapon_type_strike_craft_fire_rate": {
+      "name": "Repeatable Weapon Type Strike Craft Fire Rate",
+      "area": "society",
+      "tier": null,
+      "prerequisites": [
+        "tech_strike_craft_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_amoeba_strike_craft_1": {
+      "name": "Amoeba Strike Craft 1",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_swarm_strike_craft_1": {
+      "name": "Swarm Strike Craft 1",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_scourge_missile_1": {
+      "name": "Scourge Missile 1",
+      "area": "society",
+      "tier": 5,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_space_whale_weapon_1": {
+      "name": "Space Whale Weapon 1",
+      "area": "society",
+      "tier": 1,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_enhanced_cryosleep_sedatives": {
+      "name": "Enhanced Cryosleep Sedatives",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_universal_marcophage": {
+      "name": "Universal Marcophage",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mine_living_metal": {
+      "name": "Mine Living Metal",
+      "area": "engineering",
+      "tier": 5,
+      "prerequisites": [
+        "tech_space_construction"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mine_betharian": {
+      "name": "Mine Betharian",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_space_construction"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mine_volatile_motes": {
+      "name": "Mine Volatile Motes",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_space_construction"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_volatile_motes": {
+      "name": "Volatile Motes",
+      "area": "physics",
+      "tier": 2,
+      "prerequisites": [
+        "tech_basic_industry"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mine_exotic_gases": {
+      "name": "Mine Exotic Gases",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_space_construction"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_exotic_gases": {
+      "name": "Exotic Gases",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_basic_industry"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mine_rare_crystals": {
+      "name": "Mine Rare Crystals",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_space_construction"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_rare_crystals": {
+      "name": "Rare Crystals",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_basic_industry"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mine_zro": {
+      "name": "Mine Zro",
+      "area": "society",
+      "tier": 3,
+      "prerequisites": [
+        "tech_sensors_3"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mine_dark_matter": {
+      "name": "Mine Dark Matter",
+      "area": "physics",
+      "tier": 3,
+      "prerequisites": [
+        "tech_sensors_4"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_nanite_transmutation": {
+      "name": "Nanite Transmutation",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": [
+        "distant_stars"
+      ]
+    },
+    "tech_robomodding_m": {
+      "name": "Robomodding M",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_powered_exoskeletons"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_robomodding": {
+      "name": "Robomodding",
+      "area": "engineering",
+      "tier": 1,
+      "prerequisites": [
+        "tech_robotic_workers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_robomodding_points_1": {
+      "name": "Robomodding Points 1",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [
+        "tech_robomodding",
+        "tech_droid_workers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_robomodding_points_2": {
+      "name": "Robomodding Points 2",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_robomodding_points_1",
+        "tech_synthetic_workers"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_binary_motivators": {
+      "name": "Binary Motivators",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_colonial_centralization",
+        "tech_robomodding_m"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_nanite_assemblers": {
+      "name": "Nanite Assemblers",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_binary_motivators",
+        "tech_galactic_administration"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_mega_assembly": {
+      "name": "Mega Assembly",
+      "area": "engineering",
+      "tier": 4,
+      "prerequisites": [
+        "tech_binary_motivators",
+        "tech_galactic_administration"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_adaptive_combat_algorithms": {
+      "name": "Adaptive Combat Algorithms",
+      "area": "society",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_biomechanics": {
+      "name": "Biomechanics",
+      "area": "society",
+      "tier": 4,
+      "prerequisites": [
+        "tech_adaptive_combat_algorithms"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_micro_replicators": {
+      "name": "Micro Replicators",
+      "area": "engineering",
+      "tier": 2,
+      "prerequisites": [],
+      "one_of": [],
+      "required_dlc": []
+    },
+    "tech_self_assembling_components": {
+      "name": "Self Assembling Components",
+      "area": "engineering",
+      "tier": 3,
+      "prerequisites": [
+        "tech_micro_replicators"
+      ],
+      "one_of": [],
+      "required_dlc": []
+    }
+  }
+}

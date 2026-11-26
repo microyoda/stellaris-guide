@@ -8,18 +8,217 @@ and zero Windows/Pillow/local-filesystem dependencies.
 from __future__ import annotations
 
 import copy
+from functools import lru_cache
 import json
+from pathlib import Path
 import time
 
 from .advice import answer_question, make_advice
-from .dlcs import DLC_CATALOG, active_dlcs, dlc_display_name, normalize_dlc_id
-from .saves import parse_save_bytes
+from .dlcs import DLC_CATALOG, active_dlcs, dlc_display_name, dlc_status_list, normalize_dlc_id
+from .saves import parse_save_bytes, pretty_tech
 
 APP_VERSION = "1.7.0-web"
+TECH_GRAPH_FILE = Path(__file__).with_name("tech_graph.json")
 WEB_MAX_GAMESTATE_BYTES = 120_000_000
 _LAST_RAW_CHAIN: list[dict] = []
 _LAST_ADVICE: dict | None = None
 _LAST_PLAN: dict = {}
+
+
+@lru_cache(maxsize=2)
+def load_tech_graph(path: Path = TECH_GRAPH_FILE) -> tuple[dict, dict[int, int], bool]:
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        return {}, {}, True
+    raw_rules = data.get("rules") if isinstance(data, dict) else {}
+    raw_gates = data.get("gates") if isinstance(data, dict) else {}
+    partial = bool(data.get("partial", True)) if isinstance(data, dict) else True
+    rules = {k: v for k, v in raw_rules.items() if isinstance(k, str) and isinstance(v, dict)}
+    gates = {int(k): int(v) for k, v in raw_gates.items() if str(k).isdigit() and isinstance(v, int)}
+    return rules, gates, partial
+
+
+def web_research_overview(snapshot: dict) -> dict:
+    """Provide research labels and Tier 2 gate counts from the bundled web tech graph."""
+    rules, thresholds, partial = load_tech_graph()
+    technology = snapshot.get("technology") or {}
+    if not rules or technology.get("researched_status") != "complete":
+        return {"status": "unverified", "labels": {}, "gates": {}}
+    researched = set(technology.get("researched") or {})
+    mods = bool((snapshot.get("campaign") or {}).get("mods"))
+    labels: dict[str, str] = {}
+    gates: dict[str, dict] = {}
+    for area, branch in (technology.get("branches") or {}).items():
+        relevant = [branch.get("current_id"), *(branch.get("alternative_ids") or [])]
+        labels.update({key: rules[key]["name"] for key in relevant if key in rules})
+        count = sum(key in researched and rule.get("area") == area and rule.get("tier") == 1
+                    for key, rule in rules.items())
+        required = thresholds.get(2)
+        completed = sorted(rules[key]["name"] for key in researched
+                           if key in rules and rules[key].get("area") == area and rules[key].get("tier") == 1)
+        on_cards = [{"id": key, "name": rules[key]["name"]}
+                    for key in branch.get("alternative_ids", [])
+                    if key in rules and rules[key].get("tier") == 1]
+        gate_status = (
+            "unverified" if mods or required is None else
+            "open" if count >= required else
+            "unverified" if partial else "closed"
+        )
+        gates[area] = {
+            "tier": 2, "count": count, "required": required,
+            "display_count": count,
+            "status": gate_status,
+            "completed": completed, "on_cards": on_cards,
+        }
+    return {"status": "limited", "labels": labels, "gates": gates}
+
+
+def web_route_targets(snapshot: dict) -> list[dict]:
+    rules, _, _ = load_tech_graph()
+    technology = snapshot.get("technology") or {}
+    researched = set(technology.get("researched") or {})
+    branches = technology.get("branches") or {}
+    current = {b.get("current_id") for b in branches.values()}
+    options = {k for b in branches.values() for k in (b.get("alternative_ids") or [])}
+    return [
+        {
+            "id": key, "name": rule["name"], "area": rule.get("area", ""),
+            "tier": rule.get("tier"),
+            "state": ("researched" if key in researched else "researching" if key in current
+                      else "saved_option" if key in options else "unmet"),
+            "required_dlc": rule.get("required_dlc") or [],
+        }
+        for key, rule in sorted(rules.items(), key=lambda entry: (entry[1]["name"], entry[0]))
+    ]
+
+
+def web_route_for_target(snapshot: dict, target: str) -> dict:
+    """Compute a cautious, DLC-aware technology route from the bundled web graph."""
+    rules, gates, partial = load_tech_graph()
+    campaign = snapshot.get("campaign") or {}
+    technology = snapshot.get("technology") or {}
+    researched = set(technology.get("researched") or {})
+    branches = technology.get("branches") or {}
+    current = {b.get("current_id") for b in branches.values()}
+    options = {k for b in branches.values() for k in (b.get("alternative_ids") or [])}
+    save_version = campaign.get("save_version") or snapshot.get("version")
+    saved_dlcs = campaign.get("required_dlcs")
+    mods = bool(campaign.get("mods"))
+
+    def state_of(key: str) -> str:
+        return ("researched" if key in researched else "researching" if key in current
+                else "saved_option" if key in options else "unmet")
+
+    if target not in rules:
+        return {
+            "target_id": target, "name": pretty_tech(target), "status": "unknown",
+            "reason": "This technology is not in the bundled web core graph. Verify its prerequisites in game or use the desktop app with your installed Stellaris folder.",
+            "area": "", "tier": None, "state": state_of(target),
+            "steps": [{"id": target, "name": pretty_tech(target), "state": state_of(target), "area": "", "tier": None}],
+            "one_of": [], "next_unlocks": [], "dlc": [],
+            "tier_gate": {"status": "unknown"},
+            "next_check": "Search another milestone below or verify this technology in game.",
+        }
+
+    steps, visited = [], set()
+
+    def walk(key: str, depth: int = 0) -> None:
+        if key in visited or depth > 8 or len(steps) >= 40:
+            return
+        visited.add(key)
+        rule = rules.get(key)
+        if rule and key not in researched:
+            for parent in rule.get("prerequisites") or []:
+                walk(parent, depth + 1)
+        steps.append({
+            "id": key,
+            "name": rule["name"] if rule else pretty_tech(key),
+            "area": rule.get("area", "") if rule else "",
+            "tier": rule.get("tier") if rule else None,
+            "state": state_of(key),
+            "dlc": dlc_status_list(rule.get("required_dlc") or [], saved_dlcs, save_version) if rule else [],
+        })
+
+    walk(target)
+    rule = rules[target]
+    one_of = []
+    for item in steps:
+        if item["id"] in researched:
+            continue
+        owner = rules.get(item["id"]) or {}
+        for group in owner.get("one_of") or []:
+            one_of.append({
+                "for_id": item["id"], "for_name": owner.get("name", pretty_tech(item["id"])),
+                "options": [
+                    {
+                        "id": opt, "name": rules[opt]["name"] if opt in rules else pretty_tech(opt),
+                        "state": state_of(opt),
+                        "dlc": dlc_status_list((rules.get(opt) or {}).get("required_dlc") or [], saved_dlcs, save_version),
+                    }
+                    for opt in group
+                ],
+            })
+
+    next_unlocks = []
+    for key, candidate in sorted(rules.items(), key=lambda e: (e[1].get("tier") or 0, e[1]["name"])):
+        direct = target in (candidate.get("prerequisites") or [])
+        alt = any(target in group for group in (candidate.get("one_of") or []))
+        if direct or alt:
+            next_unlocks.append({
+                "id": key, "name": candidate["name"], "area": candidate.get("area", ""),
+                "tier": candidate.get("tier"), "relation": "direct" if direct else "one_of",
+                "state": state_of(key),
+                "dlc": dlc_status_list(candidate.get("required_dlc") or [], saved_dlcs, save_version),
+            })
+
+    req_dlc = list(dict.fromkeys(
+        d for step in steps for d in (rules.get(step["id"]) or {}).get("required_dlc", [])
+    ))
+    dlc_info = dlc_status_list(req_dlc, saved_dlcs, save_version)
+    dlc_missing = any(item["status"] != "present" for item in dlc_info)
+
+    tier = rule.get("tier")
+    threshold = gates.get(tier) if isinstance(tier, int) and tier > 0 else None
+    prior_count = sum(
+        k in researched and r.get("area") == rule.get("area") and r.get("tier") == tier - 1
+        for k, r in rules.items()
+    ) if isinstance(tier, int) and tier > 0 else 0
+    tier_status = ("unknown" if threshold is None or mods else
+                   "met" if prior_count >= threshold else
+                   "unknown" if partial else "not_met")
+    has_unmet_one_of = any(
+        not any(opt["state"] == "researched" for opt in group["options"])
+        for group in one_of
+    )
+
+    if dlc_missing:
+        next_check = "A required DLC is missing or unverified in this save; check DLC requirements in game."
+    elif target in researched:
+        next_check = "Already researched in this save. Explore downstream technologies below."
+    elif target in current:
+        next_check = "Currently being researched in this save."
+    elif target in options:
+        next_check = "Available on your saved research cards right now."
+    elif any(s["state"] == "unmet" for s in steps[:-1]):
+        next_check = "Work through the unmet prerequisite(s) above first; card draws are not guaranteed."
+    elif has_unmet_one_of:
+        next_check = "Research one option from each unmet alternative prerequisite group below; card draws are not guaranteed."
+    else:
+        next_check = "Core prerequisites appear met in this save. Check tier gate and research draws in game."
+
+    return {
+        "target_id": target, "name": rule["name"], "area": rule.get("area", ""),
+        "tier": tier, "state": state_of(target),
+        "status": "limited",
+        "reason": ("Save lists mods; bundled base-game graph may differ." if mods
+                   else "Derived from bundled core 4.5.2 graph; verify exact draw weights and mod/4.6 changes in game."),
+        "steps": steps, "one_of": one_of, "next_unlocks": next_unlocks,
+        "dlc": dlc_info,
+        "tier_gate": {"tier": tier, "required_previous_tier": threshold,
+                      "researched_previous_tier": prior_count, "status": tier_status},
+        "next_check": next_check,
+    }
 
 
 def public_snapshot(snapshot: dict | None, *, spoilers_active: bool = False) -> dict | None:
@@ -67,6 +266,7 @@ def analyze_save_archive(raw_bytes: bytes, filename: str = "autosave.sav", *,
         campaign_label=campaign_label, include_details=True, game_dir="",
         max_gamestate_bytes=WEB_MAX_GAMESTATE_BYTES,
     )
+    snapshot.setdefault("technology", {})["overview"] = web_research_overview(snapshot)
     prior_source = list(history) if history is not None else list(_LAST_RAW_CHAIN)
     prior = [item for item in prior_source
              if item.get("campaign", {}).get("id") == snapshot["campaign"]["id"]
@@ -403,6 +603,7 @@ def build_demo_state(preset_id: str = "une-452", *,
         labels = [dlc_display_name(normalize_dlc_id(item)) for item in enabled_dlc_ids]
         snapshot["campaign"]["required_dlcs"] = labels
     snapshot["campaign"]["dlc_summary"] = active_dlcs(snapshot["campaign"]["required_dlcs"], version)
+    snapshot.setdefault("technology", {})["overview"] = web_research_overview(snapshot)
     # Build two synthetic earlier trend points with lower metrics and tech progress.
     hist_early = copy.deepcopy(snapshot)
     hist_early["date"] = "2270.01.01" if preset_id == "une-452" else "2280.01.01" if preset_id == "willpower-460" else "2258.01.01"

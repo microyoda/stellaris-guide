@@ -33,6 +33,7 @@ WEB_PYTHON_FILES = (
     "guide_knowledge.json",
     "question_context.py",
     "advice.py",
+    "tech_graph.json",
     "web_bridge.py",
 )
 
@@ -47,8 +48,8 @@ def _rewrite_index_for_web(html: str) -> str:
                 '<link rel="stylesheet" href="./fleet.css">\n  <link rel="stylesheet" href="./web.css">',
             )
             .replace(
-                '<script src="./tech-overview.js"></script>',
-                '<script src="./web-runtime.js"></script>\n  <script src="./tech-overview.js"></script>',
+                '<script src="./art.js"></script>',
+                '<script src="./web-runtime.js"></script>\n  <script src="./art.js"></script>',
             )
     )
     return rewritten
