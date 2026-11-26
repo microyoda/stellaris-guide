@@ -119,14 +119,201 @@ function fleetArt(size, className = '') {
 
 function fleetSlots(design) {
   const slots = design.slots || [];
-  if (!slots.length) return '<p class="fleet-muted">No saved component slots could be read.</p>';
-  return `<div class="fleet-slots">${slots.map(item => {
-    const raw = String(item.component || 'Unknown part');
-    const kind = /TORPEDO|MISSILE|HANGAR/i.test(raw) ? 'explosive' : /LASER|PLASMA|DISRUPTOR/i.test(raw) ? 'energy' : /SHIELD/i.test(raw) ? 'shield' : /ARMOR/i.test(raw) ? 'armor' : 'other';
-    const size = String(item.slot || '').split('_')[0];
-    const label = fleetTitle(raw.replace(/^(SMALL|MEDIUM|LARGE|EXTRA_LARGE)_/, ''));
-    return `<span class="fleet-slot ${kind}" title="${esc(item.slot || 'Slot')}: ${esc(raw)}"><b>${esc(size.slice(0, 1) || '•')}</b><span>${esc(label)}</span></span>`;
-  }).join('')}</div>`;
+  const core = design.required_components || [];
+  if (!slots.length && !core.length) return '<p class="fleet-muted">No saved component slots could be read.</p>';
+  const renderTag = (slotLabel, rawName, fallbackSize = '•') => {
+    const raw = String(rawName || 'Unknown part');
+    const slotUpper = String(slotLabel || '').toUpperCase();
+    const kind = (/^AUX/.test(slotUpper) || /AFTERBURNER|AUX|CAPACITOR|REGEN|FIRE_CONTROL|COMPUTER/i.test(raw)) ? 'aux'
+      : /TORPEDO|MISSILE|HANGAR|STRIKE_CRAFT/i.test(raw) ? 'explosive'
+      : /POINT_DEFENSE|FLAK/i.test(raw) ? 'pd'
+      : /LASER|PLASMA|DISRUPTOR|ARC_EMITTER|LANCE|NEUTRON/i.test(raw) ? 'energy'
+      : /MASS_DRIVER|RAILGUN|AUTOCANNON|KINETIC|GAUSS/i.test(raw) ? 'kinetic'
+      : /SHIELD/i.test(raw) ? 'shield'
+      : /ARMOR|CRYSTAL|PLATING/i.test(raw) ? 'armor'
+      : 'other';
+    const size = String(slotLabel || '').split('_')[0];
+    const label = fleetTitle(raw.replace(/^(SMALL|MEDIUM|LARGE|EXTRA_LARGE|TITANIC)_/, ''));
+    return `<span class="fleet-slot ${kind}" title="${esc(slotLabel || 'Core')}: ${esc(raw)}"><b>${esc(size.slice(0, 1) || fallbackSize)}</b><span>${esc(label)}</span></span>`;
+  };
+  const slotHtml = slots.map(item => renderTag(item.slot || 'Slot', item.component)).join('');
+  const coreHtml = core.length
+    ? `<div class="fleet-core-slots"><small>Core systems:</small>${core.map(name => renderTag('CORE', name, 'C')).join('')}</div>`
+    : '';
+  return `<div class="fleet-slots">${slotHtml}</div>${coreHtml}`;
+}
+
+function fleetLoadoutCounts(design) {
+  const counts = {weapons: 0, shields: 0, armor: 0, aux: 0};
+  for (const item of (design?.slots || [])) {
+    const raw = String(item.component || '').toUpperCase();
+    const slot = String(item.slot || '').toUpperCase();
+    if (/^AUX/.test(slot) || /AUX|AFTERBURNER|CAPACITOR|REGEN|FIRE_CONTROL/.test(raw)) counts.aux++;
+    else if (/SHIELD/.test(raw)) counts.shields++;
+    else if (/ARMOR|CRYSTAL|PLATING/.test(raw)) counts.armor++;
+    else if (/GUN|TORPEDO|MISSILE|HANGAR|PD|POINT_DEFENSE|FLAK|WEAPON/.test(slot) ||
+      /LASER|PLASMA|DISRUPTOR|MASS_DRIVER|RAILGUN|AUTOCANNON|KINETIC|TORPEDO|MISSILE|HANGAR|FLAK|POINT_DEFENSE|LANCE|EMITTER/.test(raw)) {
+      counts.weapons++;
+    }
+  }
+  return counts;
+}
+
+function fleetBuildBlueprint(size, goal, enemyDefense, enemyWeapons, context = {}) {
+  const hull = size || 'corvette';
+  const activeDlcs = context.activeDlcs;
+  const researched = context.researched || {};
+  const hasTech = prefix => Object.keys(researched).some(id => id.startsWith(prefix));
+  const isBioHull = ['mauler', 'weaver', 'harbinger', 'stinger'].includes(hull);
+  const canCloak = !activeDlcs || activeDlcs.has('first_contact');
+
+  const sections = {
+    corvette: goal === 'screening' ? 'Picket Ship (1 PD + 2 S) or Interceptor (3 S)'
+      : 'Interceptor (3 S) or Missile Boat (1 G + 1 S)',
+    frigate: 'Torpedo Hull (1 G Torpedo + 1 S) — ambush / anti-capital role',
+    destroyer: enemyWeapons === 'explosive' || goal === 'screening'
+      ? 'Picket Ship Bow + Picket Ship Stern (PD/Flak + S/M)'
+      : 'Gunship or Artillery Bow + Picket/Gunship Stern',
+    cruiser: goal === 'damage' ? 'Torpedo Brawler (G/S) or Broadside / Artillery (M/L)'
+      : goal === 'screening' ? 'Hangar Core (Strike Craft + PD) + Gunship/Broadside'
+      : 'Hangar Core (Carrier) or Broadside/Missile Core (versatile mid-late hull)',
+    battleship: goal === 'screening' ? 'Spinal Mount Bow + Carrier Core + Broadside Stern'
+      : 'Spinal Mount Bow (X) + Artillery or Carrier Core + Broadside/Artillery Stern',
+    titan: 'Perdition Beam (T) + 6 Large Artillery slots + Fleet Aura (e.g., Shield Dampener or Inspiring Presence)',
+    juggernaut: 'Mobile Shipyard + 2 Spinal X + 6 Strike Craft Hangars + 5 M slots + Empire Aura',
+    colossus: 'Planet-killer weapon slot only (no standard combat weapons — always escort with combat fleets)',
+    arkship: 'Nomads Arkship modules (verify Weapon & Defense Preferences in Policies)',
+    military_arkship: 'Nomads Tier III Military Arkship (1 per fleet) — verify Arkship policies',
+    mauler: 'BioGenesis Mauler (close-range biological hull — confirm organic weapon & food/alloy upkeep)',
+    weaver: 'BioGenesis Weaver (support/aura biological hull — pair with combat hulls)',
+    harbinger: 'BioGenesis Harbinger (carrier/mid-range biological hull)',
+    stinger: 'BioGenesis Stinger (late-game long-range biological hull)',
+  };
+
+  let weapons;
+  if (hull === 'colossus') {
+    weapons = 'Planet-killer weapon only (World Cracker, Global Pacifier, Neutron Sweep, etc.) — no combat weapon slots.';
+  } else if (hull === 'juggernaut') {
+    weapons = enemyDefense === 'shield'
+      ? '2 Focused Arc Emitters or Giga Cannons (X) + Strike Craft Hangars + Kinetic/Whirlwind Missiles (M)'
+      : enemyDefense === 'armor'
+      ? '2 Tachyon Lances or Focused Arc Emitters (X) + Strike Craft Hangars + Plasma/Missiles (M)'
+      : '2 Focused Arc Emitters (X) + Strike Craft Hangars + Whirlwind Missiles (M)';
+  } else if (hull === 'titan') {
+    weapons = enemyDefense === 'shield'
+      ? 'Perdition Beam (T) + 6 Kinetic Artillery (L) to strip shields at long range'
+      : enemyDefense === 'armor'
+      ? 'Perdition Beam (T) + 6 Large Plasma / Lasers (L) to burn armor at long range'
+      : 'Perdition Beam (T) + Kinetic Artillery (L) mixed with Large Plasma/Lasers (L)';
+  } else if (isBioHull) {
+    weapons = enemyDefense === 'shield'
+      ? 'Organic kinetic / shield-bypass weapons matching this biological hull stage — verify unlocked organic components in Ship Designer'
+      : enemyDefense === 'armor'
+      ? 'Organic energy / armor-piercing weapons matching this biological hull stage — verify unlocked organic components in Ship Designer'
+      : 'Organic weapons tailored to this biological hull growth stage (check organic weapon slots and Food/Alloy upkeep in Ship Designer)';
+  } else if (enemyDefense === 'shield') {
+    weapons = hull === 'frigate'
+      ? 'Torpedoes (G, bypass shields) + Autocannon / Disruptor (S)'
+      : hull === 'battleship'
+      ? 'Focused Arc Emitter (X, bypasses shields & armor) or Giga Cannon (X) + Kinetic Artillery (L) / Strike Craft'
+      : hull === 'destroyer' && enemyWeapons === 'explosive'
+      ? 'Flak/Point-Defense + Kinetic (Railguns/Autocannons) or S/M Missiles'
+      : 'Kinetic (Autocannons / Gauss / Kinetic Artillery) or Shield-Bypass (Disruptors / Missiles)';
+  } else if (enemyDefense === 'armor') {
+    weapons = hull === 'frigate'
+      ? 'Torpedoes / Neutron Launchers (G) + Plasma / Laser (S)'
+      : hull === 'battleship'
+      ? 'Tachyon Lance or Focused Arc Emitter (X) + Large Plasma / Lasers (L) or Strike Craft'
+      : 'Energy (Lasers / Plasma) or Armor-piercing Disruptors / Missiles (or Neutron Launchers in G slots on Cruisers/Frigates)';
+  } else if (goal === 'screening') {
+    weapons = hull === 'cruiser' || hull === 'battleship'
+      ? 'Strike Craft (Hangars) + Flak/Point-Defense + Whirlwind Missiles (M)'
+      : 'Flak (vs Strike Craft) or Point-Defense (vs Missiles) + rapid-fire S weapons';
+  } else if (hull === 'frigate') {
+    weapons = 'Torpedoes (G slot, high damage vs Cruisers/Battleships/Starbases) + Disruptor or Autocannon (S)';
+  } else if (hull === 'corvette') {
+    weapons = goal === 'damage'
+      ? 'All Disruptors (S, bypasses shields & armor) OR 2 Kinetic (Autocannons/Railguns) + 1 Energy (Laser/Plasma)'
+      : 'Balanced 2 Kinetic + 1 Laser/Plasma (S), or S-slot Missiles + Disruptor once unlocked';
+  } else if (hull === 'battleship') {
+    weapons = 'Spinal X weapon (Focused Arc Emitter or Giga Cannon/Tachyon Lance) + Strike Craft Hangars + Whirlwind Missiles (M) or Kinetic Artillery (L)';
+  } else if (hull === 'cruiser') {
+    weapons = 'Whirlwind Missiles (M) + Strike Craft (kiting) OR Torpedoes (G) + Autocannons/Disruptors (brawler)';
+  } else {
+    weapons = 'Mix Kinetic (strips shields) + Energy (burns armor), or Missiles/Disruptors for bypass damage';
+  }
+
+  let defenses;
+  if (enemyWeapons === 'kinetic') {
+    defenses = 'Armor-heavy (~70–80% Armor, 20–30% Shields or Crystal Hull) — Kinetic deals bonus damage to Shields and reduced damage to Armor.';
+  } else if (enemyWeapons === 'energy') {
+    defenses = 'Shield-heavy (~70–80% Shields, 20–30% Armor) — Energy weapons deal bonus damage to Armor and reduced damage to Shields.';
+  } else if (enemyWeapons === 'explosive') {
+    defenses = 'Armor-leaning (~70% Armor, 30% Shields/Hull) + Point-Defense/Flak escorts — Missiles & Torpedoes bypass Shields completely.';
+  } else if (goal === 'low-cost') {
+    defenses = 'Armor-leaning or Crystal Hull Plating to save reactor power and keep alloy/rare-resource costs lower.';
+  } else if (goal === 'survival') {
+    defenses = 'Balanced ~50% Armor / ~50% Shields (highest unlocked tier) — add Hull Plating if enemy uses bypass weapons (Disruptors/Arc Emitters).';
+  } else {
+    defenses = 'Balanced ~50% Armor / ~50% Shields using your highest unlocked tier; shift toward Armor if reactor power runs tight.';
+  }
+
+  let auxComputer;
+  if (hull === 'colossus') {
+    auxComputer = 'Aux: Afterburners or Regenerative Hull Tissue (survival & transit speed) · Standard Colossus computer (keep escorted)';
+  } else if (hull === 'juggernaut') {
+    auxComputer = 'Aux: Regenerative Hull / Shield Capacitors · Computer: Carrier (stay back to repair and launch strike craft)';
+  } else if (hull === 'corvette') {
+    auxComputer = goal === 'mobility' || goal === 'balanced'
+      ? 'Aux: Afterburners (evasion & speed) · Computer: Swarm (brawler) or Artillery (missile kiter)'
+      : 'Aux: Afterburners · Computer: Swarm (close-in) or Picket (high tracking)';
+  } else if (hull === 'frigate') {
+    auxComputer = canCloak
+      ? 'Aux: Afterburners (or Cloaking Field with First Contact) · Computer: Torpedo'
+      : 'Aux: Afterburners · Computer: Torpedo';
+  } else if (hull === 'destroyer') {
+    auxComputer = 'Aux: Afterburners or Auxiliary Fire-Control · Computer: Picket (anti-corvette/missile tracking)';
+  } else if (hull === 'cruiser') {
+    auxComputer = 'Aux: Afterburners (speed/kiting) or Regenerative Hull / Shield Capacitors · Computer: Carrier, Torpedo, or Line';
+  } else if (hull === 'titan') {
+    auxComputer = 'Aux: Auxiliary Fire-Control or Shield Capacitors / Regenerative Hull · Computer: Artillery (keep Perdition Beam & Aura at max range)';
+  } else if (hull === 'battleship') {
+    auxComputer = 'Aux: Afterburners (kiting) or Auxiliary Fire-Control / Shield Capacitors · Computer: Artillery or Carrier';
+  } else {
+    auxComputer = 'Aux: Afterburners or Regenerative Hull / Shield Capacitors · Computer matching your weapon range';
+  }
+
+  const techNotes = [];
+  if (Object.keys(researched).length) {
+    const unlocked = [
+      hasTech('tech_shields_') && 'Shields',
+      hasTech('tech_ship_armor_') && 'Armor',
+      hasTech('tech_lasers_') && 'Lasers',
+      hasTech('tech_mass_drivers_') && 'Kinetic',
+      hasTech('tech_missiles_') && 'Missiles',
+      hasTech('tech_torpedoes_') && 'Torpedoes',
+      hasTech('tech_disruptors_') && 'Disruptors',
+      hasTech('tech_strike_craft_') && 'Strike Craft',
+      hasTech('tech_afterburners_') && 'Afterburners',
+    ].filter(Boolean);
+    if (unlocked.length) techNotes.push(`Recorded tech families in save: ${unlocked.join(', ')}.`);
+  }
+  if (activeDlcs && activeDlcs.has('first_contact') && ['corvette', 'frigate'].includes(hull)) {
+    techNotes.push('First Contact: Frigates/Corvettes pair well with Cloaking for torpedo ambushes.');
+  }
+  if (activeDlcs && activeDlcs.has('grand_archive') && context.shipsetKind === 'fauna') {
+    techNotes.push('Space fauna: re-check combat computers after upgrades.');
+  }
+  techNotes.push('Verify unlocked component tiers, reactor power, and alloy/strategic-resource upkeep in Ship Designer.');
+
+  return {
+    title: `${fleetClassName(hull)} configuration (${fleetTitle(goal)}${enemyDefense !== 'unknown' || enemyWeapons !== 'unknown' ? ' · countered' : ''})`,
+    sections: sections[hull] || 'Inspect available bow/core/stern sections in Ship Designer for your weapon range.',
+    weapons,
+    defenses,
+    auxComputer,
+    note: techNotes.join(' '),
+  };
 }
 
 /* Qualitative, save-grounded finder. No saved design is assumed buildable. */
@@ -277,6 +464,20 @@ function renderFleet(snapshot, config = {}) {
   const finder = fleetFinder(designs, fleetClass, fleetGoal, fleetEnemyDefense, fleetEnemyWeapons,
     {version: snapshot.version, mods: snapshot.campaign?.mods || [], policies: policyDetails});
   const finderTop = finder.top;
+  const blueprint = fleetBuildBlueprint(fleetClass, fleetGoal, fleetEnemyDefense, fleetEnemyWeapons,
+    {activeDlcs, shipsetKind: profile.shipset_kind, researched: snapshot.technology?.researched || {}});
+  const blueprintHtml = `
+    <div class="fleet-blueprint" aria-label="Recommended ship configuration">
+      <div class="fleet-blueprint-head"><span class="eyebrow">SUGGESTED SHIP DESIGNER CONFIGURATION · CONDITIONAL</span><strong>${esc(blueprint.title)}</strong></div>
+      <dl class="fleet-blueprint-grid">
+        <div><dt>Sections &amp; role</dt><dd>${esc(blueprint.sections)}</dd></div>
+        <div><dt>Weapons</dt><dd>${esc(blueprint.weapons)}</dd></div>
+        <div><dt>Armor &amp; shields</dt><dd>${esc(blueprint.defenses)}</dd></div>
+        <div><dt>Aux &amp; computer</dt><dd>${esc(blueprint.auxComputer)}</dd></div>
+      </dl>
+      <small>${esc(blueprint.note)}</small>
+    </div>`;
+  const topCounts = finderTop ? fleetLoadoutCounts(finderTop.design) : null;
   const finderPolicy = policyDetails.slice(0, 3).map(item =>
     `${item.policy_label}: ${item.selected_label}`).join(' · ');
 
@@ -288,8 +489,9 @@ function renderFleet(snapshot, config = {}) {
       <div class="fleet-finder-controls"><fieldset><legend>Your goal</legend>${[['balanced','Balanced'],['damage','Damage'],['survival','Survival'],['screening','Screening'],['low-cost','Low cost'],['mobility','Mobility']].map(([value,label]) => `<button type="button" data-fleet-goal="${value}" aria-pressed="${fleetGoal === value}" class="${fleetGoal === value ? 'active' : ''}">${label}</button>`).join('')}</fieldset>
       <label>Enemy defenses you saw<select id="fleet-enemy-defense"><option value="unknown">Unknown</option><option value="shield" ${fleetEnemyDefense === 'shield' ? 'selected' : ''}>Mostly shields</option><option value="armor" ${fleetEnemyDefense === 'armor' ? 'selected' : ''}>Mostly armor</option></select></label>
       <label>Enemy weapons you saw<select id="fleet-enemy-weapons"><option value="unknown">Unknown</option><option value="kinetic" ${fleetEnemyWeapons === 'kinetic' ? 'selected' : ''}>Kinetic</option><option value="energy" ${fleetEnemyWeapons === 'energy' ? 'selected' : ''}>Energy</option><option value="explosive" ${fleetEnemyWeapons === 'explosive' ? 'selected' : ''}>Missiles or torpedoes</option></select></label></div>
-      <div class="fleet-finder-result">${finderTop ? `${fleetArt(fleetClass)}<div><span class="eyebrow">${esc(finder.decision)} · ${esc(finderTop.source)} · ${esc(finderTop.status)}</span><h3>${esc(finderTop.design.name)}</h3><p>${esc(finderTop.why)}</p><small>${esc(finderTop.reasons.join(' '))}</small>${finder.tied ? '<small>Several designs are equally suitable from available evidence; names set display order only.</small>' : ''}</div>` : `${fleetArt(fleetClass)}<div><span class="eyebrow">${esc(finder.decision)} · Guide concept only</span><h3>${esc(fleetClassName(fleetClass))} design needs in-game review</h3><p>No suitable saved design can be established for this goal. Inspect the hull and available parts in Ship Designer; the Guide has not verified a new loadout.</p></div>`}</div>
-      <details class="fleet-finder-choices" open><summary>Compare ${finder.candidates.length} saved ${esc(fleetClassName(fleetClass))} designs</summary><div>${finder.candidates.slice(0, 5).map(item => `<article>${fleetArt(item.design.size_key)}<div><strong>${esc(item.design.name)}</strong><small>${esc(item.source)} · ${esc(item.status)} · ${esc(item.fit === 'insufficient' ? 'insufficient data' : item.fit === 'fitting' ? 'suitable from known evidence' : 'trade-off or baseline')}</small><p>${esc(item.why)}</p><small>Attack ${esc(item.offense)} · Defense ${esc(item.defense)} · Alloy cost unknown · Naval use ${Number.isFinite(item.design.naval_usage) ? fleetNumber(item.design.naval_usage) : 'unknown'}</small></div><button type="button" data-fleet-design="${item.design.id}">Inspect</button></article>`).join('') || '<p>No saved design for this hull. Check Ship Designer for available sections and parts.</p>'}</div></details>
+      <div class="fleet-finder-result">${finderTop ? `${fleetArt(fleetClass)}<div class="fleet-finder-body"><span class="eyebrow">${esc(finder.decision)} · ${esc(finderTop.source)} · ${esc(finderTop.status)}</span><h3>${esc(finderTop.design.name)}</h3><p>${esc(finderTop.why)}</p><small class="fleet-loadout-summary">Saved loadout: ${topCounts.weapons} weapon · ${topCounts.shields} shield · ${topCounts.armor} armor · ${topCounts.aux} aux slot(s)</small>${fleetSlots(finderTop.design)}<small>${esc(finderTop.reasons.join(' '))}</small>${finder.tied ? '<small>Several designs are equally suitable from available evidence; names set display order only.</small>' : ''}</div>` : `${fleetArt(fleetClass)}<div class="fleet-finder-body"><span class="eyebrow">${esc(finder.decision)} · Guide concept only</span><h3>${esc(fleetClassName(fleetClass))} design guide</h3><p>No single saved design is verified as the best match yet. Use the suggested Ship Designer configuration below, or compare your saved ${esc(fleetClassName(fleetClass))} loadouts.</p></div>`}</div>
+      ${blueprintHtml}
+      <details class="fleet-finder-choices" open><summary>Compare ${finder.candidates.length} saved ${esc(fleetClassName(fleetClass))} designs</summary><div>${finder.candidates.slice(0, 5).map(item => { const c = fleetLoadoutCounts(item.design); return `<article>${fleetArt(item.design.size_key)}<div><strong>${esc(item.design.name)}</strong><small>${esc(item.source)} · ${esc(item.status)} · ${esc(item.fit === 'insufficient' ? 'insufficient data' : item.fit === 'fitting' ? 'suitable from known evidence' : 'trade-off or baseline')}</small><p>${esc(item.why)}</p><small>Attack ${esc(item.offense)} (${c.weapons}w) · Shields ${c.shields} · Armor ${c.armor} · Naval use ${Number.isFinite(item.design.naval_usage) ? fleetNumber(item.design.naval_usage) : 'unknown'}</small>${fleetSlots(item.design)}</div><button type="button" data-fleet-design="${item.design.id}">Inspect</button></article>`; }).join('') || '<p>No saved design for this hull. Check Ship Designer for available sections and parts.</p>'}</div></details>
       ${finderTop ? '' : `<p class="fleet-concept">Guide concept · conditional: ${esc(fleetConcept(fleetClass, fleetGoal, fleetEnemyWeapons, {activeDlcs, shipsetKind: profile.shipset_kind}))}</p>`}
       <small>${esc(finderTop?.policyFit || (finderPolicy ? `Selected settings: ${finderPolicy}. Check their effect in Ship Designer.` : 'Selected fleet settings could not be read.'))} Alternatives require a check in the in-game Policies screen. Opponent equipment above is player supplied; hidden designs are not used.</small>
       <button type="button" class="fleet-compare-toggle" data-open-compare aria-controls="fleet-compare-panel" aria-expanded="false">Open detailed comparison</button>
@@ -380,8 +582,15 @@ function renderFleet(snapshot, config = {}) {
     root.querySelector('#fleet-enemy-weapons')?.focus();
   });
   root.querySelectorAll('[data-fleet-design]').forEach(button => button.addEventListener('click', () => {
+    const fromFinder = Boolean(button.closest?.('.fleet-finder-choices'));
     fleetDesignId = Number(button.dataset.fleetDesign); renderFleet(snapshot, config);
-    root.querySelector(`[data-fleet-design="${fleetDesignId}"]`)?.focus();
+    const detail = root.querySelector('.fleet-design-detail');
+    if (fromFinder && detail?.scrollIntoView) {
+      detail.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+      root.querySelector(`.fleet-design-list [data-fleet-design="${fleetDesignId}"]`)?.focus?.({preventScroll: true});
+    } else {
+      root.querySelector(`[data-fleet-design="${fleetDesignId}"]`)?.focus?.();
+    }
   }));
   root.querySelectorAll('[data-compare]').forEach(button => button.addEventListener('click', () => {
     const id = Number(button.dataset.compare);

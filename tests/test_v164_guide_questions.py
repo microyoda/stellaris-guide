@@ -272,6 +272,14 @@ class QuestionRegressionTests(unittest.TestCase):
         self.assertIn("unknown", answer_question("Do I have an amenities problem?", sparse, ADVICE))
         self.assertIn("not readable", answer_question("How is my stability?", sparse, ADVICE))
 
+        # Ship configuration questions return concrete Armor/Shield/Weapon guidance even without saved designs.
+        ship_cfg = answer_question("What armor or shield configuration should I build on my ships?", save, ADVICE)
+        self.assertIn("Armor-heavy", ship_cfg)
+        self.assertIn("Shield-heavy", ship_cfg)
+        self.assertIn("Ship Designer", ship_cfg)
+        ship_cfg_verb = answer_question("How should I configure my ships?", save, ADVICE)
+        self.assertIn("Armor-heavy", ship_cfg_verb)
+
 
 if __name__ == "__main__":
     unittest.main()

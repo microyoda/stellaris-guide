@@ -384,12 +384,17 @@ def ship_answer(snapshot: dict, context: QuestionContext | None = None) -> str:
         return f"Saved naval usage: {used_text} / {cap_text}.{sb_text} {levers} Confirm your exact naval cap and alloy upkeep in game."
 
     rec = snapshot.get("ship_builds", {}).get("recommendation", {})
+    if focus == "ship_config" or mode == "how_to":
+        lead = (f"Current saved build focus: {rec['title']} ({rec['quantity']}). "
+                if isinstance(rec, dict) and rec.get("title") and rec.get("quantity") else "")
+        return (lead +
+                "General Ship Designer configuration: start with ~50% Armor / ~50% Shields and mixed Kinetic + Energy (or Disruptors/Missiles) when enemy gear is unknown. "
+                "Counter visible enemies: use Armor-heavy (~70-80%) vs Kinetic weapons, Shield-heavy (~70-80%) vs Energy weapons, Armor + Point-Defense/Flak vs Missiles/Torpedoes; "
+                "use Kinetic or bypass weapons vs Shield-heavy enemies and Energy/Torpedoes vs Armor-heavy enemies. Add Afterburners on Corvettes/Frigates/Cruisers and open Fleet → Design Finder for hull-by-hull blueprints. "
+                "Confirm unlocked tiers, reactor power, and alloy upkeep in Ship Designer.")
+
     if not rec:
         return "I could not read your owned ship designs from this save."
-    if mode == "how_to":
-        return (f"Current saved build focus: {rec['title']} ({rec['quantity']}). "
-                "To tailor ship designs: inspect visible enemy weapon/defense intel first (avoid relying on hidden save data), "
-                f"match hulls to your alloy income, and verify weapon/defense policies in Ship Designer. {rec['caveat']}")
     return f"{rec['title']}. {rec['quantity']}. {rec['reason']} {rec['caveat']}"
 
 

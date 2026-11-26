@@ -98,6 +98,10 @@ def _detect_focus(topic: str, words: str) -> str | None:
             return "starbase_capacity"
         if _has(words, "naval capacity", "naval cap", "fleet capacity", "fleet cap"):
             return "naval_capacity"
+        if _has(words, "armor", "shield", "shields", "weapon", "weapons", "loadout",
+                "configuration", "configure", "config", "equip", "outfit", "fitting",
+                "hull", "afterburner", "counter"):
+            return "ship_config"
     elif topic == "planet":
         if _has(words, "amenities", "amenity"):
             return "amenities"
@@ -150,7 +154,8 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
         topic = "economy"
     elif _has(words, "ship", "ships", "design", "fleet", "fleets", "corvette", "frigate",
               "destroyer", "cruiser", "battleship", "naval capacity", "naval cap",
-              "fleet capacity", "fleet cap", "starbase", "starbases"):
+              "fleet capacity", "fleet cap", "starbase", "starbases",
+              "armor", "shield", "shields", "loadout"):
         topic = "ships"
     elif _has(words, "economy", "economic", "resource", "resources", "alloy", "alloys",
               "energy", "mineral", "minerals", "food", "consumer goods", "consumer good",
