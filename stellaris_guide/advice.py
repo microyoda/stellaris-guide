@@ -5,6 +5,7 @@ from __future__ import annotations
 from .dlcs import has_dlc, parse_release_tuple
 from .guide_knowledge import rule_for
 from .question_context import QuestionContext, classify_question
+from .traditions_data import ASCENSION_PERKS, TRADITIONS, summarize_save_traditions
 
 
 def signed(value: float) -> str:
@@ -686,6 +687,371 @@ def _government_answer(snapshot: dict) -> str:
     return prefix + _guide_steps("government", snapshot)
 
 
+def _save_year(snapshot: dict) -> int | None:
+    date_text = str(snapshot.get("date") or (snapshot.get("campaign") or {}).get("save_date") or "")
+    parts = date_text.split(".")
+    if parts and parts[0].isdigit():
+        return int(parts[0])
+    return None
+
+
+def _colony_count(player: dict, planets: list[dict]) -> float | None:
+    explicit = _num(player.get("colonies"))
+    if explicit is not None:
+        return explicit
+    return float(len(planets)) if planets else None
+
+
+def _is_dlc_missing(snapshot: dict, dlc_label: str | None) -> bool:
+    if not dlc_label:
+        return False
+    parts = [part.strip() for part in dlc_label.split("/") if part.strip()]
+    return bool(parts) and all(has_dlc(snapshot, part) is False for part in parts)
+
+
+def _tradition_fit_note(key: str, snapshot: dict, summary: dict) -> str:
+    player = snapshot.get("player") or {}
+    profile = player.get("profile") or {}
+    net = player.get("net") or {}
+    net_known = player.get("net_known") or {}
+    research = player.get("research") or {}
+    planets = [p for p in (snapshot.get("planets") or []) if isinstance(p, dict) and p.get("name")]
+    year = _save_year(snapshot)
+    colonies = _colony_count(player, planets)
+    size = _num(player.get("empire_size"))
+    is_gestalt = bool(profile.get("is_gestalt"))
+    is_machine = bool(profile.get("is_machine"))
+    is_megacorp = bool(profile.get("is_megacorp"))
+    is_nomad = bool(profile.get("is_nomad"))
+    low_stab = sorted(
+        [(s, p["name"]) for p in planets if (s := _num(p.get("stability"))) is not None and s < 40],
+        key=lambda item: item[0],
+    )
+
+    if key == "prosperity":
+        notes = []
+        if is_nomad:
+            notes.append("For your Nomadic empire, Prosperity swaps mining-station bonuses for Arkship harvest output (+10% adopt, +15% finish) and +1 max Arkship district.")
+        else:
+            col_txt = f"{int(colonies)} colonies" if colonies else "your colonies"
+            yr_txt = f"Year {year}, " if year else ""
+            deficits = [r.replace("_", " ") for r in ("energy", "minerals", "consumer_goods", "alloys")
+                        if net_known.get(r, True) is not False and (_num(net.get(r)) or 0) < 0]
+            if deficits:
+                notes.append(f"For your save ({yr_txt}{col_txt}, deficits in {', '.join(deficits)}), Prosperity helps trim structure/job upkeep (-10%/-5%) and lift all colony job output (+5%) once districts are built.")
+            else:
+                notes.append(f"For your save ({yr_txt}{col_txt}), Prosperity is a strong economic multiplier once you are building up districts and specialist worlds.")
+        if low_stab:
+            notes.append(f"Note: Prosperity does not directly fix revolt risk — stabilize {low_stab[0][1]} ({low_stab[0][0]:.0f}% stability) first (or consider Harmony/Synchronicity for +3 Stability).")
+        return " ".join(notes)
+
+    if key == "discovery":
+        tot_sci = sum(v for k in ("physics", "society", "engineering") if (v := _num(research.get(k))) is not None)
+        sci_txt = f" (saved research ~{tot_sci:.0f}/mo)" if tot_sci > 0 else ""
+        if year and year < 2235:
+            return f"At Year {year}{sci_txt}, Discovery is at peak value while your science ships are still surveying and hunting anomalies."
+        return f"At your current stage{sci_txt}, Discovery's +1 tech alternative and +10% Research Speed finisher remain useful, though early survey speed matters less once borders are mapped."
+
+    if key == "expansion":
+        col_txt = f" ({int(colonies)} colonies)" if colonies else ""
+        if year and year < 2240:
+            return f"At Year {year}{col_txt}, Expansion pays off best while you are still claiming systems and founding early colonies."
+        return f"Past the early land-grab{col_txt}, Expansion loses value compared to Prosperity, Statecraft, or Supremacy unless you are still colonizing heavily."
+
+    if key == "supremacy":
+        nav_used = _num(player.get("naval_used"))
+        nav_cap = _num(player.get("naval_capacity"))
+        nav_txt = f" (saved naval usage {nav_used:g}" + (f"/{nav_cap:g})" if nav_cap is not None else ")") if nav_used is not None else ""
+        return f"Strong pick whenever you are preparing for war, facing aggressive neighbors, or scaling fleets{nav_txt}."
+
+    if key == "unyielding":
+        sb_used = _num(player.get("starbase_used"))
+        sb_cap = _num(player.get("starbase_capacity"))
+        if sb_used is not None and sb_cap is not None:
+            return f"Your save is at {sb_used:g}/{sb_cap:g} starbases — Unyielding adds +4 total Starbase Capacity for extra Anchorages, Hydroponics Bays, or border bastions."
+        return "Best when you need +4 Starbase Capacity for Anchorages/Hydroponics or want to fortify chokepoints."
+
+    if key == "mercantile":
+        if is_gestalt:
+            return "Note: Gestalt empires use Logistics instead of Mercantile."
+        trade = _num(net.get("trade")) if net_known.get("trade", True) is not False else None
+        trade_txt = f" (saved monthly Trade {signed(trade)})" if trade is not None else ""
+        if is_megacorp:
+            return f"Core pick for your MegaCorp{trade_txt}: Consumer Benefits / Marketplace of Ideas let Trade cover Consumer Goods or Unity."
+        return f"Best if you lean into Trader jobs or need Trade to cover Consumer Goods/Unity{trade_txt}; skip if your economy is basic-resource/alloy focused."
+
+    if key == "logistics":
+        if not is_gestalt:
+            return "Note: Logistics is the Gestalt trade/logistics tree; non-Gestalt empires use Mercantile."
+        return "Helps Gestalt empires keep Trade positive and reduce ship and structure logistics upkeep."
+
+    if key == "harmony":
+        if is_gestalt:
+            return "Note: Gestalt empires use Synchronicity instead of Harmony."
+        if low_stab:
+            return f"Directly helps your low-stability colony ({low_stab[0][1]} at {low_stab[0][0]:.0f}%) via +3 Stability, -10 Crime, and -10% pop upkeep."
+        return "Best for mid/late-game tall play, cutting pop Empire Size (-5%), and stacking Planetary Ascension (+25% effect)."
+
+    if key == "synchronicity":
+        if not is_gestalt:
+            return "Note: Synchronicity is the Gestalt counterpart to Harmony."
+        if low_stab:
+            return f"Directly helps stabilize {low_stab[0][1]} ({low_stab[0][0]:.0f}%) while cutting pop and leader upkeep."
+        return "Strong Gestalt midgame tree for -10% pop upkeep, -20% leader upkeep, +3 Stability, and Planetary Ascension."
+
+    if key == "statecraft":
+        size_txt = f" (saved Empire Size {size:g})" if size is not None else ""
+        return f"High-value across almost every campaign{size_txt}: rapid Councilor XP from finishing Agendas snowballs your whole empire."
+
+    if key == "versatility":
+        if not is_machine:
+            return "Note: Versatility is exclusive to Machine Intelligence empires."
+        return "Solid Machine Intelligence utility tree for +10% Pop Assembly speed and Unity from Maintenance Drones."
+
+    if key in ("genetics", "cybernetics", "synthetics", "psionics"):
+        remaining = max(0, 7 - summary["tree_count"])
+        return f"You currently have {summary['tree_count']}/7 Tradition tree slots used ({remaining} open) — keep an open slot ready for your chosen Ascension Path."
+
+    return TRADITIONS[key]["role"]
+
+
+def _perk_fit_note(key: str, snapshot: dict) -> str:
+    player = snapshot.get("player") or {}
+    profile = player.get("profile") or {}
+    research = player.get("research") or {}
+    planets = [p for p in (snapshot.get("planets") or []) if isinstance(p, dict) and p.get("name")]
+    colonies = _colony_count(player, planets)
+    size = _num(player.get("empire_size"))
+    is_megacorp = bool(profile.get("is_megacorp"))
+    is_nomad = bool(profile.get("is_nomad"))
+    is_gestalt = bool(profile.get("is_gestalt"))
+
+    if key == "imperial_prerogative":
+        if is_megacorp:
+            return "Eligibility note: MegaCorp empires cannot take Imperial Prerogative."
+        if is_nomad:
+            return "For Nomads, Imperial Prerogative grants +15% Ruler workforce and +2 Official cap instead of colony Empire Size reduction."
+        bits = []
+        if colonies is not None:
+            bits.append(f"{int(colonies)} colonies")
+        if size is not None:
+            bits.append(f"Empire Size {size:g}")
+        ctx = f" ({', '.join(bits)})" if bits else ""
+        return f"For your save{ctx}, -25% Empire Size from colonies scales better the wider you expand (typically worth taking at 5+ colonies)."
+
+    if key == "technological_ascendancy":
+        tot_sci = sum(v for k in ("physics", "society", "engineering") if (v := _num(research.get(k))) is not None)
+        sci_txt = f"At your saved research output (~{tot_sci:.0f}/mo), it" if tot_sci > 0 else "It"
+        return f"{sci_txt} shines when chasing rare ship, megastructure, or strategic techs and steering branch priority with Research Focus."
+
+    if key == "grasp_the_void":
+        sb_used = _num(player.get("starbase_used"))
+        sb_cap = _num(player.get("starbase_capacity"))
+        if sb_used is not None and sb_cap is not None:
+            return f"Your save is at {sb_used:g}/{sb_cap:g} starbases — +5 Starbase Capacity immediately removes starbase-cap pressure or funds 5 more Anchorage/Hydroponics starbases."
+        return ASCENSION_PERKS[key]["role"]
+
+    if key == "galactic_force_projection":
+        nav_used = _num(player.get("naval_used"))
+        nav_cap = _num(player.get("naval_capacity"))
+        if nav_used is not None:
+            cap_str = f"/{nav_cap:g}" if nav_cap is not None else ""
+            return f"Saved naval usage is {nav_used:g}{cap_str} — +150 Naval Cap and +2 Power Projection Influence give a sharp military and Influence spike."
+        return ASCENSION_PERKS[key]["role"]
+
+    if key == "arcology_project":
+        if is_nomad:
+            return "Eligibility note: Nomadic empires cannot take Arcology Project."
+        if is_gestalt:
+            return "Eligibility note: Only Rogue Servitors among Gestalt empires can take Arcology Project; Hive/Machine empires use Hive Worlds or Machine Worlds."
+        return ASCENSION_PERKS[key]["role"]
+
+    if key == "galactic_wonders" and is_nomad:
+        return "Eligibility note: Nomadic empires cannot take Galactic Wonders."
+
+    return ASCENSION_PERKS[key]["role"]
+
+
+def _format_single_tp(kind: str, key: str, snapshot: dict, summary: dict, raw_text: str) -> str:
+    lowered = raw_text.casefold()
+    parts: list[str] = []
+    if kind == "tradition":
+        item = TRADITIONS[key]
+        if any(w in lowered for w in ("perk", "perks")) and "tradition" not in lowered:
+            parts.append(f"{item['name']} is a Tradition tree (not an Ascension Perk).")
+        st = summary["trees"].get(key)
+        if st and st["finished"]:
+            parts.append(f"In this save, you have already finished {item['name']} ({summary['tree_count']}/7 Tradition slots used).")
+        elif st and st["adopted"]:
+            parts.append(f"In this save, you have adopted {item['name']} ({st['picks']}/5 picks; {summary['tree_count']}/7 Tradition slots used).")
+        elif summary["tree_count"] > 0:
+            started = ", ".join(TRADITIONS[k]["name"] for k in summary["trees"] if k in TRADITIONS)
+            parts.append(f"In this save, you have not adopted {item['name']} yet ({summary['tree_count']}/7 Tradition slots used: {started}).")
+        else:
+            parts.append(f"No adopted Tradition trees are recorded in this save yet.")
+        if _is_dlc_missing(snapshot, item.get("dlc")):
+            parts.append(f"DLC note: {item['dlc']} is not listed in this save's active DLCs.")
+        parts.append(f"4.6 benefits — Adopt: {item['adopt']}. Picks: {item['picks']}. Finisher: {item['finish']}.")
+        parts.append(_tradition_fit_note(key, snapshot, summary))
+    else:
+        item = ASCENSION_PERKS[key]
+        if "tradition" in lowered and not any(w in lowered for w in ("perk", "perks", "ascension")):
+            parts.append(f"{item['name']} is an Ascension Perk (unlocked by finishing a Tradition tree).")
+        if key in summary["perk_keys"]:
+            parts.append(f"In this save, you already have {item['name']}.")
+        elif summary["perk_names"]:
+            parts.append(f"In this save, you do not have {item['name']} yet (current perks: {', '.join(summary['perk_names'][:4])}).")
+        else:
+            parts.append(f"No Ascension Perks are recorded in this save yet.")
+        if _is_dlc_missing(snapshot, item.get("dlc")):
+            parts.append(f"DLC note: {item['dlc']} is not listed in this save's active DLCs.")
+        parts.append(f"4.6 effect: {item['effects']}.")
+        parts.append(_perk_fit_note(key, snapshot))
+    return " ".join(parts) + " Verify exact prerequisites in your Traditions & Relics screen."
+
+
+def _tradition_perk_answer(context: QuestionContext, snapshot: dict) -> str:
+    focus = context.focus or "general"
+    summary = summarize_save_traditions(snapshot)
+
+    if focus.startswith("tradition:"):
+        key = focus.split(":", 1)[1]
+        if key in TRADITIONS:
+            return _format_single_tp("tradition", key, snapshot, summary, context.text)
+    if focus.startswith("perk:"):
+        key = focus.split(":", 1)[1]
+        if key in ASCENSION_PERKS:
+            return _format_single_tp("perk", key, snapshot, summary, context.text)
+    if focus.startswith("compare:"):
+        raw_pairs = focus.split(":", 1)[1].split(",")
+        chunks = []
+        for entry in raw_pairs[:2]:
+            if ":" not in entry:
+                continue
+            kind, key = entry.split(":", 1)
+            if kind == "tradition" and key in TRADITIONS:
+                it = TRADITIONS[key]
+                chunks.append(f"{it['name']} (Tradition): {it['role']} Key gains: {it['picks']}; Finisher: {it['finish']}.")
+            elif kind == "perk" and key in ASCENSION_PERKS:
+                it = ASCENSION_PERKS[key]
+                chunks.append(f"{it['name']} (Ascension Perk): {it['effects']}. {it['role']}")
+        if chunks:
+            status_notes = []
+            for entry in raw_pairs[:2]:
+                if ":" not in entry:
+                    continue
+                kind, key = entry.split(":", 1)
+                if kind == "tradition" and key in summary["trees"] and key in TRADITIONS:
+                    st = summary["trees"][key]
+                    label = "finished" if st["finished"] else f"in progress ({st['picks']}/5)"
+                    status_notes.append(f"{TRADITIONS[key]['name']} is already {label}")
+                elif kind == "perk" and key in summary["perk_keys"] and key in ASCENSION_PERKS:
+                    status_notes.append(f"you already have {ASCENSION_PERKS[key]['name']}")
+            year = _save_year(snapshot)
+            if status_notes:
+                save_note = " In this save, " + "; ".join(status_notes) + " — finish an open tree for its finisher & Ascension Perk slot before splitting Unity."
+            elif year:
+                save_note = f" At Year {year}, pick whichever solves your immediate bottleneck first."
+            else:
+                save_note = ""
+            return " ".join(chunks) + save_note + " Confirm your current open slots in Traditions & Relics."
+
+    # Save-aware recommendations for early-game, tradition overview, or general perk questions.
+    player = snapshot.get("player") or {}
+    profile = player.get("profile") or {}
+    net = player.get("net") or {}
+    net_known = player.get("net_known") or {}
+    planets = [p for p in (snapshot.get("planets") or []) if isinstance(p, dict) and p.get("name")]
+    year = _save_year(snapshot)
+    colonies = _colony_count(player, planets)
+    size = _num(player.get("empire_size"))
+    is_megacorp = bool(profile.get("is_megacorp"))
+    is_gestalt = bool(profile.get("is_gestalt"))
+    is_nomad = bool(profile.get("is_nomad"))
+    low_stab_pairs = [(s, p) for p in planets if (s := _num(p.get("stability"))) is not None and s < 40]
+    low_stab = [p for _, p in sorted(low_stab_pairs, key=lambda item: item[0])]
+    deficits = [r for r in ("energy", "minerals", "consumer_goods", "alloys")
+                if net_known.get(r, True) is not False and (_num(net.get(r)) or 0) < 0]
+
+    parts: list[str] = []
+    yr_prefix = f"Year {year}" if year else "this save"
+    if summary["tree_count"] > 0 or summary["perk_names"]:
+        tr_list = ", ".join(
+            f"{TRADITIONS[k]['name']} ({'done' if st['finished'] else str(st['picks']) + '/5'})"
+            for k, st in summary["trees"].items() if k in TRADITIONS
+        ) or "none recorded"
+        ap_list = ", ".join(summary["perk_names"]) if summary["perk_names"] else "none yet"
+        parts.append(f"Saved progress ({yr_prefix}): {summary['tree_count']}/7 Tradition trees ({tr_list}); Ascension Perks: {ap_list}.")
+    else:
+        parts.append(f"Saved progress ({yr_prefix}): no adopted Tradition trees or Ascension Perks recorded yet (0/7 Tradition slots used).")
+
+    if focus == "traditions_overview":
+        recs = []
+        if "discovery" not in summary["trees"] and (year is None or year < 2245):
+            recs.append("Discovery (+35% survey speed, +1 tech choice, +10% Research Speed finisher)")
+        if "prosperity" not in summary["trees"]:
+            recs.append("Prosperity (-10% build cost & upkeep, +5% all colony job output)")
+        if "statecraft" not in summary["trees"]:
+            recs.append("Statecraft (+25% Agenda speed, Councilor XP on agenda finish, -5% Empire Size)")
+        if "expansion" not in summary["trees"] and (year is None or year < 2240) and not is_nomad:
+            recs.append("Expansion (+1 starting Urban District, -15% system/colony Empire Size)")
+        if "supremacy" not in summary["trees"] and (year is not None and year >= 2245):
+            recs.append("Supremacy (+20% Naval Cap, +10% fire rate, War Doctrines)")
+        if low_stab:
+            stab_tree = "Synchronicity" if is_gestalt else "Harmony"
+            if stab_tree.lower() not in summary["trees"]:
+                recs.append(f"{stab_tree} (+3 Stability and -10% pop upkeep to help {low_stab[0]['name']})")
+        if recs:
+            parts.append("Best next Tradition trees for your save: " + "; ".join(recs[:3]) + ".")
+        else:
+            parts.append("You already hold the core economic/research trees — look to your Ascension Path, Supremacy (fleet power), or Harmony/Synchronicity (Planetary Ascension).")
+        parts.append("Reserve an open Tradition tree slot before adopting your 7th Tradition so you have room for your Ascension Path.")
+        return " ".join(parts) + " Ask about any specific tree (e.g. 'benefit of Prosperity' or 'Discovery vs Prosperity') for full 4.6 effects."
+
+    # Early-game or general Ascension Perk recommendations tailored to the save.
+    early = focus == "early_game" or (year is not None and year < 2255) or len(summary["perk_names"]) <= 1
+    perk_recs: list[str] = []
+    if early:
+        if "technological_ascendancy" not in summary["perk_keys"]:
+            perk_recs.append("Technological Ascendancy (+50% rare tech draw + Research Focus policies)")
+        if "transcendent_learning" not in summary["perk_keys"]:
+            perk_recs.append("Transcendent Learning (+2 Scientist cap, +25% leader XP, -15% leader upkeep — great while surveying)")
+        if not is_megacorp and "imperial_prerogative" not in summary["perk_keys"]:
+            ip_why = (f"strong with {int(colonies)} colonies" if colonies is not None and colonies >= 4 else "scales well as you colonize")
+            perk_recs.append(f"Imperial Prerogative (-25% Empire Size from colonies, +2 Officials — {ip_why})")
+        if "one_vision" not in summary["perk_keys"] and (low_stab or len(perk_recs) < 3):
+            perk_recs.append("One Vision (+10% Unity + ethics/ideology attraction)")
+        if "executive_vigor" not in summary["perk_keys"] and deficits:
+            perk_recs.append("Executive Vigor (+100 Edict Fund to run resource Subsidies without draining Unity)")
+        if perk_recs:
+            parts.append("Best early-game Ascension Perks for your save: " + "; ".join(perk_recs[:4]) + ".")
+        else:
+            parts.append("You already hold the top early-game perks — save your next slot for your Ascension Path or midgame scaling (Arcology Project, Master Builders, or Galactic Force Projection).")
+    else:
+        if "arcology_project" not in summary["perk_keys"] and not is_gestalt and not is_nomad:
+            perk_recs.append("Arcology Project (Ecumenopolis Alloy/Unity hubs)")
+        if "galactic_force_projection" not in summary["perk_keys"]:
+            perk_recs.append("Galactic Force Projection (+150 Naval Cap, +2 Power Projection Influence)")
+        if "defender_of_the_galaxy" not in summary["perk_keys"]:
+            perk_recs.append("Defender of the Galaxy (+50% Endgame Crisis damage)")
+        if not is_megacorp and "imperial_prerogative" not in summary["perk_keys"] and size and size > 150:
+            perk_recs.append("Imperial Prerogative (-25% Empire Size from colonies)")
+        if "technological_ascendancy" not in summary["perk_keys"] and len(perk_recs) < 3:
+            perk_recs.append("Technological Ascendancy (+50% rare tech draw + Research Focus policies)")
+        if has_dlc(snapshot, "willpower") is True and "force_of_will" not in summary["perk_keys"]:
+            perk_recs.append("Force of Will (4.6 Willpower ideological ambition path)")
+        if perk_recs:
+            parts.append("Strong Ascension Perks for your current stage: " + "; ".join(perk_recs[:4]) + ".")
+        else:
+            parts.append("You already hold the core mid/late-game perks — consider Galactic Wonders, Master Builders, Colossus Project, or your Ascension Path if not yet taken.")
+
+    if summary["tree_count"] < 2:
+        trad_lead = ("Prosperity (lower upkeep & +5% all job output)" if deficits else "Discovery (survey & research) or Prosperity (economy)")
+        parts.append(f"For Tradition trees right now, consider {trad_lead}.")
+    parts.append("Always reserve an open Tradition tree slot before adopting your 7th Tradition so you have room for your chosen Ascension Path.")
+    return " ".join(parts) + " Ask about any specific tree or perk (e.g. 'benefit of Prosperity' or 'One Vision') for exact 4.6 bonuses."
+
+
 def _benchmark_answer(snapshot: dict) -> str:
     from .strategy import build_campaign_benchmark
 
@@ -724,7 +1090,7 @@ def answer_question(question: str, snapshot: dict, advice: dict | None = None) -
     if context.topic == "dangerous_tech":
         return _guide_steps("dangerous_tech", snapshot)
     if context.topic == "ascension_perks":
-        return _guide_steps("ascension_perks", snapshot)
+        return _tradition_perk_answer(context, snapshot)
     if context.topic == "automation":
         return _guide_steps("automation", snapshot)
     if context.topic == "benchmark":

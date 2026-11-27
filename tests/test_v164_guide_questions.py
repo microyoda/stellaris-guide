@@ -463,6 +463,97 @@ class QuestionRegressionTests(unittest.TestCase):
         self.assertEqual(classify_question("How do I ascend my colony?", save).topic, "government")
         self.assertIn("Physics (60.0/month)", answer_question("How to increase physics research?", save, ADVICE))
 
+    def test_traditions_and_ascension_perks_are_specific_and_save_aware(self):
+        save = snapshot()
+        save["date"] = "2207.10.01"
+        save["version"] = "Corona Borealis v4.6.0 (3d1a)"
+        save["campaign"]["required_dlcs"] = ["Utopia", "Willpower"]
+        save["planets"][0]["stability"] = 22.0
+        save["player"]["colonies"] = 2
+        save["player"]["empire_size"] = 68
+        save["player"]["starbase_used"] = 3
+        save["player"]["starbase_capacity"] = 4
+        save["player"]["research"] = {"physics": 24.0, "society": 20.0, "engineering": 19.0}
+        save["player"]["profile"] = {
+            "authority": "auth_democratic",
+            "is_gestalt": False,
+            "is_megacorp": False,
+            "is_nomad": False,
+            "traditions": ["tr_discovery_adopt", "tr_discovery_to_boldly_go"],
+            "ascension_perks": [],
+        }
+
+        # Exact screenshot questions: typo ("posperity") and mislabeled ("perk Prosperity") both return Prosperity 4.6 benefits + save context.
+        posp = answer_question("what benefit of posperity?", save, ADVICE)
+        self.assertIn("Prosperity", posp)
+        self.assertIn("-10% colony building/district cost", posp)
+        self.assertIn("+5% output from all colony jobs", posp)
+        self.assertIn("1/7 Tradition slots used: Discovery", posp)
+        self.assertIn("Alpha Centauri Prime", posp)
+
+        perk_prosp = answer_question("what the benefit of perk Prosperity?", save, ADVICE)
+        self.assertIn("Prosperity is a Tradition tree (not an Ascension Perk)", perk_prosp)
+        self.assertIn("+5% output from all colony jobs", perk_prosp)
+        self.assertNotEqual(perk_prosp, answer_question("what the best perk or acension to choose on ealier game?", save, ADVICE))
+
+        # Early-game general perk question reflects save state (Year 2207, 1/7 Discovery) and 4.6 Technological Ascendancy.
+        early = answer_question("what the best perk or acension to choose on ealier game?", save, ADVICE)
+        self.assertIn("Year 2207", early)
+        self.assertIn("Discovery (1/5)", early)
+        self.assertIn("Technological Ascendancy", early)
+        self.assertIn("Research Focus", early)
+
+        # Specific perk lookup, comparison, and tradition overview.
+        ta = answer_question("what does Technological Ascendancy give?", save, ADVICE)
+        self.assertIn("+50% Rare Technology draw chance", ta)
+        self.assertIn("Research Focus", ta)
+        self.assertIn("63/mo", ta)
+
+        cmp_ans = answer_question("should I take Discovery or Prosperity first?", save, ADVICE)
+        self.assertIn("Discovery (Tradition)", cmp_ans)
+        self.assertIn("Prosperity (Tradition)", cmp_ans)
+        self.assertIn("Discovery is already in progress (1/5)", cmp_ans)
+
+        my_tr = answer_question("which traditions do I have?", save, ADVICE)
+        self.assertIn("1/7 Tradition trees (Discovery (1/5))", my_tr)
+        self.assertIn("Prosperity", my_tr)
+
+        # Eligibility & negative paths: MegaCorp blocked from Imperial Prerogative; archeology not rewritten to arcology; unity question stays economy.
+        corp = snapshot()
+        corp["player"]["profile"] = {"is_megacorp": True, "traditions": [], "ascension_perks": []}
+        self.assertIn("MegaCorp empires cannot take Imperial Prerogative", answer_question("is Imperial Prerogative good?", corp, ADVICE))
+        self.assertEqual(classify_question("check diplomacy with my neighbor", save).topic, "unknown")
+        self.assertEqual(classify_question("how to increase unity for traditions?", save).topic, "economy")
+        self.assertEqual(classify_question("how does archeology work?", save).topic, "unknown")
+
+        # Review regressions: "world(s)" perks reachable, no attitude->aptitude hijack, traditions overview routing, malformed profile & full-picks fallback.
+        self.assertIn("Gaia Worlds", answer_question("What does World Shaper do?", save, ADVICE))
+        self.assertIn("Hive Worlds", answer_question("What does Hive Worlds do?", save, ADVICE))
+        self.assertIn("Machine Worlds", answer_question("What does Machine Worlds do?", save, ADVICE))
+        self.assertIn("Spiritualist", answer_question("What does Consecrated Worlds do?", save, ADVICE))
+        self.assertEqual(classify_question("Why is my vassal attitude hostile?", save).topic, "subjects")
+        self.assertEqual(classify_question("What is the first thing to do in diplomacy?", save).topic, "unknown")
+        self.assertEqual(classify_question("What are the best traditions?", save).focus, "traditions_overview")
+        self.assertEqual(classify_question("What is the best first tradition?", save).focus, "traditions_overview")
+        self.assertIn("Best next Tradition trees", answer_question("What is the best first tradition?", save, ADVICE))
+
+        malformed = snapshot()
+        malformed["player"]["profile"] = {"traditions": "tr_prosperity_adopt", "ascension_perks": 42}
+        self.assertIn("Prosperity", answer_question("benefit of Prosperity", malformed, ADVICE))
+
+        full_early = snapshot()
+        full_early["date"] = "2220.01.01"
+        full_early["player"]["profile"] = {
+            "traditions": ["tr_discovery_finish", "tr_prosperity_finish", "tr_statecraft_finish", "tr_expansion_finish"],
+            "ascension_perks": ["ap_technological_ascendancy", "ap_transcendent_learning", "ap_imperial_prerogative", "ap_one_vision", "ap_executive_vigor"],
+        }
+        full_early_ans = answer_question("best early perk?", full_early, ADVICE)
+        self.assertNotIn(": .", full_early_ans)
+        self.assertIn("already hold", full_early_ans)
+        full_tr_ans = answer_question("best traditions?", full_early, ADVICE)
+        self.assertNotIn(": .", full_tr_ans)
+        self.assertIn("already hold", full_tr_ans)
+
 
 if __name__ == "__main__":
     unittest.main()

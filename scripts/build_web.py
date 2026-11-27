@@ -31,6 +31,7 @@ WEB_PYTHON_FILES = (
     "playbooks.json",
     "guide_knowledge.py",
     "guide_knowledge.json",
+    "traditions_data.py",
     "question_context.py",
     "advice.py",
     "tech_graph.json",

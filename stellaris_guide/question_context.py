@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from difflib import SequenceMatcher
 import re
 
+from .traditions_data import find_tradition_perk_mentions
+
 
 def _words(value: str) -> str:
     return " ".join(re.findall(r"\w+", value.casefold()))
@@ -111,7 +113,13 @@ _TOKEN_SLANG: dict[str, str] = {
 _CANONICAL_VOCAB: tuple[str, ...] = (
     "espionage", "infiltration", "intelligence", "ideology", "ideologies", "willpower",
     "nomads", "arkship", "arkships", "waystation", "waystations",
-    "trade", "storage", "influence", "dangerous", "ascension", "tradition",
+    "trade", "storage", "influence", "dangerous", "ascension", "tradition", "traditions",
+    "prosperity", "discovery", "expansion", "supremacy", "statecraft", "aptitude",
+    "mercantile", "logistics", "harmony", "synchronicity", "unyielding", "domination",
+    "diplomacy", "subterfuge", "adaptability", "enmity", "politics", "versatility",
+    "archivism", "domestication", "genetics", "cybernetics", "synthetics", "psionics",
+    "ascendancy", "prerogative", "transcendent", "voidborne", "arcology", "ecumenopolis",
+    "cosmogenesis", "archaeoengineers",
     "automation", "automate", "benchmark", "milestone", "milestones",
     "crisis", "crises", "prethoryn", "scourge", "unbidden", "extradimensional",
     "contingency", "cetana", "tempest", "voidworm",
@@ -136,16 +144,19 @@ _CANONICAL_VOCAB: tuple[str, ...] = (
 _CANONICAL_SET = frozenset(_CANONICAL_VOCAB)
 
 _TYPO_STOPWORDS = frozenset({
-    "about", "action", "actions", "after", "again", "against", "arbor", "attach",
-    "before", "being", "better", "between", "build", "building", "choose", "conquer",
-    "conquest", "could", "doing", "during", "early", "earlier", "empire", "empires",
-    "enough", "every", "explain", "first", "galaxy", "general", "grade", "guide",
-    "having", "helps", "known", "later", "level", "looking", "making", "might",
+    "about", "action", "actions", "after", "again", "against", "altitude", "amplitude",
+    "arbor", "archeology", "archaeology", "archives", "archivist", "attach", "attitude",
+    "before", "being", "better", "between", "build", "building",
+    "choose", "conquer", "conquest", "could", "diplomat", "diplomats", "discover", "discovered",
+    "doing", "dominant", "dominating", "during",
+    "early", "earlier", "empire", "empires", "enemy", "enough", "entire", "entity", "every",
+    "explain", "first", "galaxy", "general", "genetic", "grade", "guide",
+    "having", "helps", "known", "later", "level", "logistic", "looking", "making", "might",
     "needs", "never", "other", "others", "outpost", "outposts", "place", "plane",
-    "plant", "plants", "player", "players", "point", "police", "power", "prime",
-    "purple", "quick", "reader", "really", "right", "saved", "should", "since",
+    "plant", "plants", "player", "players", "point", "police", "political", "power", "prime",
+    "property", "properly", "purple", "quick", "reader", "really", "right", "saved", "should", "since",
     "small", "space", "spend", "start", "starting", "still", "strong", "strongest",
-    "system", "systems", "their", "there", "these", "thing", "think", "those",
+    "synthetic", "system", "systems", "their", "there", "these", "thing", "think", "those",
     "today", "treat", "under", "using", "value", "version", "wants", "where",
     "which", "while", "whose", "worth", "would", "wrong", "years", "yours",
 })
@@ -284,7 +295,29 @@ _NON_COLONY_PHRASES = {
 }
 
 
-def _detect_focus(topic: str, words: str) -> str | None:
+def _has_tp_context(words: str) -> bool:
+    return _has(
+        words,
+        "tradition", "traditions", "perk", "perks", "ascension", "acension",
+        "tree", "trees", "benefit", "benefits", "bonus", "bonuses",
+        "worth", "adopt", "finish", "finisher", "opener",
+    )
+
+
+def _detect_focus(topic: str, words: str, tp_mentions: list[tuple[str, str]] | None = None) -> str | None:
+    if topic == "ascension_perks":
+        mentions = tp_mentions if tp_mentions is not None else find_tradition_perk_mentions(words, has_tp_context=_has_tp_context(words))
+        if len(mentions) >= 2:
+            return "compare:" + ",".join(f"{kind}:{key}" for kind, key in mentions[:2])
+        if len(mentions) == 1:
+            kind, key = mentions[0]
+            return f"{kind}:{key}"
+        if (_has(words, "tradition", "traditions")
+                and not _has(words, "perk", "perks", "ascension", "acension")):
+            return "traditions_overview"
+        if _has(words, "early", "earlier", "ealier", "first", "opener", "starting", "start", "beginning"):
+            return "early_game"
+        return "general"
     if topic == "economy":
         for key, phrases in (
             ("consumer_goods", ("consumer good", "consumer goods")),
@@ -359,15 +392,17 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
         for tok in _words(str(item["name"])).split()
     }
     words = _normalize_player_words(raw_words, protected_tokens)
+    tp_mentions = find_tradition_perk_mentions(words, has_tp_context=_has_tp_context(words), raw_words=raw_words)
 
     # A named place takes precedence over broad words such as "economy".
     if _has(words, "spy", "spies", "spying", "espionage", "infiltration", "intel",
             "intelligence", "spy network", "spy networks", "covert", "operation", "operations",
             "steal technology", "steal tech"):
         topic = "espionage"
-    elif _has(words, "ideology", "ideologies", "willpower", "fanatic faction", "fanatic factions",
-              "galactic hall", "galactic halls", "tenet", "tenets", "ideological momentum",
-              "ideological reach", "force of will"):
+    elif (_has(words, "ideology", "ideologies", "willpower", "fanatic faction", "fanatic factions",
+               "galactic hall", "galactic halls", "tenet", "tenets", "ideological momentum",
+               "ideological reach")
+          or (_has(words, "force of will") and not _has(words, "perk", "perks", "ascension", "benefit", "benefits", "effect", "effects", "give", "gives"))):
         topic = "ideologies"
     elif _has(words, "nomad", "nomads", "arkship", "arkships", "waystation", "waystations",
               "wayline", "waylines", "operational reserves"):
@@ -377,9 +412,12 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
     elif _has(words, "dangerous tech", "dangerous technology", "dangerous technologies",
               "red tech", "red techs", "machine uprising", "sapient combat", "research restrictions"):
         topic = "dangerous_tech"
-    elif (_has(words, "ascension perk", "ascension perks", "ascension path", "ascension", "acension",
-               "perk", "perks", "tradition slot", "best tradition", "which tradition",
-               "technological ascendancy", "imperial prerogative", "galactic force projection")
+    elif ((tp_mentions
+           or _has(words, "ascension perk", "ascension perks", "ascension path", "ascension", "acension",
+                   "perk", "perks", "tradition slot", "best tradition", "which tradition", "next tradition",
+                   "my traditions", "what traditions", "tradition tree", "tradition trees",
+                   "technological ascendancy", "imperial prerogative", "galactic force projection")
+           or (_has(words, "tradition", "traditions") and not _has(words, "unity")))
           and not _has(words, "colony ascension", "planetary ascension")):
         topic = "ascension_perks"
     elif _has(words, "automation", "automate", "planetary automation", "automation building",
@@ -456,7 +494,7 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
                                  "boost", "raise", "fix", "more", "which policy", "which policies",
                                  "which branch", "which planet", "which colony", "shall i") else "status")
     scope = "planet" if planet or planet_ambiguous else "contact" if contact or contact_ambiguous else "general"
-    focus = _detect_focus(topic, words)
+    focus = _detect_focus(topic, words, tp_mentions)
     missing_name = None
     if not planet and not planet_ambiguous and topic in {"planet", "economy", "population", "policy"}:
         match = (re.search(r"\b(?:in|on|at|for)\s+([\w-]+(?:\s+[\w-]+){0,3})\s*[?.!]*$", text, re.I)
