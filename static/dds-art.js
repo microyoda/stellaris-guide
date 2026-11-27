@@ -238,8 +238,37 @@
     }
   }
 
+  function indexFileList(fileList, nextTech, nextPlanet) {
+    let rootName = '';
+    for (const file of (fileList || [])) {
+      const rel = String(file.webkitRelativePath || file.name || '').replace(/\\/g, '/');
+      if (!rootName && rel.includes('/')) rootName = rel.split('/')[0];
+      const lowerRel = rel.toLowerCase();
+      const base = lowerRel.split('/').pop() || '';
+      let ext = '';
+      if (base.endsWith('.dds')) ext = '.dds';
+      else if (base.endsWith('.png')) ext = '.png';
+      else if (base.endsWith('.webp')) ext = '.webp';
+      else continue;
+      const stem = base.slice(0, -ext.length);
+      if (!SAFE_KEY.test(stem)) continue;
+
+      const isPlanetPath = lowerRel.includes('/planet_classes/') || lowerRel.startsWith('planet_classes/');
+      const isTechPath = lowerRel.includes('/technologies/') || lowerRel.startsWith('technologies/');
+      const isFlat = !lowerRel.includes('/') || lowerRel.split('/').length === 2;
+      const target = (isPlanetPath || (isFlat && stem.startsWith('pc_'))) ? nextPlanet
+        : (isTechPath || (isFlat && stem.startsWith('tech_'))) ? nextTech
+        : null;
+      if (!target || target.size >= MAX_INDEX_FILES) continue;
+      if (!target.has(stem) || ext !== '.dds') {
+        target.set(stem, {file, ext});
+      }
+    }
+    return rootName || 'selected folder';
+  }
+
   async function decodeHandleToBlobUrl(entry) {
-    const file = await entry.handle.getFile();
+    const file = entry.file || await entry.handle.getFile();
     if (file.size > MAX_DDS_BYTES) return null;
     if (entry.ext !== '.dds') return URL.createObjectURL(file);
     const decoded = decodeDds(await file.arrayBuffer());
@@ -348,6 +377,21 @@
     return status();
   }
 
+  function loadFromFileList(fileList) {
+    const nextTech = new Map();
+    const nextPlanet = new Map();
+    const label = indexFileList(fileList, nextTech, nextPlanet);
+    if (!nextTech.size && !nextPlanet.size) {
+      throw new Error('No Stellaris .dds/.png icons found. Select gfx/interface/icons (or gfx/interface/icons/technologies).');
+    }
+    clear();
+    for (const [k, v] of nextTech.entries()) techHandles.set(k, v);
+    for (const [k, v] of nextPlanet.entries()) planetHandles.set(k, v);
+    folderLabel = label;
+    hydrate(typeof document !== 'undefined' ? document : null);
+    return status();
+  }
+
   function hydrate(root) {
     if (!techHandles.size && !planetHandles.size) return;
     const scope = root && typeof root.querySelectorAll === 'function' ? root : (typeof document !== 'undefined' ? document : null);
@@ -376,9 +420,10 @@
   }
 
   const api = {
-    isSupported: () => typeof window !== 'undefined' && typeof window.showDirectoryPicker === 'function',
+    isSupported: () => true,
     decodeDds,
     pickDirectory,
+    loadFromFileList,
     getUrl,
     hydrate,
     clear,

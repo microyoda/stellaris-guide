@@ -124,4 +124,19 @@ assert.notEqual(laserSvg.match(/id="sg-tbg-\d+"/)[0], shieldSvg.match(/id="sg-tb
 assert.match(art.shipSvg('arkship'), /sg-svg-art/);
 assert.match(art.planetSvg('pc_city'), /sg-planet-svg/);
 
-console.log('DDS decoder (DXT1/DXT3/DXT5/BGRA + errors) and framed SVG art passed');
+// 8. loadFromFileList indexes technologies & planet_classes from webkitdirectory paths (works inside Program Files).
+const info = ddsArt.loadFromFileList([
+  {name: 'tech_lasers_1.dds', webkitRelativePath: 'icons/technologies/tech_lasers_1.dds'},
+  {name: 'pc_continental.dds', webkitRelativePath: 'icons/concepts/planet_classes/pc_continental.dds'},
+  {name: 'ignore_me.txt', webkitRelativePath: 'icons/readme.txt'},
+  {name: 'unrelated.dds', webkitRelativePath: 'icons/jobs/job_miner.dds'},
+]);
+assert.equal(info.active, true);
+assert.equal(info.techCount, 1);
+assert.equal(info.planetCount, 1);
+assert.equal(info.label, 'icons');
+assert.throws(() => ddsArt.loadFromFileList([{name: 'readme.txt', webkitRelativePath: 'foo/readme.txt'}]), /No Stellaris/);
+ddsArt.clear();
+assert.equal(ddsArt.status().active, false);
+
+console.log('DDS decoder (DXT1/DXT3/DXT5/BGRA + errors), file-list loader, and framed SVG art passed');

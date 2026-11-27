@@ -683,7 +683,8 @@
           <label class="web-btn primary" for="web-save-input">Open .sav file</label>
           <input id="web-save-input" type="file" accept=".sav" multiple hidden>
           <button id="web-watch-folder" class="web-btn" type="button" title="Chrome/Edge: pick your Stellaris save games folder for automatic 15s updates">Watch Save Folder</button>
-          <button id="web-load-art" class="web-btn" type="button" title="Chrome/Edge: pick your local Steam Stellaris folder to display authentic in-game .dds tech, ship &amp; planet icons locally (never uploaded)">Load Game Art</button>
+          <label id="web-load-art" class="web-btn" for="web-art-input" title="Pick Stellaris/gfx/interface/icons (or technologies) to display authentic local .dds icons in your browser (never uploaded)">Load Game Art</label>
+          <input id="web-art-input" type="file" webkitdirectory directory multiple hidden>
           <button id="web-clear-art" class="web-btn" type="button" hidden title="Switch back to built-in SVG emblems">×</button>
           <select id="web-demo-select" class="web-select" aria-label="Try demo campaign">
             <option value="une-452">Demo: UNE 4.5.2 Settled</option>
@@ -760,19 +761,19 @@
       });
     }
 
-    const artBtn = document.getElementById('web-load-art');
+    const artInput = document.getElementById('web-art-input');
     const artClearBtn = document.getElementById('web-clear-art');
-    if (!window.StellarisLocalArt?.isSupported?.()) {
-      artBtn.disabled = true;
-      artBtn.title = 'Loading local Stellaris .dds icons requires Chrome, Edge, or Brave. Built-in SVG emblems are active.';
-    } else {
-      artBtn.addEventListener('click', async () => {
+    if (artInput && window.StellarisLocalArt?.loadFromFileList) {
+      artInput.addEventListener('change', () => {
         try {
-          const info = await window.StellarisLocalArt.pickDirectory();
-          setStatus(`Loaded ${info.techCount} tech/ship icons and ${info.planetCount} planet icons locally from ${info.label}`);
+          if (!artInput.files || !artInput.files.length) return;
+          const info = window.StellarisLocalArt.loadFromFileList(artInput.files);
+          setStatus(`Loaded ${info.techCount} tech/ship icons and ${info.planetCount} planet icons locally from ${info.label} (never uploaded)`);
           updateWebBar();
         } catch (err) {
-          if (err?.name !== 'AbortError') reportError(`Could not load game art: ${err.message}`);
+          reportError(`Could not load game art: ${err.message}`);
+        } finally {
+          artInput.value = '';
         }
       });
       artClearBtn.addEventListener('click', () => {
