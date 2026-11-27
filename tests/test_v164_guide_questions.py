@@ -384,6 +384,9 @@ class QuestionRegressionTests(unittest.TestCase):
         perks = answer_question("Which Ascension Perks should I take first?", save, ADVICE)
         self.assertIn("open Tradition tree slot", perks)
         self.assertIn("Imperial Prerogative", perks)
+        perks_typo = answer_question("what the best perk or acension to choose on ealier game?", save, ADVICE)
+        self.assertIn("Technological Ascendancy", perks_typo)
+        self.assertEqual(classify_question("How does colony ascension work?", save).topic, "government")
 
         titan = answer_question("What is the Titan cap and best build?", save, ADVICE)
         self.assertIn("1 + 1 per 800", titan)

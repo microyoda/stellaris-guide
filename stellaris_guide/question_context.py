@@ -179,8 +179,10 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
     elif _has(words, "dangerous tech", "dangerous technology", "dangerous technologies",
               "red tech", "red techs", "machine uprising", "sapient combat", "research restrictions"):
         topic = "dangerous_tech"
-    elif _has(words, "ascension perk", "ascension perks", "ascension path", "tradition slot",
-              "technological ascendancy", "imperial prerogative", "galactic force projection"):
+    elif (_has(words, "ascension perk", "ascension perks", "ascension path", "ascension", "acension",
+               "perk", "perks", "tradition slot", "best tradition", "which tradition",
+               "technological ascendancy", "imperial prerogative", "galactic force projection")
+          and not _has(words, "colony ascension", "planetary ascension")):
         topic = "ascension_perks"
     elif _has(words, "automation", "automate", "planetary automation", "automation building",
               "optimization building"):
