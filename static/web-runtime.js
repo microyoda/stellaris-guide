@@ -6,6 +6,12 @@
   window.STELLARIS_WEB_MODE = true;
   const MAX_CLIENT_SAV_BYTES = 50 * 1024 * 1024;
   const MAX_IMAGE_DATA_URL_LEN = 5_500_000;
+  const MAX_FEEDBACK_FILE_BYTES = 4 * 1024 * 1024;
+  const MAX_FEEDBACK_B64_LEN = 5_800_000;
+  const FEEDBACK_ALLOWED_EXT = /\.(png|jpe?g|webp|txt|sav)$/i;
+  const FEEDBACK_GITHUB_REPO = 'https://github.com/microyoda/stellaris-guide';
+  // Deployed Google Apps Script Web App URL (see docs/FEEDBACK-GOOGLE-SHEET.md).
+  const FEEDBACK_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxVRHI4s31VuksbE_2pd_RascRc3JC-X38KrsS72Dt8AErLlJns6YswP52uUyYywZno/exec';
   const IMAGE_URI_RE = /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/;
   const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
@@ -391,14 +397,94 @@
       }
       if (path === '/api/feedback') {
         if (!['useful', 'not_useful'].includes(body.rating)) throw new Error('Choose whether the guide was useful.');
+        let attachment = null;
+        if (body.attachment) {
+          const att = body.attachment;
+          const name = String(att.name || '').trim();
+          const b64 = String(att.data_base64 || '');
+          if (!FEEDBACK_ALLOWED_EXT.test(name)) {
+            throw new Error('Unsupported attachment type. Allowed: PNG, JPG, WebP, TXT, or SAV.');
+          }
+          if (!b64 || b64.length > MAX_FEEDBACK_B64_LEN || !/^[A-Za-z0-9+/=]+$/.test(b64)) {
+            throw new Error('Attachment is invalid or exceeds the 4 MB limit.');
+          }
+          if (typeof att.size === 'number' && att.size > MAX_FEEDBACK_FILE_BYTES) {
+            throw new Error('Attachment exceeds the 4 MB size limit.');
+          }
+          attachment = {name: name.slice(0, 120), type: String(att.type || 'application/octet-stream').slice(0, 80), data_base64: b64};
+        }
+        const record = {
+          rating: body.rating,
+          reason: String(body.reason || '').slice(0, 80),
+          comment: String(body.comment || '').slice(0, 1000),
+          view: String(body.view || 'main').slice(0, 40),
+          app_version: String(currentState?.app_version || '1.7.0-web').slice(0, 40),
+          game_version: String(snapshot?.version || 'Unknown').slice(0, 80),
+          attachment_name: attachment ? attachment.name : '',
+          created_at: Date.now() / 1000,
+        };
         const existing = readStore(STORAGE.feedback, []);
-        existing.push({
-          rating: body.rating, reason: body.reason || '', comment: String(body.comment || '').slice(0, 500),
-          view: body.view || 'main', app_version: currentState?.app_version || '1.7.0-web',
-          game_version: snapshot?.version || 'Unknown', created_at: Date.now() / 1000,
-        });
+        existing.push(record);
         writeStore(STORAGE.feedback, existing.slice(-100));
-        return {ok: true};
+
+        const rawEndpoint = window.STELLARIS_FEEDBACK_ENDPOINT !== undefined ? window.STELLARIS_FEEDBACK_ENDPOINT : FEEDBACK_ENDPOINT;
+        const endpoint = String(rawEndpoint || '').trim();
+        if (endpoint) {
+          if (!/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(endpoint)) {
+            throw new Error('Invalid feedback endpoint URL.');
+          }
+          const controller = typeof AbortController === 'function' ? new AbortController() : null;
+          const timer = controller ? setTimeout(() => controller.abort(), 25000) : null;
+          let response;
+          try {
+            response = await fetch(endpoint, {
+              method: 'POST',
+              headers: {'Content-Type': 'text/plain;charset=utf-8'},
+              signal: controller ? controller.signal : undefined,
+              body: JSON.stringify({
+                rating: record.rating,
+                reason: record.reason,
+                comment: record.comment,
+                view: record.view,
+                app_version: record.app_version,
+                game_version: record.game_version,
+                website: String(body.website || ''),
+                attachment,
+              }),
+            });
+          } catch (err) {
+            if (err?.name === 'AbortError') throw new Error('Feedback request timed out. Please try again.');
+            throw err;
+          } finally {
+            if (timer) clearTimeout(timer);
+          }
+          if (!response.ok) throw new Error(`Feedback submission failed (${response.status}).`);
+          const text = await response.text();
+          let parsed = null;
+          try { parsed = JSON.parse(text); } catch { parsed = null; }
+          if (!parsed || parsed.ok !== true) {
+            throw new Error(parsed?.error || 'Feedback endpoint returned an unexpected response. Verify Apps Script access is set to Anyone.');
+          }
+          return {ok: true, mode: 'google_sheet', message: 'Thanks — your feedback was sent!'};
+        }
+
+        const issueTitle = `[Feedback] ${record.rating === 'useful' ? 'Useful' : 'Needs improvement'}${record.reason ? `: ${record.reason}` : ''}`;
+        const issueBody = [
+          `**Rating:** ${record.rating}`,
+          `**Reason:** ${record.reason || 'n/a'}`,
+          `**View:** ${record.view}`,
+          `**App / Game:** ${record.app_version} / ${record.game_version}`,
+          attachment ? `**Attachment:** Please drag & drop \`${attachment.name}\` into this issue box.` : '',
+          '',
+          record.comment || '(no comment)',
+        ].filter(Boolean).join('\n');
+        const ghUrl = `${FEEDBACK_GITHUB_REPO}/issues/new?labels=feedback&title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+        return {
+          ok: true,
+          mode: 'local_fallback',
+          github_issue_url: ghUrl,
+          message: 'Saved locally. Click the GitHub Issue link below to send it (or set FEEDBACK_ENDPOINT for Google Sheets).',
+        };
       }
       if (path === '/api/ask') {
         const question = String(body.question || '').trim().slice(0, 1000);
@@ -703,6 +789,18 @@
     // Hide/disable Windows-only controls in Settings drawer when in Web Mode.
     ['browse-folder', 'quit-btn'].forEach(id => { const el = document.getElementById(id); if (el) el.hidden = true; });
     ['save-folder', 'game-folder'].forEach(id => { const el = document.getElementById(id); if (el) el.disabled = true; });
+    const fbExtras = document.getElementById('feedback-web-extras');
+    if (fbExtras) fbExtras.hidden = false;
+    const fbNote = document.getElementById('feedback-privacy-note');
+    const fbSubmit = document.getElementById('feedback-submit');
+    const rawEndpoint = window.STELLARIS_FEEDBACK_ENDPOINT !== undefined ? window.STELLARIS_FEEDBACK_ENDPOINT : FEEDBACK_ENDPOINT;
+    const hasEndpoint = Boolean(String(rawEndpoint || '').trim());
+    if (fbNote) {
+      fbNote.textContent = hasEndpoint
+        ? 'Your rating, comment, game version, and any file you explicitly attach are sent to the developer’s feedback sheet. Save files and screenshots are never sent automatically.'
+        : 'Saved locally in your browser unless you click the GitHub Issue link below (or once Google Sheets feedback is connected). Save files are never sent automatically.';
+    }
+    if (fbSubmit && hasEndpoint) fbSubmit.textContent = 'Send feedback';
     const providerSel = document.getElementById('provider');
     if (providerSel) {
       [...providerSel.options].forEach(opt => {

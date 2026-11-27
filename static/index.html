@@ -131,15 +131,27 @@
     <div id="feedback-overlay" class="overlay" hidden>
       <div class="drawer feedback-drawer" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
         <div class="drawer-head"><div><span class="eyebrow">HELP US IMPROVE</span><h2 id="feedback-title">Was this guide useful?</h2></div><button id="close-feedback" class="icon-button" type="button" aria-label="Close feedback">×</button></div>
-        <p>Your feedback stays on this PC for now. No save file, screenshot, or account is sent.</p>
+        <p id="feedback-privacy-note">Your feedback stays on this PC for now. No save file, screenshot, or account is sent.</p>
         <form id="feedback-form">
           <div class="feedback-rating"><button type="button" data-feedback-rating="useful">Useful</button><button type="button" data-feedback-rating="not_useful">Not useful</button></div>
           <input id="feedback-rating" type="hidden">
           <label for="feedback-reason">What best describes it? <span>(optional)</span></label>
           <select id="feedback-reason"><option value="">Choose one</option><option value="helpful">Helpful and clear</option><option value="incorrect">Some facts seemed incorrect</option><option value="unclear">I did not understand the advice</option><option value="too_generic">Too generic</option><option value="missing_context">Missing campaign context</option></select>
           <label for="feedback-comment">Anything else? <span>(optional)</span></label>
-          <textarea id="feedback-comment" maxlength="500" rows="5" placeholder="Tell us what would make this better…"></textarea>
-          <div id="feedback-error" class="form-error" role="alert"></div><button class="primary-button" type="submit">Save feedback</button>
+          <textarea id="feedback-comment" maxlength="1000" rows="5" placeholder="Tell us what would make this better…"></textarea>
+          <div id="feedback-web-extras" class="feedback-web-extras" hidden>
+            <label for="feedback-file">Attach screenshot or file <span>(optional · PNG/JPG/WebP/TXT/SAV, max 4 MB)</span></label>
+            <div class="feedback-file-row">
+              <input id="feedback-file" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp,.txt,.sav">
+              <button id="feedback-file-clear" type="button" hidden aria-label="Remove attached file">×</button>
+            </div>
+            <div id="feedback-file-preview" class="feedback-file-preview" hidden></div>
+            <input id="feedback-hp" name="website" type="text" tabindex="-1" autocomplete="off" hidden aria-hidden="true">
+          </div>
+          <div id="feedback-error" class="form-error" role="alert"></div><button id="feedback-submit" class="primary-button" type="submit">Save feedback</button>
+          <div id="feedback-gh-fallback" class="feedback-gh-fallback" hidden>
+            <a id="feedback-gh-link" target="_blank" rel="noopener noreferrer">Or open as a pre-filled GitHub Issue ↗</a>
+          </div>
         </form>
       </div>
     </div>

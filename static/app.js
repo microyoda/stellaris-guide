@@ -897,7 +897,128 @@ $('question').addEventListener('keydown', event => {
 });
 $('command-menu').querySelector('button').addEventListener('click', () => { $('question').value='/ask '; $('command-menu').hidden=true; $('question').focus(); });
 $('refresh-btn').addEventListener('click', async () => { try { showNotice('Checking the save folder now…'); await post('/api/refresh'); await fetchState(); } catch (error) { showNotice(error.message); } });
-$('feedback-btn').addEventListener('click', () => { $('feedback-overlay').hidden = false; $('feedback-rating').value = ''; document.querySelectorAll('[data-feedback-rating]').forEach(button => button.classList.remove('active')); $('feedback-error').textContent = ''; }); $('close-feedback').addEventListener('click', () => $('feedback-overlay').hidden = true); document.querySelectorAll('[data-feedback-rating]').forEach(button => button.addEventListener('click', () => { $('feedback-rating').value = button.dataset.feedbackRating; document.querySelectorAll('[data-feedback-rating]').forEach(item => item.classList.toggle('active', item === button)); })); $('feedback-form').addEventListener('submit', async event => { event.preventDefault(); setText('feedback-error', ''); try { await post('/api/feedback', {rating:$('feedback-rating').value, reason:$('feedback-reason').value, comment:$('feedback-comment').value, view:activeView}); $('feedback-overlay').hidden = true; $('feedback-form').reset(); showNotice('Thanks — your feedback was saved on this PC.', 'success'); } catch (error) { setText('feedback-error', error.message); } }); $('settings-btn').addEventListener('click', openSettings); $('close-settings').addEventListener('click', () => $('settings-overlay').hidden=true);
+const FEEDBACK_MAX_BYTES = 4 * 1024 * 1024;
+const FEEDBACK_ALLOWED_EXT = /\.(png|jpe?g|webp|txt|sav)$/i;
+function clearFeedbackAttachment() {
+  const input = $('feedback-file');
+  const preview = $('feedback-file-preview');
+  const clearBtn = $('feedback-file-clear');
+  if (input) input.value = '';
+  if (preview) { preview.innerHTML = ''; preview.hidden = true; }
+  if (clearBtn) clearBtn.hidden = true;
+}
+function readFeedbackFile(file) {
+  return new Promise((resolve, reject) => {
+    if (!FEEDBACK_ALLOWED_EXT.test(file.name || '')) {
+      reject(new Error('Unsupported file type. Allowed: PNG, JPG, WebP, TXT, or SAV.')); return;
+    }
+    if (!file.size) {
+      reject(new Error('Attached file is empty.')); return;
+    }
+    if (file.size > FEEDBACK_MAX_BYTES) {
+      reject(new Error('Attachment is larger than 4 MB. Please attach a smaller image or file.')); return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      const comma = result.indexOf(',');
+      if (comma < 0) { reject(new Error('Could not read the attached file.')); return; }
+      resolve({name: file.name, type: file.type || 'application/octet-stream', size: file.size, data_base64: result.slice(comma + 1)});
+    };
+    reader.onerror = () => reject(new Error('Could not read the attached file.'));
+    reader.readAsDataURL(file);
+  });
+}
+$('feedback-file')?.addEventListener('change', () => {
+  const file = $('feedback-file').files?.[0];
+  const preview = $('feedback-file-preview');
+  const clearBtn = $('feedback-file-clear');
+  setText('feedback-error', '');
+  if (!file) { clearFeedbackAttachment(); return; }
+  if (!FEEDBACK_ALLOWED_EXT.test(file.name || '')) {
+    clearFeedbackAttachment();
+    setText('feedback-error', 'Unsupported file type. Allowed: PNG, JPG, WebP, TXT, or SAV.');
+    return;
+  }
+  if (!file.size) {
+    clearFeedbackAttachment();
+    setText('feedback-error', 'Attached file is empty.');
+    return;
+  }
+  if (file.size > FEEDBACK_MAX_BYTES) {
+    clearFeedbackAttachment();
+    setText('feedback-error', 'Attachment exceeds 4 MB limit.');
+    return;
+  }
+  if (clearBtn) clearBtn.hidden = false;
+  if (preview) {
+    preview.hidden = false;
+    preview.innerHTML = `<span>${esc(file.name)} (${number(file.size / 1024)} KB)</span>`;
+    if (/^image\/(png|jpeg|webp)$/i.test(file.type)) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if ($('feedback-file')?.files?.[0] !== file) return;
+        const src = String(reader.result || '');
+        if (!/^data:image\/(png|jpeg|webp);base64,/i.test(src)) return;
+        const img = document.createElement('img');
+        img.alt = 'Attachment preview';
+        img.src = src;
+        preview.prepend(img);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+});
+$('feedback-file-clear')?.addEventListener('click', clearFeedbackAttachment);
+$('feedback-btn').addEventListener('click', () => {
+  $('feedback-overlay').hidden = false;
+  $('feedback-rating').value = '';
+  document.querySelectorAll('[data-feedback-rating]').forEach(button => button.classList.remove('active'));
+  $('feedback-error').textContent = '';
+  clearFeedbackAttachment();
+  const ghBox = $('feedback-gh-fallback');
+  if (ghBox) ghBox.hidden = true;
+});
+$('close-feedback').addEventListener('click', () => $('feedback-overlay').hidden = true);
+document.querySelectorAll('[data-feedback-rating]').forEach(button => button.addEventListener('click', () => {
+  $('feedback-rating').value = button.dataset.feedbackRating;
+  document.querySelectorAll('[data-feedback-rating]').forEach(item => item.classList.toggle('active', item === button));
+}));
+$('feedback-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  setText('feedback-error', '');
+  const submitBtn = $('feedback-submit');
+  const origLabel = submitBtn ? submitBtn.textContent : 'Save feedback';
+  try {
+    const file = $('feedback-file')?.files?.[0];
+    const attachment = file ? await readFeedbackFile(file) : null;
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending…'; }
+    const res = await post('/api/feedback', {
+      rating: $('feedback-rating').value,
+      reason: $('feedback-reason').value,
+      comment: $('feedback-comment').value,
+      view: activeView,
+      attachment,
+      website: $('feedback-hp')?.value || '',
+    });
+    if (res?.github_issue_url && /^https:\/\/github\.com\//.test(res.github_issue_url) && $('feedback-gh-fallback') && $('feedback-gh-link')) {
+      $('feedback-gh-link').href = res.github_issue_url;
+      $('feedback-gh-fallback').hidden = false;
+      showNotice(res.message || 'Feedback saved locally. You can also submit via GitHub Issue.', 'success');
+    } else {
+      $('feedback-overlay').hidden = true;
+      $('feedback-form').reset();
+      clearFeedbackAttachment();
+      showNotice(res?.message || 'Thanks — your feedback was saved on this PC.', 'success');
+    }
+  } catch (error) {
+    setText('feedback-error', error.message);
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origLabel; }
+  }
+});
+$('settings-btn').addEventListener('click', openSettings);
+$('close-settings').addEventListener('click', () => $('settings-overlay').hidden=true);
 $('spoiler-toggle').addEventListener('change', async event => {
   if (event.target.checked) {
     event.target.checked = false;

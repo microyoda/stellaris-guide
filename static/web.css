@@ -412,3 +412,61 @@
 .web-route-more {
   grid-column: 1 / -1;
 }
+.feedback-web-extras {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+.feedback-file-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.feedback-file-row input[type="file"] {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8rem;
+  color: #cfe4f2;
+}
+.feedback-file-row button {
+  border: 1px solid rgba(154, 198, 226, 0.3);
+  background: #102538;
+  color: #e6f2fa;
+  border-radius: 6px;
+  padding: 4px 9px;
+  cursor: pointer;
+}
+.feedback-file-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(16, 38, 58, 0.7);
+  border: 1px solid rgba(154, 198, 226, 0.2);
+  font-size: 0.78rem;
+  color: #b7d3e6;
+}
+.feedback-file-preview img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(88, 222, 215, 0.35);
+}
+.feedback-gh-fallback {
+  margin-top: 10px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: rgba(20, 48, 66, 0.75);
+  border: 1px solid rgba(88, 222, 215, 0.35);
+  font-size: 0.82rem;
+}
+.feedback-gh-fallback a {
+  color: #70e1d6;
+  font-weight: 600;
+  text-decoration: none;
+}
+.feedback-gh-fallback a:hover {
+  text-decoration: underline;
+}

@@ -151,7 +151,65 @@ vm.runInContext(fs.readFileSync('static/web-runtime.js', 'utf8'), context);
   // Toggle off removes from watchlist.
   overlay.querySelector('#web-route-watch-toggle').dispatch('click');
   assert.match(overlay.querySelector('#web-route-watchlist').innerHTML, /Watchlist empty/);
-  console.log('Web runtime tech route modal, search, and watchlist passed');
+
+  // Feedback endpoint: explicit empty override tests local GitHub Issue fallback mode.
+  win.STELLARIS_FEEDBACK_ENDPOINT = '';
+  const fbFallback = await origPost('/api/feedback', {
+    rating: 'useful', reason: 'helpful', comment: 'Great 4.6 guide!', view: 'tech',
+    attachment: {name: 'shot.png', type: 'image/png', size: 12, data_base64: 'AAAA'},
+  });
+  assert.equal(fbFallback.ok, true);
+  assert.equal(fbFallback.mode, 'local_fallback');
+  assert.match(fbFallback.github_issue_url, /github\.com\/microyoda\/stellaris-guide\/issues\/new/);
+  const storedFb = JSON.parse(storageMap.get('sg_web_feedback_v1'));
+  assert.equal(storedFb[0].attachment_name, 'shot.png');
+  assert.equal(storedFb[0].data_base64, undefined);
+
+  // Default configured Google Apps Script Web App endpoint sends JSON POST cleanly.
+  delete win.STELLARIS_FEEDBACK_ENDPOINT;
+  let defaultPostedUrl = '';
+  context.fetch = async (url) => {
+    defaultPostedUrl = url;
+    return {ok: true, status: 200, text: async () => JSON.stringify({ok: true})};
+  };
+  const fbDefault = await origPost('/api/feedback', {rating: 'useful', comment: 'Default live endpoint works'});
+  assert.equal(fbDefault.mode, 'google_sheet');
+  assert.match(defaultPostedUrl, /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/);
+
+  // Reject unsafe file extensions (.svg, .exe, .html) and oversized files.
+  await assert.rejects(() => origPost('/api/feedback', {
+    rating: 'useful', attachment: {name: 'evil.svg', type: 'image/svg+xml', size: 10, data_base64: 'AAAA'},
+  }), /Unsupported attachment type/);
+  await assert.rejects(() => origPost('/api/feedback', {
+    rating: 'useful', attachment: {name: 'huge.png', type: 'image/png', size: 5 * 1024 * 1024, data_base64: 'AAAA'},
+  }), /4 MB/);
+
+  // Reject non-Apps-Script endpoint URL and query-string URLs; reject HTML auth error pages.
+  win.STELLARIS_FEEDBACK_ENDPOINT = 'https://evil.example.com/steal';
+  await assert.rejects(() => origPost('/api/feedback', {rating: 'useful', comment: 'hi'}), /Invalid feedback endpoint/);
+  win.STELLARIS_FEEDBACK_ENDPOINT = 'https://script.google.com/macros/s/AKfycbTest/exec?foo=bar';
+  await assert.rejects(() => origPost('/api/feedback', {rating: 'useful', comment: 'hi'}), /Invalid feedback endpoint/);
+
+  context.fetch = async () => ({ok: true, status: 200, text: async () => '<html>Sign in</html>'});
+  win.STELLARIS_FEEDBACK_ENDPOINT = 'https://script.google.com/macros/s/AKfycbTestDeploy123/exec';
+  await assert.rejects(() => origPost('/api/feedback', {rating: 'useful', comment: 'hi'}), /unexpected response/);
+
+  let postedBody = null;
+  context.fetch = async (url, opts) => {
+    postedBody = {url, headers: opts.headers, body: JSON.parse(opts.body)};
+    return {ok: true, status: 200, text: async () => JSON.stringify({ok: true})};
+  };
+  win.STELLARIS_FEEDBACK_ENDPOINT = 'https://script.google.com/macros/s/AKfycbTestDeploy123/exec';
+  const fbSent = await origPost('/api/feedback', {
+    rating: 'not_useful', reason: 'incorrect', comment: 'Check revolt step', view: 'main',
+    attachment: {name: 'revolt.jpg', type: 'image/jpeg', size: 128, data_base64: 'AQID'},
+  });
+  assert.equal(fbSent.mode, 'google_sheet');
+  assert.equal(postedBody.headers['Content-Type'], 'text/plain;charset=utf-8');
+  assert.equal(postedBody.body.attachment.name, 'revolt.jpg');
+  delete win.STELLARIS_FEEDBACK_ENDPOINT;
+
+  console.log('Web runtime tech route modal, search, watchlist, and Google Sheet feedback passed');
 })().catch(err => {
   console.error(err);
   process.exit(1);
