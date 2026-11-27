@@ -310,34 +310,12 @@ def _general_planet_answer(context: QuestionContext, snapshot: dict) -> str:
 
 def tech_answer(snapshot: dict, context: QuestionContext | None = None) -> str:
     branches = snapshot.get("technology", {}).get("branches", {})
-    if not branches:
-        return "I could not read the research queues from this save."
     player = snapshot.get("player") or {}
     research = player.get("research") or {}
     focus = context.focus if context else None
     mode = context.mode if context else "status"
 
-    if focus in ("physics", "society", "engineering"):
-        branch = branches.get(focus, {})
-        rate = _num(research.get(focus))
-        rate_str = f" ({rate:.1f}/month)" if rate is not None else ""
-        return (f"{focus.title()}{rate_str}: currently researching {branch.get('current', 'unknown')}; "
-                f"suggested next pick is {branch.get('recommendation', 'review options')}. "
-                "Open Tech Tree and click Route to inspect exact prerequisites before picking.")
-
-    if focus == "branch_compare":
-        rates = [(val, name) for name in ("physics", "society", "engineering")
-                 if (val := _num(research.get(name))) is not None]
-        if rates:
-            rates.sort()
-            low_val, low_name = rates[0]
-            summary = ", ".join(f"{name.title()} {_num(research.get(name)):.1f}/mo" for name in ("physics", "society", "engineering") if _num(research.get(name)) is not None)
-            branch = branches.get(low_name, {})
-            return (f"Saved research output: {summary}. {low_name.title()} is your lowest branch at {low_val:.1f}/month "
-                    f"(researching {branch.get('current', 'unknown')}; suggested next pick: {branch.get('recommendation', 'review options')}). "
-                    "Check orbital stations, scientist traits, and specialty labs in game.")
-
-    if focus == "research_output" or mode == "how_to":
+    if focus == "research_output" or (focus is None and mode == "how_to"):
         rate_parts = [f"{name.title()} {val:.1f}/mo" for name in ("physics", "society", "engineering")
                       if (val := _num(research.get(name))) is not None]
         size = _num(player.get("empire_size"))
@@ -351,6 +329,32 @@ def tech_answer(snapshot: dict, context: QuestionContext | None = None) -> str:
         return (header + size_note + cg_note +
                 "To increase research: specialize a Tech-World with Research Labs and Researchers (or Calculators/Brain Drones for Gestalt), "
                 "build orbital research stations, assign research-focused Councilors/scientists, and keep Empire Size under control. Confirm upkeep and open jobs in game.")
+
+    if focus in ("physics", "society", "engineering"):
+        branch = branches.get(focus, {})
+        rate = _num(research.get(focus))
+        rate_str = f" ({rate:.1f}/month)" if rate is not None else ""
+        if not branch:
+            return (f"{focus.title()}{rate_str}: active research queue was not readable from this save. "
+                    "Specialize a Tech-World, build orbital stations, and check Tech Tree in game.")
+        return (f"{focus.title()}{rate_str}: currently researching {branch.get('current', 'unknown')}; "
+                f"suggested next pick is {branch.get('recommendation', 'review options')}. "
+                "Open Tech Tree and click Route to inspect exact prerequisites before picking.")
+
+    if not branches:
+        return "I could not read the research queues from this save."
+
+    if focus == "branch_compare":
+        rates = [(val, name) for name in ("physics", "society", "engineering")
+                 if (val := _num(research.get(name))) is not None]
+        if rates:
+            rates.sort()
+            low_val, low_name = rates[0]
+            summary = ", ".join(f"{name.title()} {_num(research.get(name)):.1f}/mo" for name in ("physics", "society", "engineering") if _num(research.get(name)) is not None)
+            branch = branches.get(low_name, {})
+            return (f"Saved research output: {summary}. {low_name.title()} is your lowest branch at {low_val:.1f}/month "
+                    f"(researching {branch.get('current', 'unknown')}; suggested next pick: {branch.get('recommendation', 'review options')}). "
+                    "Check orbital stations, scientist traits, and specialty labs in game.")
 
     if mode == "recommendation":
         picks = [f"{name.title()}: {branches.get(name, {}).get('recommendation', 'review options')}"

@@ -15,6 +15,194 @@ def _has(text: str, *phrases: str) -> bool:
                          r"(?!\w)", text) for phrase in phrases)
 
 
+def _damerau_distance(a: str, b: str, limit: int = 2) -> int:
+    """Bounded optimal string alignment distance (handles adjacent transpositions as 1 edit)."""
+    la, lb = len(a), len(b)
+    if abs(la - lb) > limit:
+        return limit + 1
+    prev2 = list(range(lb + 1))
+    prev1 = list(range(lb + 1))
+    for i in range(1, la + 1):
+        curr = [i] + [0] * lb
+        row_min = i
+        ai = a[i - 1]
+        for j in range(1, lb + 1):
+            cost = 0 if ai == b[j - 1] else 1
+            best = min(prev1[j] + 1, curr[j - 1] + 1, prev1[j - 1] + cost)
+            if i > 1 and j > 1 and ai == b[j - 2] and a[i - 2] == b[j - 1]:
+                best = min(best, prev2[j - 2] + 1)
+            curr[j] = best
+            if best < row_min:
+                row_min = best
+        if row_min > limit:
+            return limit + 1
+        prev2, prev1 = prev1, curr
+    return prev1[lb]
+
+
+# Everyday Stellaris player slang and shorthand normalized to canonical routing terms.
+_MULTIWORD_SLANG: tuple[tuple[str, str], ...] = (
+    ("ring world", "megastructures"),
+    ("ascend colony", "colony ascension"),
+    ("ascend my colony", "colony ascension"),
+    ("ascend planet", "colony ascension"),
+    ("ascend my planet", "colony ascension"),
+    ("army general", "leaders"),
+    ("nav cap", "naval capacity"),
+    ("fleet cap", "fleet capacity"),
+    ("auto build", "automation"),
+    ("civil war", "revolt"),
+    ("l gate", "gray tempest"),
+    ("ghost signal", "contingency"),
+    ("synth queen", "cetana"),
+    ("sentry array", "megastructures"),
+    ("mega shipyard", "megastructures"),
+    ("how am i doing", "benchmark"),
+    ("am i behind", "benchmark"),
+    ("am i ahead", "benchmark"),
+    ("strike craft", "ship loadout"),
+    ("galactic market", "trade"),
+)
+
+_TOKEN_SLANG: dict[str, str] = {
+    "cg": "consumer goods", "cgs": "consumer goods",
+    "ec": "energy", "creds": "energy", "credits": "energy", "money": "energy", "cash": "energy",
+    "mins": "minerals", "ore": "minerals",
+    "starving": "food", "starvation": "food", "farming": "food", "farms": "food",
+    "foundry": "alloys", "foundries": "alloys",
+    "eco": "economy", "econ": "economy", "budget": "economy",
+    "broke": "deficit", "bankrupt": "deficit", "shortage": "deficit", "shortages": "deficit",
+    "navcap": "naval capacity", "fleetcap": "fleet capacity",
+    "sb": "starbase", "starhold": "starbase", "starfortress": "starbase",
+    "anchorage": "naval capacity", "anchorages": "naval capacity",
+    "vet": "corvette", "vettes": "corvette", "corvs": "corvette",
+    "frig": "frigate", "frigs": "frigate",
+    "dd": "destroyer", "dds": "destroyer",
+    "bb": "battleship", "bbs": "battleship",
+    "torp": "torpedoes", "torps": "torpedoes",
+    "warships": "ships", "armada": "fleet", "navy": "fleet",
+    "refit": "configure", "loadouts": "loadout", "pd": "flak",
+    "ap": "ascension perk", "aps": "ascension perks",
+    "autobuild": "automation",
+    "riots": "revolt", "rioting": "revolt", "rebel": "revolt", "rebels": "revolt",
+    "rebelling": "revolt", "mutiny": "revolt", "separatist": "revolt", "separatists": "revolt",
+    "unhappy": "stability", "happiness": "stability", "criminals": "crime", "deviancy": "crime",
+    "homeless": "housing", "unemployed": "jobs", "unemployment": "jobs",
+    "horde": "great khan", "marauders": "great khan", "lgate": "gray tempest",
+    "nanites": "gray tempest",
+    "pretorian": "prethoryn", "praetorian": "prethoryn", "prethorin": "prethoryn",
+    "subjugate": "vassal", "subjugation": "vassal", "vassalize": "vassal", "vassalise": "vassal",
+    "protectorate": "vassal", "subsidiary": "vassal", "feudatory": "vassal",
+    "admiral": "leaders", "admirals": "leaders", "generals": "leaders",
+    "governor": "leaders", "governors": "leaders",
+    "megas": "megastructures", "dyson": "megastructures", "decompressor": "megastructures",
+    "catapult": "megastructures", "ringworld": "megastructures",
+    "ark": "arkship", "arks": "arkships", "nomadic": "nomads",
+    "pacing": "benchmark",
+    "sci": "research", "techtree": "technology", "researching": "research", "labs": "research",
+    "envoy": "espionage", "envoys": "espionage", "cloaking": "espionage", "infiltrate": "espionage",
+    "religion": "ideologies", "religions": "ideologies", "directive": "ideologies",
+    "directives": "ideologies", "instinct": "ideologies", "instincts": "ideologies",
+    "world": "colony", "worlds": "colonies",
+    "boost": "increase", "raise": "increase", "fix": "improve", "prevent": "stop",
+}
+
+# Canonical Stellaris vocabulary (>= 5 chars) eligible for safe typo correction.
+_CANONICAL_VOCAB: tuple[str, ...] = (
+    "espionage", "infiltration", "intelligence", "ideology", "ideologies", "willpower",
+    "nomads", "arkship", "arkships", "waystation", "waystations",
+    "trade", "storage", "influence", "dangerous", "ascension", "tradition",
+    "automation", "automate", "benchmark", "milestone", "milestones",
+    "crisis", "crises", "prethoryn", "scourge", "unbidden", "extradimensional",
+    "contingency", "cetana", "tempest", "voidworm",
+    "council", "councilor", "councilors", "agenda", "agendas", "legitimacy",
+    "leader", "leaders", "scientist", "scientists", "commander", "paragon", "paragons",
+    "subject", "subjects", "vassal", "vassals", "overlord", "loyalty", "tributary", "bulwark", "scholarium",
+    "megastructure", "megastructures", "gateway", "citadel",
+    "government", "authority", "reform", "faction", "factions",
+    "policy", "policies", "population", "migration", "assembly",
+    "technology", "research", "science", "physics", "society", "engineering",
+    "corvette", "frigate", "destroyer", "cruiser", "battleship", "titan", "titans",
+    "fleet", "fleets", "starbase", "starbases", "naval", "capacity",
+    "armor", "shield", "shields", "weapon", "weapons", "loadout", "configuration", "configure",
+    "afterburner", "counter", "torpedoes", "missiles", "lasers", "plasma", "kinetic",
+    "economy", "economic", "resource", "resources", "energy", "mineral", "minerals",
+    "consumer", "goods", "alloy", "alloys", "unity", "deficit", "income", "output", "upkeep",
+    "planet", "planets", "colony", "colonies", "housing", "amenities", "stability", "unstable",
+    "crime", "revolt", "revolts", "rebellion", "uprising", "unrest", "secession",
+    "attack", "invade", "rival", "threat", "worried", "priority", "prioritize",
+    "increase", "improve",
+)
+_CANONICAL_SET = frozenset(_CANONICAL_VOCAB)
+
+_TYPO_STOPWORDS = frozenset({
+    "about", "action", "actions", "after", "again", "against", "arbor", "attach",
+    "before", "being", "better", "between", "build", "building", "choose", "conquer",
+    "conquest", "could", "doing", "during", "early", "earlier", "empire", "empires",
+    "enough", "every", "explain", "first", "galaxy", "general", "grade", "guide",
+    "having", "helps", "known", "later", "level", "looking", "making", "might",
+    "needs", "never", "other", "others", "outpost", "outposts", "place", "plane",
+    "plant", "plants", "player", "players", "point", "police", "power", "prime",
+    "purple", "quick", "reader", "really", "right", "saved", "should", "since",
+    "small", "space", "spend", "start", "starting", "still", "strong", "strongest",
+    "system", "systems", "their", "there", "these", "thing", "think", "those",
+    "today", "treat", "under", "using", "value", "version", "wants", "where",
+    "which", "while", "whose", "worth", "would", "wrong", "years", "yours",
+})
+
+
+def _normalize_player_words(raw_words: str, protected_tokens: set[str]) -> str:
+    """Expand player slang and safely correct single-word typos without altering entity names."""
+    text = raw_words
+    for phrase, replacement in _MULTIWORD_SLANG:
+        if phrase in text:
+            text = re.sub(r"(?<!\w)" + re.escape(phrase) + r"(?!\w)", replacement, text)
+    out: list[str] = []
+    fuzzy_checks = 0
+    for tok in text.split():
+        if tok in protected_tokens:
+            out.append(tok)
+            continue
+        if tok in _TOKEN_SLANG:
+            out.append(_TOKEN_SLANG[tok])
+            continue
+        if (len(tok) < 5 or len(tok) > 20 or fuzzy_checks >= 60
+                or tok in _CANONICAL_SET or tok in _TYPO_STOPWORDS or tok.isdigit()):
+            out.append(tok)
+            continue
+        fuzzy_checks += 1
+        max_edits = 1 if len(tok) <= 7 else 2
+        best_dist = max_edits + 1
+        best_ratio = 0.0
+        best_word = None
+        tied = False
+        for cand in _CANONICAL_VOCAB:
+            if abs(len(tok) - len(cand)) > max_edits:
+                continue
+            same_first = tok[0] == cand[0]
+            first_swapped = tok[0] == cand[1] and tok[1] == cand[0]
+            if not same_first and not first_swapped:
+                continue
+            dist = _damerau_distance(tok, cand, max_edits)
+            if dist > max_edits:
+                continue
+            if dist == 2 and not same_first:
+                continue
+            ratio = SequenceMatcher(None, tok, cand).ratio()
+            min_ratio = 0.78 if dist == 1 else 0.82
+            if ratio < min_ratio:
+                continue
+            if dist < best_dist or (dist == best_dist and ratio > best_ratio + 0.04):
+                best_dist = dist
+                best_ratio = ratio
+                best_word = cand
+                tied = False
+            elif dist == best_dist and abs(ratio - best_ratio) <= 0.04 and cand != best_word:
+                tied = True
+        out.append(best_word if best_word and not tied else tok)
+    return " ".join(out)
+
+
 _COLONY_SUFFIX_RE = re.compile(r"\s+(?:prime|ii|iii|iv|v|vi|habitat|station)$", re.I)
 
 
@@ -85,7 +273,9 @@ _NON_COLONY_PHRASES = {
     "my overall", "overall economy", "my empire", "the empire", "empire",
     "my colony", "the colony", "my new colony", "new colony", "my colonies",
     "colonies", "all colonies", "my planets", "planets", "all planets", "my worlds", "worlds",
-    "the game", "stellaris", "general", "now", "early game", "mid game", "late game", "this save",
+    "the game", "stellaris", "general", "now", "early", "early game", "earlier game",
+    "ealier game", "mid game", "late game", "endgame", "midgame", "this save",
+    "beginners", "beginner", "starting out", "new players", "the crisis", "crises",
     "energy", "energy credits", "minerals", "food", "consumer goods", "alloys",
     "unity", "influence", "trade", "research", "science", "tech", "technology",
     "traditions", "claims", "edicts", "building ships", "my starbases", "starbases",
@@ -125,7 +315,8 @@ def _detect_focus(topic: str, words: str) -> str | None:
             return "naval_capacity"
         if _has(words, "armor", "shield", "shields", "weapon", "weapons", "loadout",
                 "configuration", "configure", "config", "equip", "outfit", "fitting",
-                "hull", "afterburner", "counter"):
+                "hull", "afterburner", "counter", "torpedoes", "missiles", "lasers",
+                "plasma", "kinetic", "flak"):
             return "ship_config"
     elif topic == "crisis":
         for key, phrases in (
@@ -158,9 +349,16 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
     text = question.strip()
     if re.match(r"(?i)^/ask(?:\s|$)", text):
         text = re.sub(r"(?i)^/ask\s*", "", text, count=1).strip()
-    words = _words(text)
+    raw_words = _words(text)
     planet, planet_ambiguous = _entity(text, snapshot.get("planets") or [], allow_suffix_strip=True)
     contact, contact_ambiguous = _entity(text, snapshot.get("contacts") or [])
+    protected_tokens = {
+        tok
+        for coll in (snapshot.get("planets") or [], snapshot.get("contacts") or [])
+        for item in coll if isinstance(item, dict) and item.get("name")
+        for tok in _words(str(item["name"])).split()
+    }
+    words = _normalize_player_words(raw_words, protected_tokens)
 
     # A named place takes precedence over broad words such as "economy".
     if _has(words, "spy", "spies", "spying", "espionage", "infiltration", "intel",
@@ -230,7 +428,7 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
     elif _has(words, "ship", "ships", "design", "fleet", "fleets", "corvette", "frigate",
               "destroyer", "cruiser", "battleship", "titan", "titans", "naval capacity", "naval cap",
               "fleet capacity", "fleet cap", "starbase", "starbases",
-              "armor", "shield", "shields", "loadout"):
+              "armor", "shield", "shields", "loadout", "torpedoes", "flak", "ship loadout"):
         topic = "ships"
     elif _has(words, "economy", "economic", "resource", "resources", "alloy", "alloys",
               "energy", "mineral", "minerals", "food", "consumer goods", "consumer good",

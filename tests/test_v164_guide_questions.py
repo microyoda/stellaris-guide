@@ -422,6 +422,47 @@ class QuestionRegressionTests(unittest.TestCase):
         self.assertFalse(any(m["key"] == "colonies" for m in nomad_bench["metrics"]))
         self.assertEqual([c["kind"] for c in detect_contacted_crises(save)], ["gray_goo", "swarm"])
 
+    def test_player_slang_and_typo_tolerance_without_false_positives(self):
+        save = snapshot()
+        save["date"] = "2235.01.01"
+        save["version"] = "Corona Borealis v4.6.0 (3d1a)"
+        save["planets"][0]["stability"] = 20.0
+        save["player"]["research"] = {"physics": 60.0, "society": 40.0, "engineering": 35.0}
+
+        # Player slang shorthand (cg, ec, mins, navcap, ap, autobuild, l-gate, subjugate, how am i doing).
+        self.assertIn("Factory World", answer_question("how to get more cg?", save, ADVICE))
+        self.assertIn("Generator Districts", answer_question("how to boost ec?", save, ADVICE))
+        self.assertIn("Mining Districts", answer_question("need more mins", save, ADVICE))
+        self.assertIn("Anchorage", answer_question("how to raise navcap?", save, ADVICE))
+        self.assertIn("Technological Ascendancy", answer_question("best ap to pick?", save, ADVICE))
+        self.assertIn("Planetary Automation", answer_question("why is autobuild not working?", save, ADVICE))
+        self.assertIn("Gray Tempest", answer_question("how to handle the l-gate?", save, ADVICE))
+        self.assertIn("Loyalty", answer_question("should i subjugate my neighbor?", save, ADVICE))
+        self.assertIn("Stage 1", answer_question("how am i doing?", save, ADVICE))
+
+        # Common single-word typos across core topics (sheild/armro, enrgy, revlot, stabillity, pretorian, megastucture, vasal, reasearch).
+        self.assertIn("Armor-heavy", answer_question("what armro or sheild for my vettes?", save, ADVICE))
+        self.assertIn("Generator Districts", answer_question("how to increse enrgy?", save, ADVICE))
+        self.assertIn("Planetary Revolt", answer_question("how to stop revlot?", save, ADVICE))
+        self.assertIn("Alpha Centauri Prime", answer_question("how to fix stabillity?", save, ADVICE))
+        self.assertIn("100% Armor", answer_question("how to beat pretorian?", save, ADVICE))
+        self.assertIn("megastructure", answer_question("can i build megastucture?", save, ADVICE).lower())
+        self.assertIn("Loyalty", answer_question("why is my vasal unhappy?", save, ADVICE))
+        self.assertIn("Tech-World", answer_question("how to boost reasearch?", save, ADVICE))
+
+        # Negative paths & collision regressions: no false-positive rewrites or topic hijacks.
+        self.assertIn("do not have a reliable answer", answer_question("Why is the galaxy purple?", save, ADVICE))
+        self.assertIn("could not match Trimi-Trimi", answer_question("How to improve Trimi-Trimi economy?", save, ADVICE))
+        self.assertIn("could not match Randal Prime", answer_question("how to improve Randal Prime economy?", save, ADVICE))
+        self.assertEqual(classify_question("How do I build a ring world?", save).topic, "megastructures")
+        self.assertEqual(classify_question("Give me general economy advice", save).topic, "economy")
+        self.assertEqual(classify_question("How is my endgame economy?", save).topic, "economy")
+        self.assertEqual(classify_question("What action should I take next?", save).topic, "unknown")
+        self.assertEqual(classify_question("Should I conquer my neighbor?", save).topic, "unknown")
+        self.assertEqual(classify_question("Do anchorages increase naval capacity?", save).focus, "naval_capacity")
+        self.assertEqual(classify_question("How do I ascend my colony?", save).topic, "government")
+        self.assertIn("Physics (60.0/month)", answer_question("How to increase physics research?", save, ADVICE))
+
 
 if __name__ == "__main__":
     unittest.main()
