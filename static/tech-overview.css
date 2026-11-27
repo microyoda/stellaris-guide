@@ -2,15 +2,18 @@
 /* Keep research names readable in the three-column dashboard layout. */
 .research-option {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr);
+  grid-template-columns: 46px minmax(0, 1fr);
   align-items: center;
-  gap: 6px 9px;
+  gap: 6px 10px;
 }
 .research-option > div { min-width: 0; }
 .research-option strong { overflow-wrap: anywhere; line-height: 1.25; }
 .research-option .research-route-link { grid-column: 2; justify-self: start; }
 .research-slot-head small { display: none; }
-.research-art .sg-svg-art { width: 32px; height: 32px; display: block; }
+.research-art { width: 46px; height: 46px; position: relative; overflow: hidden; border-radius: 9px; border: 1px solid rgba(130, 195, 224, 0.35); background: #071421; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 2px 8px rgba(0,0,0,0.35); }
+.research-art img { width: 100%; height: 100%; inset: 0; object-fit: cover; border-radius: 8px; }
+.research-art .sg-svg-art { width: 44px; height: 44px; display: block; }
+.research-art img:not([hidden]) + .sg-svg-art { display: none; }
 .planet-orb { position: relative; overflow: hidden; display: grid; place-items: center; }
 .planet-orb .sg-svg-art { width: 100%; height: 100%; display: block; }
 .planet-orb img:not([hidden]) + .sg-svg-art { display: none; }

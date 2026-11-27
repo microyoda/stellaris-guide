@@ -49,7 +49,7 @@ def _rewrite_index_for_web(html: str) -> str:
             )
             .replace(
                 '<script src="./art.js"></script>',
-                '<script src="./web-runtime.js"></script>\n  <script src="./art.js"></script>',
+                '<script src="./dds-art.js"></script>\n  <script src="./web-runtime.js"></script>\n  <script src="./art.js"></script>',
             )
     )
     return rewritten

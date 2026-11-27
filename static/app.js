@@ -317,11 +317,14 @@ function renderPlanets(snapshot) {
   const rec = planet.recommendation;
   const profitEntries = Object.entries(planet.profits || {}).filter(([,v]) => v !== 0).slice(0,8);
   const planetSvg = window.StellarisArt?.planetSvg ? window.StellarisArt.planetSvg(planet.class_key || planet.class) : '';
-  const planetArt = window.STELLARIS_WEB_MODE ? planetSvg : `<img src="/api/planet-icon?id=${encodeURIComponent(planet.class_key || '')}" alt="" onerror="this.hidden=true">${planetSvg}`;
+  const planetArt = window.STELLARIS_WEB_MODE
+    ? `<img hidden data-local-art-kind="planet" data-local-art-key="${esc(planet.class_key || '')}" alt="" onerror="this.hidden=true">${planetSvg}`
+    : `<img src="/api/planet-icon?id=${encodeURIComponent(planet.class_key || '')}" alt="" onerror="this.hidden=true">${planetSvg}`;
   $('planet-detail').innerHTML = `<div class="detail-hero"><div><span class="eyebrow">COLONY ${planet.id}</span><h2>${esc(planet.name)}</h2><p>${esc(planet.class)} · Size ${planet.size_known ? number(planet.size) : 'unknown'} · ${esc(planet.designation)}${planet.system ? ` · ${esc(planet.system)} system` : ''}</p></div><div class="planet-orb">${planetArt}</div></div>` +
     `<div class="detail-stats"><div><span>Stability</span><strong class="${planet.stability < 50 ? 'negative' : ''}">${number(planet.stability)}%</strong></div><div><span>Population</span><strong>${number(planet.pops)}</strong></div><div><span>Free housing</span><strong class="${planet.free_housing < 2 ? 'negative' : ''}">${signed(planet.free_housing)}</strong></div><div><span>Free amenities</span><strong class="${planet.free_amenities < 0 ? 'negative' : ''}">${signed(planet.free_amenities)}</strong></div></div>` +
     `<div class="recommendation"><span class="eyebrow">BUILD RECOMMENDATION</span><h3>${esc(rec.title)}</h3><p>${esc(rec.action)}</p><p>${esc(rec.reason)}</p></div>` +
     `<div class="resource-row"><span class="resource-pill">${number(planet.districts)} districts</span><span class="resource-pill">${number(planet.buildings)} buildings</span><span class="resource-pill">Crime ${number(planet.crime)}%</span>${profitEntries.map(([key,value]) => `<span class="resource-pill">${esc(key.replaceAll('_',' '))} ${signed(value)}</span>`).join('')}</div>`;
+  window.StellarisLocalArt?.hydrate?.($('planet-detail'));
   const jobs = planet.jobs || [];
   const jobAdvice = planet.job_advice || [];
   $('planet-detail').insertAdjacentHTML('beforeend', `<details class="planet-jobs" open><summary>Jobs & controls <span>${jobs.length} types</span></summary>

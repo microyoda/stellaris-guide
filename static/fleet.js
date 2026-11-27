@@ -150,15 +150,22 @@ function fleetPlanTotals(designs, quantities, currentUsed, limit, target) {
 }
 
 function fleetArt(size, className = '') {
-  const icons = {corvette:'tech_corvettes', frigate:'tech_torpedoes_1',
+  const icons = {
+    corvette:'tech_corvettes', frigate:'tech_torpedoes_1',
     destroyer:'tech_destroyers', cruiser:'tech_cruisers',
-    battleship:'tech_battleships', titan:'tech_titans'};
+    battleship:'tech_battleships', titan:'tech_titans',
+    juggernaut:'tech_juggernaut', colossus:'tech_colossus',
+    arkship:'tech_arkship_tier_3', military_arkship:'tech_military_arkship',
+  };
   const isWeb = typeof window !== 'undefined' && Boolean(window.STELLARIS_WEB_MODE);
-  const icon = isWeb ? null : icons[size];
+  const icon = icons[size];
+  const imgTag = !icon ? '' : isWeb
+    ? `<img hidden data-local-art-kind="technology" data-local-art-key="${esc(icon)}" alt="" onerror="this.hidden=true">`
+    : `<img src="/api/tech-icon?id=${encodeURIComponent(icon)}" alt="" onerror="this.hidden=true">`;
   const fallback = (typeof window !== 'undefined' && window.StellarisArt?.shipSvg)
     ? window.StellarisArt.shipSvg(size)
     : '<span aria-hidden="true">◇</span>';
-  return `<span class="fleet-art ${esc(className)}">${icon ? `<img src="/api/tech-icon?id=${encodeURIComponent(icon)}" alt="" onerror="this.hidden=true">` : ''}<span class="fleet-art-fallback" aria-hidden="true">${fallback}</span></span>`;
+  return `<span class="fleet-art ${esc(className)}">${imgTag}<span class="fleet-art-fallback" aria-hidden="true">${fallback}</span></span>`;
 }
 
 function fleetSlots(design) {
@@ -584,6 +591,7 @@ function renderFleet(snapshot, config = {}) {
     <article class="panel fleet-policies"><div class="fleet-section-title"><div><span class="eyebrow">FLEET SETTINGS</span><h2>Saved military policies</h2></div></div>${policyDetails.length ? `<div>${policyDetails.slice(0, 3).map(item => `<p><strong>${esc(item.policy_label)}</strong><span>${esc(item.selected_label)}</span></p>`).join('')}</div><details><summary>Show all ${policyDetails.length} policies</summary><div>${policyDetails.map(item => `<p><strong>${esc(item.policy_label)}</strong><span>${esc(item.selected_label)}${item.status === 'verified_base_game' ? '' : ' · label unverified'}</span></p>`).join('')}</div></details>` : '<p>No military policies could be read.</p>'}</article>
     <p class="fleet-source-note">Fleet, design and resource values come from the selected save. Class naval use is inferred from saved plans. The manual capacity maximum comes from your entry, not the save. Game effects, mods and ship stats require in-game confirmation.</p>`;
 
+  if (typeof window !== 'undefined') window.StellarisLocalArt?.hydrate?.(root);
   const comparePanel = root.querySelector('.fleet-compare');
   const compareToggle = root.querySelector('[data-open-compare]');
   if (comparePanel && compareToggle) {

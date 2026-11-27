@@ -343,6 +343,8 @@ class WebBridgeAndBuildTests(unittest.TestCase):
             self.assertTrue((py_dir / "web_bridge.py").is_file())
             self.assertTrue((py_dir / "tech_graph.json").is_file())
             self.assertTrue((out / "art.js").is_file())
+            self.assertTrue((out / "dds-art.js").is_file())
+            self.assertIn("./dds-art.js", (out / "index.html").read_text(encoding="utf-8"))
             for forbidden in ("capture.py", "tray.py", "route_window.py", "server.py", "chat_evidence.py"):
                 self.assertFalse((py_dir / forbidden).exists())
             bundle = json.loads((out / "demo-snapshots.json").read_text(encoding="utf-8"))

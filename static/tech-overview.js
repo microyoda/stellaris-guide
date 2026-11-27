@@ -8,7 +8,9 @@ function renderTechOverview(snapshot) {
   const title = value => value.charAt(0).toUpperCase() + value.slice(1);
   const routeButton = (id, label, accessibleLabel=label) => id ? `<button type="button" class="research-route-link" data-tech-route="${esc(id)}" aria-label="${esc(accessibleLabel)}">${esc(label)} ↗</button>` : '';
   const isWeb = typeof window !== 'undefined' && Boolean(window.STELLARIS_WEB_MODE);
-  const techImg = id => (!isWeb && id) ? `<img src="/api/tech-icon?id=${encodeURIComponent(id)}" alt="">` : '';
+  const techImg = id => !id ? '' : isWeb
+    ? `<img hidden data-local-art-kind="technology" data-local-art-key="${esc(id)}" alt="">`
+    : `<img src="/api/tech-icon?id=${encodeURIComponent(id)}" alt="">`;
   const techFallback = (area, id) => (typeof window !== 'undefined' && window.StellarisArt?.techSvg)
     ? window.StellarisArt.techSvg(area, id)
     : `<i>${icons[area]}</i>`;
@@ -49,6 +51,7 @@ function renderTechOverview(snapshot) {
     </article>`;
   };
   $('tech-branches').innerHTML = ['physics','society','engineering'].map(card).join('');
+  if (typeof window !== 'undefined') window.StellarisLocalArt?.hydrate?.($('tech-branches'));
   $('tech-branches').querySelectorAll('.research-art img').forEach(img => {
     img.addEventListener('error', () => { img.hidden = true; });
   });

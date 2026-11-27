@@ -434,7 +434,11 @@
         researched: 'Researched', researching: 'Researching',
         saved_option: 'On your cards', unmet: 'Unmet',
       }[state] || state);
-      const artFor = (area, id) => window.StellarisArt?.techSvg ? window.StellarisArt.techSvg(area, id) : '';
+      const artFor = (area, id) => {
+        const img = id ? `<img hidden data-local-art-kind="technology" data-local-art-key="${esc(id)}" alt="" onerror="this.hidden=true">` : '';
+        const svg = window.StellarisArt?.techSvg ? window.StellarisArt.techSvg(area, id) : '';
+        return `${img}${svg}`;
+      };
 
       const renderRouteExplorerControls = (overlay) => {
         const listEl = overlay.querySelector('#web-route-browser');
@@ -489,6 +493,7 @@
         if (filtered.length > 48) {
           listEl.insertAdjacentHTML('beforeend', `<p class="web-route-note web-route-more">Showing first 48 of ${filtered.length} matches — type in search to narrow.</p>`);
         }
+        window.StellarisLocalArt?.hydrate?.(overlay);
       };
 
       let overlay = document.getElementById('web-tech-route-overlay');
@@ -598,14 +603,14 @@
           : '';
         const stepsHtml = (route.steps || []).map((step, idx) => `
           ${idx > 0 ? '<span class="web-route-arrow" aria-hidden="true">→</span>' : ''}
-          <button type="button" class="web-route-node state-${esc(step.state)} ${step.id === route.target_id ? 'target' : ''}" data-route-jump="${esc(step.id)}">
+          <button type="button" class="web-route-node area-${esc(step.area || 'other')} state-${esc(step.state)} ${step.id === route.target_id ? 'target' : ''}" data-route-jump="${esc(step.id)}">
             <span class="web-route-icon">${artFor(step.area, step.id)}</span>
             <span><strong>${esc(step.name)}</strong><small>${esc(badgeLabel(step.state))}${step.tier != null ? ` · T${step.tier}` : ''}</small></span>
           </button>`).join('');
         const oneOfHtml = (route.one_of || []).length
           ? `<div class="web-route-section"><h3>Alternative prerequisites (choose one)</h3>${route.one_of.map(group =>
               `<div class="web-route-alt"><span>For ${esc(group.for_name)}:</span><div class="web-route-chain">${group.options.map(opt =>
-                `<button type="button" class="web-route-node state-${esc(opt.state)}" data-route-jump="${esc(opt.id)}"><span><strong>${esc(opt.name)}</strong><small>${esc(badgeLabel(opt.state))}</small></span></button>`
+                `<button type="button" class="web-route-node state-${esc(opt.state)}" data-route-jump="${esc(opt.id)}"><span class="web-route-icon">${artFor(route.area, opt.id)}</span><span><strong>${esc(opt.name)}</strong><small>${esc(badgeLabel(opt.state))}</small></span></button>`
               ).join('')}</div></div>`
             ).join('')}</div>` : '';
         const gate = route.tier_gate || {};
@@ -615,7 +620,7 @@
           : '';
         const unlocksHtml = (route.next_unlocks || []).length
           ? `<div class="web-route-section"><h3>Leads to</h3><div class="web-route-chain">${route.next_unlocks.map(item =>
-              `<button type="button" class="web-route-node state-${esc(item.state)}" data-route-jump="${esc(item.id)}">
+              `<button type="button" class="web-route-node area-${esc(item.area || 'other')} state-${esc(item.state)}" data-route-jump="${esc(item.id)}">
                 <span class="web-route-icon">${artFor(item.area, item.id)}</span>
                 <span><strong>${esc(item.name)}</strong><small>${esc(badgeLabel(item.state))}${item.relation === 'one_of' ? ' · alt' : ''}</small></span>
               </button>`
@@ -629,6 +634,7 @@
           ${oneOfHtml}
           ${unlocksHtml}
           <p class="web-route-note">${esc(route.reason || '')}</p>`;
+        window.StellarisLocalArt?.hydrate?.(bodyEl);
       } catch (err) {
         if (seq !== routeRequestSeq || overlay.hidden) return;
         titleEl.textContent = 'Route unavailable';
@@ -649,6 +655,15 @@
     if (watchBtn) {
       watchBtn.textContent = folderHandle ? `Watching: ${folderHandle.name}` : 'Watch Save Folder';
     }
+    const artBtn = document.getElementById('web-load-art');
+    const artClearBtn = document.getElementById('web-clear-art');
+    const artStatus = window.StellarisLocalArt?.status?.() || {active: false, techCount: 0, planetCount: 0};
+    if (artBtn) {
+      artBtn.textContent = artStatus.active
+        ? `Game Art: ${artStatus.techCount + artStatus.planetCount} icons`
+        : 'Load Game Art';
+    }
+    if (artClearBtn) artClearBtn.hidden = !artStatus.active;
   }
 
   function mountWebUI() {
@@ -668,6 +683,8 @@
           <label class="web-btn primary" for="web-save-input">Open .sav file</label>
           <input id="web-save-input" type="file" accept=".sav" multiple hidden>
           <button id="web-watch-folder" class="web-btn" type="button" title="Chrome/Edge: pick your Stellaris save games folder for automatic 15s updates">Watch Save Folder</button>
+          <button id="web-load-art" class="web-btn" type="button" title="Chrome/Edge: pick your local Steam Stellaris folder to display authentic in-game .dds tech, ship &amp; planet icons locally (never uploaded)">Load Game Art</button>
+          <button id="web-clear-art" class="web-btn" type="button" hidden title="Switch back to built-in SVG emblems">×</button>
           <select id="web-demo-select" class="web-select" aria-label="Try demo campaign">
             <option value="une-452">Demo: UNE 4.5.2 Settled</option>
             <option value="nomads-452">Demo: Nomads 4.5.2 Arkships</option>
@@ -740,6 +757,28 @@
         } catch (err) {
           if (err?.name !== 'AbortError') reportError(`Folder watch failed: ${err.message}`);
         }
+      });
+    }
+
+    const artBtn = document.getElementById('web-load-art');
+    const artClearBtn = document.getElementById('web-clear-art');
+    if (!window.StellarisLocalArt?.isSupported?.()) {
+      artBtn.disabled = true;
+      artBtn.title = 'Loading local Stellaris .dds icons requires Chrome, Edge, or Brave. Built-in SVG emblems are active.';
+    } else {
+      artBtn.addEventListener('click', async () => {
+        try {
+          const info = await window.StellarisLocalArt.pickDirectory();
+          setStatus(`Loaded ${info.techCount} tech/ship icons and ${info.planetCount} planet icons locally from ${info.label}`);
+          updateWebBar();
+        } catch (err) {
+          if (err?.name !== 'AbortError') reportError(`Could not load game art: ${err.message}`);
+        }
+      });
+      artClearBtn.addEventListener('click', () => {
+        window.StellarisLocalArt?.clear?.();
+        setStatus('Switched back to built-in SVG emblems');
+        updateWebBar();
       });
     }
 

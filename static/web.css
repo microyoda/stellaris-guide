@@ -182,50 +182,76 @@
 .web-route-node {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 11px;
+  gap: 10px;
+  padding: 8px 12px 8px 9px;
   border-radius: 10px;
-  border: 1px solid rgba(154, 198, 226, 0.25);
-  background: #102538;
+  border: 1px solid rgba(154, 198, 226, 0.28);
+  border-top: 2px solid rgba(154, 198, 226, 0.45);
+  background: linear-gradient(180deg, #132c42, #0c1d2e);
   color: #e6f2fa;
   text-align: left;
   cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28);
+  transition: transform 0.12s ease, border-color 0.12s ease;
 }
+.web-route-node:hover {
+  transform: translateY(-1px);
+  border-color: #58ded7;
+}
+.web-route-node.area-physics { border-top-color: #5aaeff; }
+.web-route-node.area-society { border-top-color: #45d38e; }
+.web-route-node.area-engineering { border-top-color: #ffb45c; }
 .web-route-node.target {
   border-color: #58ded7;
-  box-shadow: 0 0 0 1px rgba(88, 222, 215, 0.35);
+  box-shadow: 0 0 0 1px rgba(88, 222, 215, 0.4), 0 4px 14px rgba(44, 174, 168, 0.25);
 }
 .web-route-node.state-researched {
-  border-color: rgba(69, 211, 142, 0.55);
-  background: rgba(26, 70, 52, 0.45);
+  border-color: rgba(69, 211, 142, 0.62);
+  background: linear-gradient(180deg, rgba(28, 80, 58, 0.62), rgba(16, 46, 35, 0.65));
 }
 .web-route-node.state-researching {
-  border-color: rgba(90, 174, 255, 0.65);
-  background: rgba(24, 58, 92, 0.55);
+  border-color: rgba(90, 174, 255, 0.72);
+  background: linear-gradient(180deg, rgba(28, 68, 108, 0.68), rgba(16, 40, 68, 0.7));
 }
 .web-route-node.state-saved_option {
-  border-color: rgba(230, 174, 75, 0.65);
-  background: rgba(84, 62, 24, 0.45);
+  border-color: rgba(230, 174, 75, 0.72);
+  background: linear-gradient(180deg, rgba(94, 68, 24, 0.6), rgba(54, 38, 14, 0.62));
 }
 .web-route-node strong {
   display: block;
-  font-size: 0.84rem;
+  font-size: 0.85rem;
 }
 .web-route-node small {
   display: block;
   font-size: 0.74rem;
-  color: #9bb5c9;
+  color: #a6c0d4;
 }
 .web-route-icon {
-  width: 28px;
-  height: 28px;
+  position: relative;
+  width: 40px;
+  height: 40px;
   flex: none;
   display: grid;
   place-items: center;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #07131f;
+  border: 1px solid rgba(130, 195, 224, 0.28);
+}
+.web-route-icon img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .web-route-icon .sg-svg-art {
-  width: 26px;
-  height: 26px;
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+.web-route-icon img:not([hidden]) + .sg-svg-art {
+  display: none;
 }
 .web-route-alt {
   display: grid;
