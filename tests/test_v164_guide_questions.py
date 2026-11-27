@@ -524,7 +524,8 @@ class QuestionRegressionTests(unittest.TestCase):
         self.assertIn("MegaCorp empires cannot take Imperial Prerogative", answer_question("is Imperial Prerogative good?", corp, ADVICE))
         self.assertEqual(classify_question("check diplomacy with my neighbor", save).topic, "unknown")
         self.assertEqual(classify_question("how to increase unity for traditions?", save).topic, "economy")
-        self.assertEqual(classify_question("how does archeology work?", save).topic, "unknown")
+        self.assertEqual(classify_question("how does archeology work?", save).topic, "exploration")
+        self.assertNotEqual(classify_question("how does archeology work?", save).focus, "perk:arcology_project")
 
         # Review regressions: "world(s)" perks reachable, no attitude->aptitude hijack, traditions overview routing, malformed profile & full-picks fallback.
         self.assertIn("Gaia Worlds", answer_question("What does World Shaper do?", save, ADVICE))
@@ -624,6 +625,117 @@ class QuestionRegressionTests(unittest.TestCase):
         save["planets"] = []
         self.assertIn("Arkships", answer_question("how many planets should I colonize?", save, ADVICE))
         self.assertIn("Waystations", answer_question("how many construction ships?", save, ADVICE))
+
+    def test_broad_108_player_and_community_query_suite(self):
+        save = snapshot()
+        save["date"] = "2215.04.01"
+        save["version"] = "Corona Borealis v4.6.0 (3d1a)"
+        save["campaign"]["required_dlcs"] = ["Utopia", "Apocalypse", "MegaCorp", "Overlord", "Galactic Paragons", "Willpower"]
+        save["player"]["colonies"] = 3
+        save["player"]["empire_size"] = 92
+        save["player"]["starbase_used"] = 3
+        save["player"]["starbase_capacity"] = 5
+        save["player"]["naval_used"] = 28
+        save["player"]["naval_capacity"] = 40
+        save["player"]["net"] = {"energy": 42.0, "minerals": 55.0, "food": 18.0, "consumer_goods": -6.0, "alloys": 24.0, "unity": 38.0, "influence": 3.2, "trade": 14.0}
+        save["player"]["research"] = {"physics": 45.0, "society": 38.0, "engineering": 34.0}
+        save["player"]["profile"] = {"authority": "auth_democratic", "traditions": ["tr_discovery_adopt"], "ascension_perks": []}
+        save["planets"][0]["stability"] = 23.0
+        save["planets"][0]["crime"] = 28.0
+        save["planets"].insert(0, {"id": 0, "name": "Earth", "designation": "Capital", "pops": 34.0, "stability": 76.0, "crime": 0.0,
+                                   "free_housing": 5.0, "free_amenities": 9.0, "recommendation": {"level": "stable", "title": "OK", "action": "OK", "reason": "OK"}})
+        save["technology"] = {
+            "branches": {
+                "physics": {"current": "Lasers 2", "recommendation": "Power Plant 2"},
+                "society": {"current": "Planetary Unification", "recommendation": "Doctrine Navy Size 1"},
+                "engineering": {"current": "Destroyers", "recommendation": "Mineral Purification 1"},
+            }
+        }
+        save["ship_builds"] = {"recommendation": {"title": "Review Interceptor", "quantity": "3", "reason": "OK", "caveat": "Check"}}
+
+        expected = [
+            ("what is empire size and how to reduce it?", "empire_size", "100"),
+            ("how to lower empire sprawl?", "empire_size", "Empire Size"),
+            ("how do edicts and edict fund work?", "edicts", "Edict Fund"),
+            ("should i research anomalies right away?", "exploration", "chokepoints"),
+            ("how do archaeological sites and dig sites work?", "exploration", "Archaeological Sites"),
+            ("how do astral rifts work?", "exploration", "Astral Rifts"),
+            ("how to use relics and minor artifacts?", "exploration", "Triumph"),
+            ("how to get volatile motes, exotic gases, and rare crystals?", "economy", "Refineries"),
+            ("what happens when i run out of a resource?", "economy", "Shortage Situations"),
+            ("how to specialize my planets?", "planet", "Designations"),
+            ("what districts should i build on a new colony?", "planet", "Designations"),
+            ("how to fix unemployment on my colonies?", "planet", "auto-resettlement"),
+            ("how to reduce crime on Alpha Centauri Prime?", "planet", "28%"),
+            ("how does terraforming work?", "planet", "Terrestrial Sculpting"),
+            ("how do habitats work?", "planet", "Orbitals"),
+            ("what's the best way to manage multiple colonies in one star system?", "planet", "Deep Space Black Site"),
+            ("how to resettle pops?", "population", "Transit Hubs"),
+            ("how do robots and pop assembly work?", "population", "Robot Assembly Plants"),
+            ("How do I fix a bug where my colonies won't generate population?", "population", "Population Controls"),
+            ("what is planetary ascension?", "government", "-90%"),
+            ("which research branch is weakest?", "technology", "Engineering is your lowest branch"),
+            ("how do tech tiers work?", "technology", "6 technologies"),
+            ("how to unlock mega engineering?", "technology", "Zero Point Power"),
+            ("Which tech should I prioritize for early-game expansion?", "technology", "Powered Exoskeletons"),
+            ("best corvette build early game?", "ships", "Interceptor"),
+            ("best battleship loadout late game?", "ships", "Focused Arc Emitter"),
+            ("how to build chokepoint starbases?", "ships", "Hangar Bays"),
+            ("Can I use my own ship designs in Stellaris?", "ships", "Auto-Generate Designs"),
+            ("Why is my fleet stuck in a system?", "ships", "FTL Inhibitor"),
+            ("how does cloaking work?", "ships", "Detection Strength"),
+            ("how do armies and planetary invasion work?", "war", "Assault Armies"),
+            ("What's the best way to plan a fleet for space invasions?", "war", "Assault Armies"),
+            ("how to make claims and declare war?", "war", "+100% extra Influence"),
+            ("how does war exhaustion and status quo work?", "war", "24 months"),
+            ("How can I avoid war with other empires while expanding?", "war", "Deterrence"),
+            ("How do I counter a Xenos war with minimal losses?", "war", "chokepoints"),
+            ("how do fallen empires work and when do they awaken?", "fallen_empire", "Awakening"),
+            ("Can I build starbases in systems next to an Isolist FE?", "fallen_empire", "1-system empty buffer"),
+            ("How can I maximize trade without triggering FE aggression?", "fallen_empire", "buffer"),
+            ("how to beat leviathans?", "leviathans", "Curator Order"),
+            ("how to form a federation?", "diplomacy_gc", "Diplomacy"),
+            ("how does the galactic community work?", "diplomacy_gc", "Diplomatic Weight"),
+            ("how to become galactic custodian or emperor?", "diplomacy_gc", "Custodian"),
+            ("how to improve relations with another empire?", "diplomacy_gc", "Improve Relations"),
+            ("How does the criminal branch system work?", "criminal_branch", "Expropriation"),
+            ("What are the penalties for genocide or slavery?", "slavery_purge", "-1,000"),
+            ("What is the difference between a Continental and Gaia world?", "planet_classes", "100% habitability"),
+            ("Is Earth a Continental or Gaia world in-game terms?", "planet_classes", "Continental"),
+            ("How do ethos combinations work in AI personalities?", "roleplay", "Fanatical Befrienders"),
+            ("What's a good starting point for a roleplay campaign?", "roleplay", "Rogue Servitor"),
+            ("What's new in the latest patch?", "patch_notes", "4.6 Corona Borealis"),
+            ("Is Khan buffed? What does that mean for gameplay?", "crisis", "Great Khan"),
+            ("Does the More AI Personalities mod improve immersion?", "mod_question", "unmodded Stellaris"),
+            ("Is this a known issue with the current patch?", "bug_report", "offline"),
+            ("Discovery vs Expansion first?", "ascension_perks", "Discovery vs Expansion"),
+            ("which ascension path should i choose?", "ascension_perks", "4 Main Paths"),
+            ("how do hyper relays and gateways work?", "megastructures", "Hyper Relays"),
+            ("What's the most efficient route for exploration?", "exploration", "3 Science Ships"),
+            ("What is a Tomb World?", "planet_classes", "Gaia World"),
+            ("Should I terraform to Gaia worlds?", "ascension_perks", "World Shaper"),
+            ("Should I build a trade league?", "diplomacy_gc", "Trade League"),
+            ("How to build a colony in a new system?", "planet", "Alpha Centauri Prime"),
+            ("How to improve pops with gene mod?", "population", "Population"),
+        ]
+        for q, expected_topic, expected_snippet in expected:
+            ctx = classify_question(q, save)
+            ans = answer_question(q, save, ADVICE)
+            self.assertEqual(ctx.topic, expected_topic, f"Wrong topic for: {q!r} -> {ctx}")
+            self.assertNotIn("do not have a reliable answer", ans, f"Unexpected fallback for: {q!r}")
+            self.assertNotIn("could not match", ans, f"Unexpected missing_name for: {q!r}")
+            self.assertIn(expected_snippet, ans, f"Missing {expected_snippet!r} in answer for {q!r}: {ans}")
+
+        # Malformed campaign/mods/planet-None safety checks.
+        bad = snapshot()
+        bad["campaign"] = "corrupt"
+        self.assertIn("Archaeological Sites", answer_question("how do dig sites work?", bad, ADVICE))
+        bad["campaign"] = {"mods": "not_a_list"}
+        self.assertIn("No mods are recorded", answer_question("Does the More AI Personalities mod improve immersion?", bad, ADVICE))
+        bad["planets"][0]["pops"] = None
+        bad["planets"][0]["stability"] = None
+        bad_pop = answer_question("Why is Alpha Centauri Prime not growing?", bad, ADVICE)
+        self.assertNotIn("None", bad_pop)
 
 
 if __name__ == "__main__":

@@ -45,6 +45,7 @@ jobs:
           node tests/test_v164_tech_route_ui.js
           node tests/test_web_runtime_modal.js
           node tests/test_dds_art.js
+          node tests/test_chat_format.js
       - name: Build static web companion
         run: python scripts/build_web.py
       - name: Upload Pages artifact

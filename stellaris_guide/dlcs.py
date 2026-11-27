@@ -413,8 +413,9 @@ def dlc_status_list(required: list[str], saved_labels: list[str] | None,
 def has_dlc(snapshot: dict, dlc_id: str) -> bool | None:
     """Return True if active/base-game, False if absent from known save list, else None."""
     canonical = normalize_dlc_id(dlc_id)
-    campaign = snapshot.get("campaign") or {}
-    version = campaign.get("save_version") or snapshot.get("version")
+    raw_campaign = snapshot.get("campaign") if isinstance(snapshot, dict) else None
+    campaign = raw_campaign if isinstance(raw_campaign, dict) else {}
+    version = campaign.get("save_version") or (snapshot.get("version") if isinstance(snapshot, dict) else None)
     if is_base_game_included(canonical, version):
         return True
     saved = campaign.get("required_dlcs")

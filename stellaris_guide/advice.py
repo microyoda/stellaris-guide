@@ -4,6 +4,32 @@ from __future__ import annotations
 
 from .dlcs import has_dlc, parse_release_tuple
 from .guide_knowledge import rule_for
+from .guide_topics import (
+    ai_personalities_roleplay_answer,
+    ascension_paths_answer,
+    bug_report_answer,
+    colony_topic_answer,
+    criminal_branch_answer,
+    diplomacy_gc_answer,
+    edicts_answer,
+    empire_size_answer,
+    exploration_answer,
+    fallen_empire_answer,
+    format_card,
+    leviathans_answer,
+    mod_question_answer,
+    patch_notes_answer,
+    planet_classes_answer,
+    planetary_ascension_answer,
+    population_detail_answer,
+    relays_gateways_answer,
+    ship_detail_answer,
+    shortage_answer,
+    slavery_purge_answer,
+    strategic_resources_answer,
+    tech_detail_answer,
+    war_detail_answer,
+)
 from .question_context import QuestionContext, classify_question
 from .traditions_data import ASCENSION_PERKS, TRADITIONS, summarize_save_traditions
 
@@ -166,16 +192,35 @@ def _resource_answer(resource: str, snapshot: dict, mode: str) -> str:
         cover = (snapshot.get("resource_runway") or {}).get(resource) or resource_runway(snapshot, resource)
         if cover.get("status") == "depleting":
             facts.append(f"about {cover['months']:g} months cover ({cover['urgency']} Guide warning)")
-    header = f"Saved {label}: " + ", ".join(facts) + ". "
-    colony_note = _planet_resource_summary(snapshot, resource)
+    header = f"Saved {label}: " + ", ".join(facts) + "."
+    colony_note = _planet_resource_summary(snapshot, resource).strip()
     if mode == "status":
-        return header + colony_note + "Ask how to increase it for specific levers, or check the Economy tooltip in game for modifier breakdowns."
-    return header + colony_note + _resource_levers(resource, snapshot) + " Confirm available district slots, open jobs, and active policies in game before building."
+        bullets = [("Balance", header)]
+        if colony_note:
+            bullets.append(("Colonies", colony_note))
+        return format_card(
+            f"{label.title()} Status",
+            bullets,
+            "Ask how to increase it for specific levers, or check the Economy tooltip in game for modifier breakdowns.",
+        )
+    bullets = [("Balance", header)]
+    if colony_note:
+        bullets.append(("Colonies", colony_note))
+    bullets.append(("How to increase", _resource_levers(resource, snapshot)))
+    return format_card(
+        f"Increasing {label.title()}",
+        bullets,
+        "Confirm available district slots, open jobs, and active policies in game before building.",
+    )
 
 
 def economy_answer(snapshot: dict, context: QuestionContext | None = None) -> str:
     from .strategy import resource_runway
 
+    if context and context.focus == "strategic_resources":
+        return strategic_resources_answer(snapshot)
+    if context and context.focus == "shortage":
+        return shortage_answer(snapshot)
     if context and context.focus:
         return _resource_answer(context.focus, snapshot, context.mode)
 
@@ -255,13 +300,15 @@ def _revolt_answer(planet: dict | None, snapshot: dict) -> str:
         crime = _fmt_metric(target.get("crime"), ".0f", "%")
         prefix = (f"For {target['name']} (saved stability {stab}, free amenities {amen}, "
                   f"free housing {hous}, crime {crime}): ")
-    return prefix + _guide_steps("revolt", snapshot)
+    return _guide_steps("revolt", snapshot, lead=prefix)
 
 
 def _general_planet_answer(context: QuestionContext, snapshot: dict) -> str:
     planets = [p for p in (snapshot.get("planets") or []) if isinstance(p, dict) and p.get("name")]
     if context.focus == "revolt":
         return _revolt_answer(None, snapshot)
+    if context.focus in ("specialization", "unemployment", "crime", "terraforming", "habitats", "multi_colony_system"):
+        return colony_topic_answer(context.focus, snapshot)
     if context.focus == "colonize":
         player = _dict(snapshot.get("player"))
         profile = _dict(player.get("profile"))
@@ -271,8 +318,14 @@ def _general_planet_answer(context: QuestionContext, snapshot: dict) -> str:
         colonies = _colony_count(player, planets)
         size = _num(player.get("empire_size"))
         if profile.get("is_nomad"):
-            return ("This save shows a Nomadic empire profile: Nomads expand via Arkships and Waystations rather than standard settled planet colonization. "
-                    "Focus on Wayline coverage, Operational Reserves, and Arkship district upgrades.")
+            return format_card(
+                "Colonization (Nomadic Empire)",
+                [
+                    ("Nomad profile", "Nomads expand via Arkships and Waystations rather than standard settled planet colonization."),
+                    ("Focus", "Build Wayline coverage, maintain Operational Reserves, and upgrade Arkship districts."),
+                ],
+                "Verify Arkship and Waystation limits in game.",
+            )
         status_bits = []
         if year is not None:
             status_bits.append(f"Year {year}")
@@ -280,23 +333,29 @@ def _general_planet_answer(context: QuestionContext, snapshot: dict) -> str:
             status_bits.append(_colony_label(colonies))
         if size is not None:
             status_bits.append(f"Empire Size {size:g}")
-        lead = f"Saved status ({', '.join(status_bits)}): " if status_bits else ""
         low_stab_pairs = [(s, p) for p in planets if (s := _num(p.get("stability"))) is not None and s < 40]
         low_stab = [p for _, p in sorted(low_stab_pairs, key=lambda item: item[0])]
         deficits = [r.replace("_", " ") for r in ("minerals", "consumer_goods", "energy")
                     if net_known.get(r, True) is not False and (_num(net.get(r)) or 0) < 0]
-        hab_note = ("As a Machine empire, you can colonize almost any planet class regardless of climate. "
+        hab_note = ("As a Machine empire, you can colonize almost any planet class regardless of climate."
                     if profile.get("is_machine") else
-                    "Prioritize 70%+ (green) habitability worlds first and avoid <50% (red) worlds early until you have terraforming, migration treaties, gene-modding, or droids (low habitability raises pop upkeep/amenities demand and cuts output and growth). ")
-        pace_note = ("Early game: colonize your 2 guaranteed habitable worlds right away (aiming for ~3–5 colonies by 2220–2230), since every colony grows pops independently. "
-                     "Each colony adds +10 base Empire Size (reduced by Expansion -15% or Imperial Prerogative -25%), so keep colonizing good worlds as long as your Minerals, Consumer Goods, and Stability can support new districts. ")
+                    "Prioritize 70%+ (green) habitability worlds first; avoid <50% (red) worlds early until you have terraforming, migration treaties, gene-modding, or droids (low habitability raises pop upkeep/amenities demand and cuts output & growth).")
         if low_stab:
-            caution = f"Caution for this save: stabilize {low_stab[0]['name']} ({_fmt_metric(low_stab[0].get('stability'), '.0f', '%')} stability) before over-extending."
+            caution = f"Stabilize {low_stab[0]['name']} ({_fmt_metric(low_stab[0].get('stability'), '.0f', '%')} stability) before over-extending."
         elif deficits:
-            caution = f"Caution for this save: fix your saved {', '.join(deficits)} deficit so new colonies do not strain your economy."
+            caution = f"Fix your saved {', '.join(deficits)} deficit so new colonies do not strain your economy."
         else:
             caution = "Your saved balance looks healthy enough to colonize your next high-habitability worlds now."
-        return lead + pace_note + hab_note + caution
+        bullets: list[tuple[str, str]] = []
+        if status_bits:
+            bullets.append(("Your save", ", ".join(status_bits) + "."))
+        bullets.extend([
+            ("Early pacing", "Colonize your 2 guaranteed habitable worlds right away (aiming for ~3–5 colonies by 2220–2230), since every colony grows pops independently."),
+            ("Habitability rule", hab_note),
+            ("Empire Size", "Each colony adds +10 base Empire Size (cut by Expansion -15% or Imperial Prerogative -25%), so keep colonizing good worlds as long as Minerals, Consumer Goods, and Stability hold."),
+            ("Recommendation", caution),
+        ])
+        return format_card("How Many Planets to Colonize", bullets)
     if not planets:
         return "I could not read colony details from this save. Make a new autosave and try again."
     focus = context.focus
@@ -354,6 +413,9 @@ def tech_answer(snapshot: dict, context: QuestionContext | None = None) -> str:
     research = player.get("research") or {}
     focus = context.focus if context else None
     mode = context.mode if context else "status"
+
+    if focus in ("tech_tiers", "mega_engineering", "early_expansion_tech"):
+        return tech_detail_answer(focus, snapshot)
 
     if focus == "research_output" or (focus is None and mode == "how_to"):
         rate_parts = [f"{name.title()} {val:.1f}/mo" for name in ("physics", "society", "engineering")
@@ -416,6 +478,10 @@ def ship_answer(snapshot: dict, context: QuestionContext | None = None) -> str:
     focus = context.focus if context else None
     mode = context.mode if context else "status"
 
+    if focus in ("ship_designer", "fleet_stuck", "chokepoint_starbase",
+                 "hull_corvette", "hull_battleship", "hull_cruiser", "cloaking"):
+        return ship_detail_answer(focus, snapshot)
+
     if focus == "science_ship":
         year = _save_year(snapshot)
         net = _dict(player.get("net"))
@@ -441,14 +507,19 @@ def ship_answer(snapshot: dict, context: QuestionContext | None = None) -> str:
         yr_txt = f"Year {year}" if year else "early game"
         alloy_txt = f", Alloys {signed(alloys)}/mo" if alloys is not None else ""
         cap_txt = f" ({', '.join(cap_sources)})" if cap_sources else " (base cap 3; raise with Discovery +1, Transcendent Learning +2, or Aptitude +1)"
-        push_txt = ("Push to 4–5 Science Ships if you raise Scientist cap so you can race to chokepoints and habitable worlds; "
+        push_txt = ("Push to 4–5 Science Ships if you raise Scientist cap so you can race to chokepoints and habitable worlds; skip slow high-level anomalies until borders are secured."
                     if cap <= 3 else
-                    "Use your extra Scientist cap to race to chokepoints and habitable worlds; ")
-        return (f"For {yr_txt}{alloy_txt}: build up to {cap} Science Ships early to match your estimated Scientist Leader Capacity of {cap}{cap_txt} "
-                "— your Head of Research on the Council can still command a Science Ship, and Eager scientists below level 4 do not count against cap. "
-                f"{push_txt}skip slow high-level anomalies until borders are secured. "
-                "Exceeding Scientist cap multiplies leader upkeep and cuts XP by 0.85^(over cap). Scale down to 1–2 ships in mid/late game for digs, rifts, and debris. "
-                "Confirm your current Science Ship and Scientist count in the Outliner and Leaders screen.")
+                    "Use your extra Scientist cap to race to chokepoints and habitable worlds; skip slow high-level anomalies until borders are secured.")
+        return format_card(
+            f"Science Ships to Build ({yr_txt}{alloy_txt})",
+            [
+                ("Recommended count", f"Build up to **{cap} Science Ships** early to match your estimated Scientist Leader Capacity of {cap}{cap_txt}."),
+                ("Council & Eager tip", "Your Head of Research on the Council can still command a Science Ship, and Eager scientists below level 4 do not count against cap."),
+                ("Early priority", push_txt),
+                ("Cap warning & scaling", "Exceeding Scientist cap multiplies leader upkeep and cuts XP by 0.85^(over cap). Scale down to 1–2 ships in mid/late game for digs, rifts, and debris."),
+            ],
+            "Confirm your current Science Ship and Scientist count in the Outliner and Leaders screen.",
+        )
 
     if focus == "construction_ship":
         year = _save_year(snapshot)
@@ -459,21 +530,38 @@ def ship_answer(snapshot: dict, context: QuestionContext | None = None) -> str:
         yr_txt = f"Year {year}" if year else "early game"
         inf_txt = f" (saved Influence {signed(inf)}/mo)" if inf is not None else ""
         if profile.get("is_nomad"):
-            return (f"For a Nomadic empire at {yr_txt}{inf_txt}: 2 Constructors are usually plenty — one placing Waystations along active Waylines and one harvesting or building orbital infrastructure. "
-                    "Watch Influence and Alloy costs before building extra idle constructors.")
-        return (f"For {yr_txt}{inf_txt}: build 2 Construction Ships in the early game — use one to claim star systems toward chokepoints and habitable worlds, "
-                "and the second to follow behind building mining and research stations. "
-                "Add a 3rd only if expanding rapidly on two opposite fronts; Influence (75 base per outpost) is usually the real expansion bottleneck rather than construction ship speed, "
-                "and idle constructors still cost Energy upkeep. In mid/late game, 1–2 constructors are enough for Hyper Relays, Gateways, and Megastructures.")
+            return format_card(
+                f"Construction Ships for Nomads ({yr_txt})",
+                [
+                    ("Recommended count", f"2 Constructors are usually plenty{inf_txt} — one placing Waystations along active Waylines and one harvesting or building orbital infrastructure."),
+                    ("Upkeep", "Watch Influence and Alloy costs before building extra idle constructors."),
+                ],
+                "Verify Waystation and Wayline limits in game.",
+            )
+        return format_card(
+            f"Construction Ships to Build ({yr_txt})",
+            [
+                ("Early game", f"Build **2 Construction Ships**{inf_txt} — use one to claim star systems toward chokepoints and habitable worlds, and the second to build mining/research stations behind it."),
+                ("When to add a 3rd", "Only if expanding rapidly on two opposite fronts; Influence (75 base per outpost) is usually the real bottleneck, and idle constructors drain Energy upkeep."),
+                ("Mid / late game", "Keep 1–2 constructors for Hyper Relays, Gateways, and Megastructures."),
+            ],
+            "Watch your Influence income before queueing extra outposts.",
+        )
 
     if focus == "colony_ship":
         profile = _dict(player.get("profile"))
         if profile.get("is_nomad"):
-            return "Nomadic empires expand through Arkships and Waystations rather than standard Colony Ships."
+            return format_card("Colony Ships (Nomadic Empire)", [("Nomad profile", "Nomadic empires expand through Arkships and Waystations rather than standard Colony Ships.")])
         colonies = _colony_count(player, [p for p in (snapshot.get("planets") or []) if isinstance(p, dict) and p.get("name")])
         col_txt = f" (currently {_colony_label(colonies)})" if colonies is not None else ""
-        return (f"Build 1 Colony Ship per target habitable world{col_txt} right as you claim its system — do not stockpile idle Colony Ships, since they cost Alloys, Food/Consumer Goods, and Energy upkeep while sitting unused. "
-                "Prioritize 70%+ (green) habitability worlds first and confirm the target planet's habitability in game.")
+        return format_card(
+            "Colony Ships to Build",
+            [
+                ("On demand only", f"Build **1 Colony Ship per target habitable world**{col_txt} right as you claim its system — don't stockpile idle Colony Ships (they cost Alloys, Food/CG, and Energy upkeep)."),
+                ("Habitability", "Prioritize 70%+ (green) habitability worlds first."),
+            ],
+            "Confirm the target planet's habitability and modifiers in game before launching.",
+        )
 
     if focus == "titan":
         apoc = has_dlc(snapshot, "apocalypse")
@@ -575,15 +663,16 @@ def threat_answer(snapshot: dict) -> str:
     return " ".join(parts)
 
 
-def _guide_steps(topic: str, snapshot: dict) -> str:
+def _guide_steps(topic: str, snapshot: dict, lead: str = "") -> str:
     card = rule_for(topic, snapshot)
     if not card:
         return "I do not have verified steps for this topic yet. Check the relevant screen in Stellaris."
-    steps = " ".join(card["steps"])
+    bullets = "\n".join(f"- {step}" for step in card["steps"])
     suffix = card["check"]
     if card["applicability"] != "version_checked":
         suffix += " Your game version, DLC or mod rules have not been confirmed against this guide."
-    return f"{steps} {suffix}"
+    header = (lead.strip() + "\n") if lead.strip() else ""
+    return f"{header}{bullets}\nCheck: {suffix}"
 
 
 def _named_problem(context: QuestionContext) -> str | None:
@@ -599,15 +688,15 @@ def _named_problem(context: QuestionContext) -> str | None:
 
 def _population_answer(context: QuestionContext, snapshot: dict) -> str:
     if context.planet is None:
-        return "To grow a colony's population: " + _guide_steps("population", snapshot)
+        return _guide_steps("population", snapshot, lead="To grow a colony's population:")
     planet = context.planet
     name = planet["name"]
     facts = [f"{name} has {planet['pops']:g} recorded pops"] if isinstance(planet.get("pops"), (int, float)) else [f"{name}'s population was not readable"]
     housing = planet.get("free_housing")
     if isinstance(housing, (int, float)):
         facts.append(f"{housing:+g} free housing")
-    return (", ".join(facts) + ". The save does not verify its growth, assembly or migration rate. " +
-            _guide_steps("population", snapshot))
+    lead = ", ".join(facts) + ". The save does not verify its growth, assembly or migration rate."
+    return _guide_steps("population", snapshot, lead=lead)
 
 
 def _policy_answer(context: QuestionContext, snapshot: dict) -> str:
@@ -615,7 +704,7 @@ def _policy_answer(context: QuestionContext, snapshot: dict) -> str:
     selected = snapshot.get("policies") or {}
     selected_note = (f"The save records {len(selected)} selected empire policies, but cannot prove that "
                      "an alternative is available for you now. ") if isinstance(selected, dict) and selected else ""
-    return subject + selected_note + _guide_steps("policy", snapshot)
+    return _guide_steps("policy", snapshot, lead=subject + selected_note)
 
 
 def _planet_economy_answer(planet: dict, snapshot: dict) -> str:
@@ -627,9 +716,9 @@ def _planet_economy_answer(planet: dict, snapshot: dict) -> str:
         return ", ".join(f"{key} {value:g}" for key, value in shown[:5]) or "none recorded"
 
     name = planet["name"]
-    return (f"{name}'s saved local production: {listed(planet.get('produces'))}; "
-            f"upkeep: {listed(planet.get('upkeep'))}. This is the colony, not your empire-wide balance. "
-            + _guide_steps("planet_economy", snapshot))
+    lead = (f"{name}'s saved local production: {listed(planet.get('produces'))}; "
+            f"upkeep: {listed(planet.get('upkeep'))}. This is the colony, not your empire-wide balance.")
+    return _guide_steps("planet_economy", snapshot, lead=lead)
 
 
 def _espionage_answer(context: QuestionContext, snapshot: dict) -> str:
@@ -649,8 +738,8 @@ def _espionage_answer(context: QuestionContext, snapshot: dict) -> str:
         if context.mode == "status":
             return prefix + "Check the target's Espionage screen for current operation progress and availability."
     else:
-        prefix = "To investigate another empire, "
-    return prefix + _guide_steps("espionage", snapshot)
+        prefix = "How to investigate another empire (Espionage)"
+    return _guide_steps("espionage", snapshot, lead=prefix)
 
 
 def _nomads_answer(snapshot: dict) -> str:
@@ -659,9 +748,9 @@ def _nomads_answer(snapshot: dict) -> str:
         return ("Nomads DLC is not recorded in this save's required_dlcs. "
                 "Standard settled-empire colony, starbase, and fleet guidance applies to this campaign.")
     profile = (snapshot.get("player") or {}).get("profile") or {}
-    prefix = ("This save shows a Nomadic empire profile. " if profile.get("is_nomad")
-              else "Nomads DLC is recorded (or unconfirmed) in this save, though this empire does not look actively Nomadic. ")
-    return prefix + _guide_steps("nomads", snapshot)
+    prefix = ("This save shows a Nomadic empire profile." if profile.get("is_nomad")
+              else "Nomads DLC is recorded (or unconfirmed) in this save, though this empire does not look actively Nomadic.")
+    return _guide_steps("nomads", snapshot, lead=prefix)
 
 
 def _ideologies_answer(snapshot: dict) -> str:
@@ -674,7 +763,7 @@ def _ideologies_answer(snapshot: dict) -> str:
     if willpower is False:
         return ("Willpower DLC is not recorded in this save's required_dlcs. "
                 "Base-game faction approval and Unity/Stability mechanics apply instead of Willpower Ideologies.")
-    return _guide_steps("ideologies", snapshot)
+    return _guide_steps("ideologies", snapshot, lead="Willpower Ideologies (4.6 Corona Borealis)")
 
 
 def _trade_storage_answer(snapshot: dict) -> str:
@@ -688,8 +777,8 @@ def _trade_storage_answer(snapshot: dict) -> str:
         facts.append(f"stored trade {stock['trade']:,.1f}")
     if "influence" in stock and (player.get("stock_known") or {}).get("influence", True) is not False:
         facts.append(f"stored influence {stock['influence']:,.0f}")
-    prefix = ("From this save: " + ", ".join(facts) + ". ") if facts else ""
-    return prefix + _guide_steps("trade_storage", snapshot)
+    prefix = ("From this save: " + ", ".join(facts) + ".") if facts else "Trade, Market & Storage Caps"
+    return _guide_steps("trade_storage", snapshot, lead=prefix)
 
 
 def _crisis_answer(context: QuestionContext, snapshot: dict) -> str:
@@ -712,14 +801,15 @@ def _crisis_answer(context: QuestionContext, snapshot: dict) -> str:
             "Field massed Devastator Torpedo Frigates with Afterburners for raw DPS against the flagship, supported by artillery/carrier fleets to clear patrols. "
         ),
         "midgame": (
-            "Midgame crises include the Great Khan (Apocalypse — can surrender as Satrapy or kill the flagship twice), Gray Tempest (Distant Stars — destroy Central Factory in the L-Cluster), "
-            "Voidworm Plague (Grand Archive — clear Nests before population surges), Crystal Rift / The Formless (Astral Planes), and War in Heaven (Leviathans). "
+            "Midgame Crises & Great Khan: in 4.x the Great Khan scales more dangerously than older patches (prepare ~40k+ fleets, kill the flagship twice, or submit as a Satrapy temporarily to preserve your empire). "
+            "Other midgame threats: Gray Tempest (Distant Stars — destroy Central Factory in L-Cluster), Voidworm Plague (Grand Archive — clear Nests early), Crystal Rift / The Formless (Astral Planes), and War in Heaven (Leviathans)."
         ),
     }
     prefix = counters.get(context.focus or "", "")
     profile = (snapshot.get("player") or {}).get("profile") or {}
     nomad_note = "Nomad warning: crisis fleets destroy Arkships outright rather than disabling them. " if profile.get("is_nomad") else ""
-    return prefix + nomad_note + _guide_steps("crisis", snapshot)
+    lead = (prefix + nomad_note).strip() or "Endgame & Midgame Crisis Readiness"
+    return _guide_steps("crisis", snapshot, lead=lead)
 
 
 def _council_answer(snapshot: dict) -> str:
@@ -734,26 +824,26 @@ def _council_answer(snapshot: dict) -> str:
         parts.append(f"This save is {version} (pre-4.6): the 5th Council seat still follows 4.5 civic unlock rules rather than 4.6's Galactic Administration tech.")
     elif release and release >= (4, 6, 0):
         parts.append("In 4.6 Corona Borealis, the 5th Council seat unlocks via Galactic Administration tech rather than a 3rd civic.")
-    prefix = (" ".join(parts) + " ") if parts else ""
-    return prefix + _guide_steps("council", snapshot)
+    lead = " ".join(parts) if parts else "Council & Agendas"
+    return _guide_steps("council", snapshot, lead=lead)
 
 
 def _leaders_answer(snapshot: dict) -> str:
     paragons = has_dlc(snapshot, "galactic_paragons")
-    prefix = ("With Galactic Paragons active, you manually pick traits, Veteran classes unlock at level 4 (Tier 3 cap), and Destiny traits at level 8. "
+    prefix = ("With Galactic Paragons active, you manually pick traits, Veteran classes unlock at level 4 (Tier 3 cap), and Destiny traits at level 8."
               if paragons is True else
-              "Without Galactic Paragons listed, traits auto-roll and Veteran traits cap at Tier 2. "
-              if paragons is False else "")
-    return prefix + _guide_steps("leaders", snapshot)
+              "Without Galactic Paragons listed, traits auto-roll and Veteran traits cap at Tier 2."
+              if paragons is False else "Leaders & Leader Capacity")
+    return _guide_steps("leaders", snapshot, lead=prefix)
 
 
 def _subjects_answer(snapshot: dict) -> str:
     overlord = has_dlc(snapshot, "overlord")
-    prefix = ("Overlord DLC is active, enabling negotiable Agreement terms, Specialist Subjects (Bulwark/Scholarium/Prospectorium), and Overlord Holdings. "
+    prefix = ("Overlord DLC is active, enabling negotiable Agreement terms, Specialist Subjects (Bulwark/Scholarium/Prospectorium), and Overlord Holdings."
               if overlord is True else
-              "Overlord DLC is not recorded in this save, so specialized subject types and custom holdings are unavailable. "
-              if overlord is False else "")
-    return prefix + _guide_steps("subjects", snapshot)
+              "Overlord DLC is not recorded in this save, so specialized subject types and custom holdings are unavailable."
+              if overlord is False else "Subjects & Vassal Loyalty")
+    return _guide_steps("subjects", snapshot, lead=prefix)
 
 
 def _megastructures_answer(snapshot: dict) -> str:
@@ -763,8 +853,8 @@ def _megastructures_answer(snapshot: dict) -> str:
         parts.append("This empire has a Nomadic profile: Habitats, Deep Space Citadels, Orbital Rings, and most multi-stage megastructures are blocked (only Quantum Catapult, Arc Furnace, and Ambition megastructures).")
     if has_dlc(snapshot, "biogenesis") is True:
         parts.append("BioGenesis DLC enables Deep Space Citadels (1/system cap, +1 with Eternal Vigilance or Starlit Citadel).")
-    prefix = (" ".join(parts) + " ") if parts else ""
-    return prefix + _guide_steps("megastructures", snapshot)
+    lead = " ".join(parts) if parts else "Megastructures & Deep Space Citadels"
+    return _guide_steps("megastructures", snapshot, lead=lead)
 
 
 def _government_answer(snapshot: dict) -> str:
@@ -781,8 +871,8 @@ def _government_answer(snapshot: dict) -> str:
         parts.append(f"At saved Empire Size {size:g}, reforming government costs about {int(round(size * 10)):,} Unity (20-year cooldown).")
     if release and release < (4, 6, 0):
         parts.append(f"Note: this save is {version} (4.5 rules), where Corporate empires still cannot take Fanatic Authoritarian/Egalitarian.")
-    prefix = (" ".join(parts) + " ") if parts else ""
-    return prefix + _guide_steps("government", snapshot)
+    lead = " ".join(parts) if parts else "Government & Reforms"
+    return _guide_steps("government", snapshot, lead=lead)
 
 
 def _save_year(snapshot: dict) -> int | None:
@@ -977,44 +1067,54 @@ def _perk_fit_note(key: str, snapshot: dict) -> str:
 
 def _format_single_tp(kind: str, key: str, snapshot: dict, summary: dict, raw_text: str) -> str:
     lowered = raw_text.casefold()
-    parts: list[str] = []
+    bullets: list[tuple[str, str]] = []
     if kind == "tradition":
         item = TRADITIONS[key]
-        if any(w in lowered for w in ("perk", "perks")) and "tradition" not in lowered:
-            parts.append(f"{item['name']} is a Tradition tree (not an Ascension Perk).")
+        mislabel = any(w in lowered for w in ("perk", "perks")) and "tradition" not in lowered
+        title = (f"{item['name']} is a Tradition tree (not an Ascension Perk)"
+                 if mislabel else f"{item['name']} (Tradition Tree)")
         st = summary["trees"].get(key)
         if st and st["finished"]:
-            parts.append(f"In this save, you have already finished {item['name']} ({summary['tree_count']}/7 Tradition slots used).")
+            bullets.append(("Your save", f"Already finished {item['name']} ({summary['tree_count']}/7 Tradition slots used)."))
         elif st and st["adopted"]:
-            parts.append(f"In this save, you have adopted {item['name']} ({st['picks']}/5 picks; {summary['tree_count']}/7 Tradition slots used).")
+            bullets.append(("Your save", f"Adopted {item['name']} ({st['picks']}/5 picks; {summary['tree_count']}/7 Tradition slots used)."))
         elif summary["tree_count"] > 0:
             started = ", ".join(TRADITIONS[k]["name"] for k in summary["trees"] if k in TRADITIONS)
-            parts.append(f"In this save, you have not adopted {item['name']} yet ({summary['tree_count']}/7 Tradition slots used: {started}).")
+            bullets.append(("Your save", f"Not adopted yet ({summary['tree_count']}/7 Tradition slots used: {started})."))
         else:
-            parts.append(f"No adopted Tradition trees are recorded in this save yet.")
+            bullets.append(("Your save", "No adopted Tradition trees are recorded in this save yet."))
         if _is_dlc_missing(snapshot, item.get("dlc")):
-            parts.append(f"DLC note: {item['dlc']} is not listed in this save's active DLCs.")
-        parts.append(f"4.6 benefits — Adopt: {item['adopt']}. Picks: {item['picks']}. Finisher: {item['finish']}.")
-        parts.append(_tradition_fit_note(key, snapshot, summary))
+            bullets.append(("DLC note", f"{item['dlc']} is not listed in this save's active DLCs."))
+        bullets.extend([
+            ("Adopt (4.6)", item["adopt"] + "."),
+            ("Key picks", item["picks"] + "."),
+            ("Finisher", item["finish"] + "."),
+            ("Fit for your save", _tradition_fit_note(key, snapshot, summary)),
+        ])
     else:
         item = ASCENSION_PERKS[key]
-        if "tradition" in lowered and not any(w in lowered for w in ("perk", "perks", "ascension")):
-            parts.append(f"{item['name']} is an Ascension Perk (unlocked by finishing a Tradition tree).")
+        mislabel = "tradition" in lowered and not any(w in lowered for w in ("perk", "perks", "ascension"))
+        title = (f"{item['name']} is an Ascension Perk (unlocked by finishing a Tradition tree)"
+                 if mislabel else f"{item['name']} (Ascension Perk)")
         if key in summary["perk_keys"]:
-            parts.append(f"In this save, you already have {item['name']}.")
+            bullets.append(("Your save", f"You already have {item['name']}."))
         elif summary["perk_names"]:
-            parts.append(f"In this save, you do not have {item['name']} yet (current perks: {', '.join(summary['perk_names'][:4])}).")
+            bullets.append(("Your save", f"Not taken yet (current perks: {', '.join(summary['perk_names'][:4])})."))
         else:
-            parts.append(f"No Ascension Perks are recorded in this save yet.")
+            bullets.append(("Your save", "No Ascension Perks are recorded in this save yet."))
         if _is_dlc_missing(snapshot, item.get("dlc")):
-            parts.append(f"DLC note: {item['dlc']} is not listed in this save's active DLCs.")
-        parts.append(f"4.6 effect: {item['effects']}.")
-        parts.append(_perk_fit_note(key, snapshot))
-    return " ".join(parts) + " Verify exact prerequisites in your Traditions & Relics screen."
+            bullets.append(("DLC note", f"{item['dlc']} is not listed in this save's active DLCs."))
+        bullets.extend([
+            ("4.6 effect", item["effects"] + "."),
+            ("Fit for your save", _perk_fit_note(key, snapshot)),
+        ])
+    return format_card(title, bullets, "Verify exact prerequisites in your Traditions & Relics screen.")
 
 
 def _tradition_perk_answer(context: QuestionContext, snapshot: dict) -> str:
     focus = context.focus or "general"
+    if focus == "ascension_paths":
+        return ascension_paths_answer(snapshot)
     summary = summarize_save_traditions(snapshot)
 
     if focus.startswith("tradition:"):
@@ -1027,18 +1127,21 @@ def _tradition_perk_answer(context: QuestionContext, snapshot: dict) -> str:
             return _format_single_tp("perk", key, snapshot, summary, context.text)
     if focus.startswith("compare:"):
         raw_pairs = focus.split(":", 1)[1].split(",")
-        chunks = []
+        bullets: list[tuple[str, str]] = []
+        names: list[str] = []
         for entry in raw_pairs[:2]:
             if ":" not in entry:
                 continue
             kind, key = entry.split(":", 1)
             if kind == "tradition" and key in TRADITIONS:
                 it = TRADITIONS[key]
-                chunks.append(f"{it['name']} (Tradition): {it['role']} Key gains: {it['picks']}; Finisher: {it['finish']}.")
+                names.append(it["name"])
+                bullets.append((f"{it['name']} (Tradition)", f"{it['role']} Key gains: {it['picks']}; Finisher: {it['finish']}."))
             elif kind == "perk" and key in ASCENSION_PERKS:
                 it = ASCENSION_PERKS[key]
-                chunks.append(f"{it['name']} (Ascension Perk): {it['effects']}. {it['role']}")
-        if chunks:
+                names.append(it["name"])
+                bullets.append((f"{it['name']} (Ascension Perk)", f"{it['effects']}. {it['role']}"))
+        if bullets:
             status_notes = []
             for entry in raw_pairs[:2]:
                 if ":" not in entry:
@@ -1052,12 +1155,11 @@ def _tradition_perk_answer(context: QuestionContext, snapshot: dict) -> str:
                     status_notes.append(f"you already have {ASCENSION_PERKS[key]['name']}")
             year = _save_year(snapshot)
             if status_notes:
-                save_note = " In this save, " + "; ".join(status_notes) + " — finish an open tree for its finisher & Ascension Perk slot before splitting Unity."
+                bullets.append(("Your save", "; ".join(status_notes) + " — finish an open tree for its finisher & Ascension Perk slot before splitting Unity."))
             elif year:
-                save_note = f" At Year {year}, pick whichever solves your immediate bottleneck first."
-            else:
-                save_note = ""
-            return " ".join(chunks) + save_note + " Confirm your current open slots in Traditions & Relics."
+                bullets.append(("Verdict", f"At Year {year}, pick whichever solves your immediate bottleneck first."))
+            title = " vs ".join(names) if len(names) == 2 else "Comparison"
+            return format_card(title, bullets, "Confirm your current open slots in Traditions & Relics.")
 
     # Save-aware recommendations for early-game, tradition overview, or general perk questions.
     player = snapshot.get("player") or {}
@@ -1091,25 +1193,30 @@ def _tradition_perk_answer(context: QuestionContext, snapshot: dict) -> str:
     if focus == "traditions_overview":
         recs = []
         if "discovery" not in summary["trees"] and (year is None or year < 2245):
-            recs.append("Discovery (+35% survey speed, +1 tech choice, +10% Research Speed finisher)")
+            recs.append(("Discovery", "+35% survey speed, +1 tech choice, +10% Research Speed finisher."))
         if "prosperity" not in summary["trees"]:
-            recs.append("Prosperity (-10% build cost & upkeep, +5% all colony job output)")
+            recs.append(("Prosperity", "-10% build cost & upkeep, +5% all colony job output."))
         if "statecraft" not in summary["trees"]:
-            recs.append("Statecraft (+25% Agenda speed, Councilor XP on agenda finish, -5% Empire Size)")
+            recs.append(("Statecraft", "+25% Agenda speed, Councilor XP on agenda finish, -5% Empire Size."))
         if "expansion" not in summary["trees"] and (year is None or year < 2240) and not is_nomad:
-            recs.append("Expansion (+1 starting Urban District, -15% system/colony Empire Size)")
+            recs.append(("Expansion", "+1 starting Urban District, -15% system/colony Empire Size."))
         if "supremacy" not in summary["trees"] and (year is not None and year >= 2245):
-            recs.append("Supremacy (+20% Naval Cap, +10% fire rate, War Doctrines)")
+            recs.append(("Supremacy", "+20% Naval Cap, +10% fire rate, War Doctrines."))
         if low_stab:
             stab_tree = "Synchronicity" if is_gestalt else "Harmony"
             if stab_tree.lower() not in summary["trees"]:
-                recs.append(f"{stab_tree} (+3 Stability and -10% pop upkeep to help {low_stab[0]['name']})")
+                recs.append((stab_tree, f"+3 Stability and -10% pop upkeep to help {low_stab[0]['name']}."))
+        bullets = [("Saved progress", parts[0].removeprefix(f"Saved progress ({yr_prefix}): "))]
         if recs:
-            parts.append("Best next Tradition trees for your save: " + "; ".join(recs[:3]) + ".")
+            bullets.append(("Best next Tradition trees", "; ".join(f"{name} ({desc.rstrip('.')})" for name, desc in recs[:3]) + "."))
         else:
-            parts.append("You already hold the core economic/research trees — look to your Ascension Path, Supremacy (fleet power), or Harmony/Synchronicity (Planetary Ascension).")
-        parts.append("Reserve an open Tradition tree slot before adopting your 7th Tradition so you have room for your Ascension Path.")
-        return " ".join(parts) + " Ask about any specific tree (e.g. 'benefit of Prosperity' or 'Discovery vs Prosperity') for full 4.6 effects."
+            bullets.append(("Next trees", "You already hold the core economic/research trees — look to your Ascension Path, Supremacy (fleet power), or Harmony/Synchronicity (Planetary Ascension)."))
+        bullets.append(("Slot rule", "Reserve an open Tradition tree slot before adopting your 7th Tradition so you have room for your Ascension Path."))
+        return format_card(
+            f"Tradition Trees ({yr_prefix})",
+            bullets,
+            "Ask about any specific tree (e.g. 'benefit of Prosperity' or 'Discovery vs Prosperity') for full 4.6 effects.",
+        )
 
     # Early-game or general Ascension Perk recommendations tailored to the save.
     early = focus == "early_game" or (year is not None and year < 2255) or len(summary["perk_names"]) <= 1
@@ -1126,10 +1233,8 @@ def _tradition_perk_answer(context: QuestionContext, snapshot: dict) -> str:
             perk_recs.append("One Vision (+10% Unity + ethics/ideology attraction)")
         if "executive_vigor" not in summary["perk_keys"] and deficits:
             perk_recs.append("Executive Vigor (+100 Edict Fund to run resource Subsidies without draining Unity)")
-        if perk_recs:
-            parts.append("Best early-game Ascension Perks for your save: " + "; ".join(perk_recs[:4]) + ".")
-        else:
-            parts.append("You already hold the top early-game perks — save your next slot for your Ascension Path or midgame scaling (Arcology Project, Master Builders, or Galactic Force Projection).")
+        stage_label = "Best early-game Ascension Perks"
+        empty_msg = "You already hold the top early-game perks — save your next slot for your Ascension Path or midgame scaling (Arcology Project, Master Builders, or Galactic Force Projection)."
     else:
         if "arcology_project" not in summary["perk_keys"] and not is_gestalt and not is_nomad:
             perk_recs.append("Arcology Project (Ecumenopolis Alloy/Unity hubs)")
@@ -1143,16 +1248,23 @@ def _tradition_perk_answer(context: QuestionContext, snapshot: dict) -> str:
             perk_recs.append("Technological Ascendancy (+50% rare tech draw + Research Focus policies)")
         if has_dlc(snapshot, "willpower") is True and "force_of_will" not in summary["perk_keys"]:
             perk_recs.append("Force of Will (4.6 Willpower ideological ambition path)")
-        if perk_recs:
-            parts.append("Strong Ascension Perks for your current stage: " + "; ".join(perk_recs[:4]) + ".")
-        else:
-            parts.append("You already hold the core mid/late-game perks — consider Galactic Wonders, Master Builders, Colossus Project, or your Ascension Path if not yet taken.")
+        stage_label = "Strong Ascension Perks for your current stage"
+        empty_msg = "You already hold the core mid/late-game perks — consider Galactic Wonders, Master Builders, Colossus Project, or your Ascension Path if not yet taken."
 
+    bullets = [("Saved progress", parts[0].removeprefix(f"Saved progress ({yr_prefix}): "))]
+    if perk_recs:
+        bullets.append((stage_label, "; ".join(perk_recs[:4]) + "."))
+    else:
+        bullets.append((stage_label, empty_msg))
     if summary["tree_count"] < 2:
         trad_lead = ("Prosperity (lower upkeep & +5% all job output)" if deficits else "Discovery (survey & research) or Prosperity (economy)")
-        parts.append(f"For Tradition trees right now, consider {trad_lead}.")
-    parts.append("Always reserve an open Tradition tree slot before adopting your 7th Tradition so you have room for your chosen Ascension Path.")
-    return " ".join(parts) + " Ask about any specific tree or perk (e.g. 'benefit of Prosperity' or 'One Vision') for exact 4.6 bonuses."
+        bullets.append(("Tradition pick", f"Consider {trad_lead}."))
+    bullets.append(("Slot rule", "Always reserve an open Tradition tree slot before adopting your 7th Tradition so you have room for your chosen Ascension Path."))
+    return format_card(
+        f"Ascension Perks & Traditions ({yr_prefix})",
+        bullets,
+        "Ask about any specific tree or perk (e.g. 'benefit of Prosperity' or 'One Vision') for exact 4.6 bonuses.",
+    )
 
 
 def _benchmark_answer(snapshot: dict) -> str:
@@ -1161,18 +1273,25 @@ def _benchmark_answer(snapshot: dict) -> str:
     bench = build_campaign_benchmark(snapshot)
     year = bench.get("year")
     year_str = f"Year {year}" if year else "this save"
-    metric_bits = []
+    bullets: list[tuple[str, str]] = []
     for m in bench.get("metrics") or []:
         cur = f"{m['current']:,.1f}{m['unit']}" if isinstance(m["current"], (int, float)) else "unknown"
-        metric_bits.append(f"{m['label']}: {cur} (1x target {m['target_low']:,}–{m['target_high']:,}{m['unit']}, {m['status'].replace('_', ' ')})")
+        bullets.append((m["label"], f"{cur} (1x target {m['target_low']:,}–{m['target_high']:,}{m['unit']}, {m['status'].replace('_', ' ')})"))
     warn_checks = [c["detail"] for c in (bench.get("checks") or []) if not c.get("ok")]
+    bullets.append((
+        "Readiness",
+        ("Priority fixes first: " + " ".join(warn_checks)) if warn_checks else "Core readiness checks (economy flow, stability, starbase cap) look healthy.",
+    ))
     nxt = bench.get("next")
-    nxt_str = f" Next milestone (Year {nxt['year']}): {nxt['focus']}" if nxt else ""
-    warn_str = (" Priority fixes first: " + " ".join(warn_checks)) if warn_checks else " Core readiness checks (economy flow, stability, starbase cap) look healthy."
+    if nxt:
+        bullets.append((f"Next milestone (Year {nxt['year']})", nxt["focus"]))
     cp_label = (f"building toward Year {bench['current_year']}"
                 if bench.get("before_first") else f"checkpoint Year {bench['current_year']}")
-    return (f"Stage {bench['stage']} ({bench['stage_name']}) at {year_str} — {cp_label}: "
-            f"{'; '.join(metric_bits)}.{warn_str}{nxt_str} {bench['caveat']}")
+    return format_card(
+        f"Stage {bench['stage']} ({bench['stage_name']}) at {year_str} — {cp_label}",
+        bullets,
+        bench["caveat"],
+    )
 
 
 def answer_question(question: str, snapshot: dict, advice: dict | None = None) -> str:
@@ -1182,6 +1301,32 @@ def answer_question(question: str, snapshot: dict, advice: dict | None = None) -
     problem = _named_problem(context)
     if problem:
         return problem
+    if context.topic == "mod_question":
+        return mod_question_answer(snapshot)
+    if context.topic == "bug_report":
+        return bug_report_answer(snapshot)
+    if context.topic == "patch_notes":
+        return patch_notes_answer(snapshot)
+    if context.topic == "criminal_branch":
+        return criminal_branch_answer(snapshot)
+    if context.topic == "slavery_purge":
+        return slavery_purge_answer(snapshot)
+    if context.topic == "fallen_empire":
+        return fallen_empire_answer(snapshot, context.text)
+    if context.topic == "leviathans":
+        return leviathans_answer(snapshot)
+    if context.topic == "planet_classes":
+        return planet_classes_answer(snapshot, context.text)
+    if context.topic == "empire_size":
+        return empire_size_answer(snapshot)
+    if context.topic == "edicts":
+        return edicts_answer(snapshot)
+    if context.topic == "exploration":
+        return exploration_answer(context.focus, snapshot)
+    if context.topic == "diplomacy_gc":
+        return diplomacy_gc_answer(context.focus or "relations", snapshot)
+    if context.topic == "roleplay":
+        return ai_personalities_roleplay_answer(context.focus or "roleplay_starters", snapshot)
     if context.topic == "espionage":
         return _espionage_answer(context, snapshot)
     if context.topic == "ideologies":
@@ -1191,11 +1336,11 @@ def answer_question(question: str, snapshot: dict, advice: dict | None = None) -
     if context.topic == "trade_storage":
         return _trade_storage_answer(snapshot)
     if context.topic == "dangerous_tech":
-        return _guide_steps("dangerous_tech", snapshot)
+        return _guide_steps("dangerous_tech", snapshot, lead="Dangerous (Red) Technologies")
     if context.topic == "ascension_perks":
         return _tradition_perk_answer(context, snapshot)
     if context.topic == "automation":
-        return _guide_steps("automation", snapshot)
+        return _guide_steps("automation", snapshot, lead="Planetary Automation & Automation Buildings")
     if context.topic == "benchmark":
         return _benchmark_answer(snapshot)
     if context.topic == "crisis":
@@ -1207,15 +1352,23 @@ def answer_question(question: str, snapshot: dict, advice: dict | None = None) -
     if context.topic == "subjects":
         return _subjects_answer(snapshot)
     if context.topic == "megastructures":
+        if context.focus == "relays_gateways":
+            return relays_gateways_answer(snapshot)
         return _megastructures_answer(snapshot)
     if context.topic == "government":
+        if context.focus == "planetary_ascension":
+            return planetary_ascension_answer(snapshot)
         return _government_answer(snapshot)
     if context.topic == "policy":
         return _policy_answer(context, snapshot)
     if context.topic == "population":
+        if context.focus in ("resettlement", "pop_assembly", "pop_not_growing"):
+            return population_detail_answer(context.focus, snapshot, context.planet)
         return _population_answer(context, snapshot)
     if context.topic == "planet" and context.planet and context.focus == "revolt":
         return _revolt_answer(context.planet, snapshot)
+    if context.topic == "planet" and context.planet and context.focus == "crime":
+        return colony_topic_answer("crime", snapshot, context.planet)
     if context.topic == "planet" and context.planet:
         return planet_answer(context.planet["name"], snapshot)
     if context.topic == "planet":
@@ -1231,6 +1384,8 @@ def answer_question(question: str, snapshot: dict, advice: dict | None = None) -
     if context.topic in ("threat", "contact"):
         return threat_answer(snapshot)
     if context.topic == "war":
+        if context.focus in ("ground_combat", "claims_wargoals", "war_exhaustion", "avoid_war", "war_tactics"):
+            return war_detail_answer(context.focus, snapshot)
         return ("Check visible fleet strength, allies, war goals, border position, reinforcements "
                 "and the target's treaties in game. Hidden foreign power in a save and a friendly "
                 "opinion cannot establish that an attack is safe.")

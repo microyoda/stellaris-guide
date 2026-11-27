@@ -573,8 +573,80 @@ function setView(view) {
   renderQuickActions();
 }
 
+function appendInlineText(parent, text) {
+  const str = String(text ?? '');
+  const parts = str.split(/(\*\*[^*]+\*\*)/g);
+  parts.forEach(part => {
+    if (!part) return;
+    if (part.length > 4 && part.startsWith('**') && part.endsWith('**')) {
+      const strong = document.createElement('strong');
+      strong.textContent = part.slice(2, -2);
+      parent.appendChild(strong);
+    } else {
+      parent.appendChild(document.createTextNode(part));
+    }
+  });
+}
+
+function renderFormattedMessage(container, text, type) {
+  container.textContent = '';
+  const raw = String(text ?? '');
+  if (type === 'user' || type === 'thinking' || type === 'warning') {
+    container.textContent = raw;
+    return;
+  }
+  const lines = raw.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const hasBullets = lines.some(line => /^[-•]\s+/.test(line));
+  if (!hasBullets && lines.length <= 1) {
+    appendInlineText(container, raw);
+    return;
+  }
+  let list = null;
+  lines.forEach((line, idx) => {
+    const bulletMatch = line.match(/^[-•]\s+(.*)$/);
+    if (bulletMatch) {
+      if (!list) {
+        list = document.createElement('ul');
+        list.className = 'msg-list';
+        container.appendChild(list);
+      }
+      const li = document.createElement('li');
+      const body = bulletMatch[1];
+      const labelMatch = body.match(/^([^:]{2,44}):\s+(.+)$/);
+      if (labelMatch && !labelMatch[1].includes('**')) {
+        const label = document.createElement('strong');
+        label.className = 'msg-label';
+        label.textContent = `${labelMatch[1]}: `;
+        li.appendChild(label);
+        appendInlineText(li, labelMatch[2]);
+      } else {
+        appendInlineText(li, body);
+      }
+      list.appendChild(li);
+      return;
+    }
+    list = null;
+    if (/^Check:\s+/i.test(line)) {
+      const note = document.createElement('div');
+      note.className = 'msg-note';
+      appendInlineText(note, line);
+      container.appendChild(note);
+      return;
+    }
+    const block = document.createElement('div');
+    block.className = idx === 0 && hasBullets ? 'msg-title' : 'msg-para';
+    appendInlineText(block, line);
+    container.appendChild(block);
+  });
+}
+
 function addMessage(text, type) {
-  const div = document.createElement('div'); div.className = `message ${type}`; div.textContent = text; $('chat-log').appendChild(div); $('chat-log').scrollTop = $('chat-log').scrollHeight; return div;
+  const div = document.createElement('div');
+  div.className = `message ${type}`;
+  renderFormattedMessage(div, text, type);
+  $('chat-log').appendChild(div);
+  $('chat-log').scrollTop = $('chat-log').scrollHeight;
+  return div;
 }
 
 function renderQuestionHistory(data) {

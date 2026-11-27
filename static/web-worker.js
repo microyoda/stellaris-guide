@@ -11,6 +11,7 @@ const PYTHON_FILES = [
   'guide_knowledge.json',
   'traditions_data.py',
   'question_context.py',
+  'guide_topics.py',
   'advice.py',
   'tech_graph.json',
   'web_bridge.py',

@@ -769,21 +769,28 @@ def find_tradition_perk_mentions(words: str, *, has_tp_context: bool, raw_words:
                 break
 
     # Ambiguous common-English tradition names (e.g. discovery, expansion, diplomacy)
-    # require explicit tradition/perk framing OR pairing with another detected tree/perk.
-    if has_tp_context or unambiguous_found:
-        for key, item in TRADITIONS.items():
-            if not item.get("ambiguous"):
-                continue
-            for alias in item["aliases"]:
-                pat = r"(?<!\w)" + re.escape(alias).replace(r"\ ", r"\s+") + r"(?!\w)"
-                for src in sources:
-                    m = re.search(pat, src)
-                    if m and ("tradition", key) not in seen:
-                        seen.add(("tradition", key))
-                        found.append((m.start(), "tradition", key))
-                        break
-                if ("tradition", key) in seen:
+    # require explicit tradition/perk framing OR pairing with another detected tree/perk
+    # OR a direct "X vs Y" / "X or Y" comparison where >=2 ambiguous traditions appear.
+    ambiguous_hits: list[tuple[int, str, str]] = []
+    for key, item in TRADITIONS.items():
+        if not item.get("ambiguous"):
+            continue
+        for alias in item["aliases"]:
+            pat = r"(?<!\w)" + re.escape(alias).replace(r"\ ", r"\s+") + r"(?!\w)"
+            for src in sources:
+                m = re.search(pat, src)
+                if m and ("tradition", key) not in seen:
+                    ambiguous_hits.append((m.start(), "tradition", key))
                     break
+            if any(k == key for _, _, k in ambiguous_hits):
+                break
+
+    has_vs_compare = bool(re.search(r"(?<!\w)(?:vs|versus|or)(?!\w)", words))
+    if has_tp_context or unambiguous_found or (has_vs_compare and len(ambiguous_hits) >= 2):
+        for pos, kind, key in ambiguous_hits:
+            if (kind, key) not in seen:
+                seen.add((kind, key))
+                found.append((pos, kind, key))
 
     found.sort(key=lambda entry: entry[0])
     return [(kind, key) for _, kind, key in found]
