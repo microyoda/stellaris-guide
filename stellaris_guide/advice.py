@@ -709,6 +709,11 @@ def _is_dlc_missing(snapshot: dict, dlc_label: str | None) -> bool:
     return bool(parts) and all(has_dlc(snapshot, part) is False for part in parts)
 
 
+def _colony_label(count: float) -> str:
+    n = int(count)
+    return f"{n} colony" if n == 1 else f"{n} colonies"
+
+
 def _tradition_fit_note(key: str, snapshot: dict, summary: dict) -> str:
     player = snapshot.get("player") or {}
     profile = player.get("profile") or {}
@@ -733,7 +738,7 @@ def _tradition_fit_note(key: str, snapshot: dict, summary: dict) -> str:
         if is_nomad:
             notes.append("For your Nomadic empire, Prosperity swaps mining-station bonuses for Arkship harvest output (+10% adopt, +15% finish) and +1 max Arkship district.")
         else:
-            col_txt = f"{int(colonies)} colonies" if colonies else "your colonies"
+            col_txt = _colony_label(colonies) if colonies is not None else "your colonies"
             yr_txt = f"Year {year}, " if year else ""
             deficits = [r.replace("_", " ") for r in ("energy", "minerals", "consumer_goods", "alloys")
                         if net_known.get(r, True) is not False and (_num(net.get(r)) or 0) < 0]
@@ -753,7 +758,7 @@ def _tradition_fit_note(key: str, snapshot: dict, summary: dict) -> str:
         return f"At your current stage{sci_txt}, Discovery's +1 tech alternative and +10% Research Speed finisher remain useful, though early survey speed matters less once borders are mapped."
 
     if key == "expansion":
-        col_txt = f" ({int(colonies)} colonies)" if colonies else ""
+        col_txt = f" ({_colony_label(colonies)})" if colonies is not None else ""
         if year and year < 2240:
             return f"At Year {year}{col_txt}, Expansion pays off best while you are still claiming systems and founding early colonies."
         return f"Past the early land-grab{col_txt}, Expansion loses value compared to Prosperity, Statecraft, or Supremacy unless you are still colonizing heavily."
@@ -833,7 +838,7 @@ def _perk_fit_note(key: str, snapshot: dict) -> str:
             return "For Nomads, Imperial Prerogative grants +15% Ruler workforce and +2 Official cap instead of colony Empire Size reduction."
         bits = []
         if colonies is not None:
-            bits.append(f"{int(colonies)} colonies")
+            bits.append(_colony_label(colonies))
         if size is not None:
             bits.append(f"Empire Size {size:g}")
         ctx = f" ({', '.join(bits)})" if bits else ""

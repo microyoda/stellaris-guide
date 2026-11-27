@@ -28,8 +28,16 @@ async function ensureReady() {
       importScripts(`${PYODIDE_INDEX}pyodide.js`);
       pyodide = await loadPyodide({indexURL: PYODIDE_INDEX});
       pyodide.FS.mkdirTree('/app/stellaris_guide');
+      const workerBuildId = (() => {
+        try {
+          return new URL(self.location.href).searchParams.get('v') || '';
+        } catch {
+          return '';
+        }
+      })();
+      const suffix = workerBuildId ? `?v=${encodeURIComponent(workerBuildId)}` : '';
       await Promise.all(PYTHON_FILES.map(async name => {
-        const response = await fetch(`./py/stellaris_guide/${name}`, {cache: 'no-store'});
+        const response = await fetch(`./py/stellaris_guide/${name}${suffix}`, {cache: 'no-store'});
         if (!response.ok) throw new Error(`Missing bundled module ${name}`);
         const text = await response.text();
         pyodide.FS.writeFile(`/app/stellaris_guide/${name}`, text, {encoding: 'utf8'});

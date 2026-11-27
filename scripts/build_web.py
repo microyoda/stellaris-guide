@@ -7,7 +7,9 @@ or Cloudflare Pages with zero server backend and zero save uploads.
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -39,7 +41,22 @@ WEB_PYTHON_FILES = (
 )
 
 
-def _rewrite_index_for_web(html: str) -> str:
+def _compute_build_id() -> str:
+    """Deterministic short content hash across bundled web assets and Python modules."""
+    digest = hashlib.sha256()
+    for path in sorted(STATIC_DIR.rglob("*")):
+        if path.is_file():
+            digest.update(path.relative_to(STATIC_DIR).as_posix().encode("utf-8"))
+            digest.update(path.read_bytes())
+    for name in WEB_PYTHON_FILES:
+        src = PKG_DIR / name
+        if src.is_file():
+            digest.update(name.encode("utf-8"))
+            digest.update(src.read_bytes())
+    return digest.hexdigest()[:10]
+
+
+def _rewrite_index_for_web(html: str, build_id: str = "") -> str:
     """Make asset paths relative for subpath hosting (e.g. GitHub Pages) and inject web runtime."""
     rewritten = (
         html.replace('href="/', 'href="./')
@@ -53,6 +70,17 @@ def _rewrite_index_for_web(html: str) -> str:
                 '<script src="./dds-art.js"></script>\n  <script src="./web-runtime.js"></script>\n  <script src="./art.js"></script>',
             )
     )
+    if build_id:
+        rewritten = rewritten.replace(
+            "</head>",
+            f'  <meta name="stellaris-web-build" content="{build_id}">\n</head>',
+            1,
+        )
+        rewritten = re.sub(
+            r'((?:href|src)="\./[^"?]+\.(?:js|css))"',
+            rf'\1?v={build_id}"',
+            rewritten,
+        )
     return rewritten
 
 
@@ -60,6 +88,7 @@ def build_web(output_dir: Path = OUT_DIR) -> Path:
     if output_dir.exists():
         shutil.rmtree(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    build_id = _compute_build_id()
 
     # Copy static assets.
     for item in STATIC_DIR.iterdir():
@@ -67,7 +96,7 @@ def build_web(output_dir: Path = OUT_DIR) -> Path:
         if item.is_dir():
             shutil.copytree(item, target)
         elif item.name == "index.html":
-            target.write_text(_rewrite_index_for_web(item.read_text(encoding="utf-8")), encoding="utf-8")
+            target.write_text(_rewrite_index_for_web(item.read_text(encoding="utf-8"), build_id), encoding="utf-8")
         else:
             shutil.copy2(item, target)
 

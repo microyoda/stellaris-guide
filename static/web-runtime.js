@@ -91,9 +91,17 @@
     pending.clear();
   }
 
+  function webBuildId() {
+    const meta = typeof document !== 'undefined' && document.querySelector
+      ? document.querySelector('meta[name="stellaris-web-build"]')
+      : null;
+    return meta?.getAttribute?.('content') || '';
+  }
+
   function startWorker() {
     if (worker) return;
-    worker = new Worker('./web-worker.js');
+    const v = webBuildId();
+    worker = new Worker(v ? `./web-worker.js?v=${encodeURIComponent(v)}` : './web-worker.js');
     worker.onmessage = event => {
       const msg = event.data || {};
       if (msg.type === 'status') {

@@ -337,9 +337,12 @@ class WebBridgeAndBuildTests(unittest.TestCase):
             html = (out / "index.html").read_text(encoding="utf-8")
             self.assertIn("./web-runtime.js", html)
             self.assertIn("./web.css", html)
+            self.assertIn('name="stellaris-web-build"', html)
+            self.assertRegex(html, r'\./web-runtime\.js\?v=[0-9a-f]{10}')
             self.assertNotIn('src="/', html)
             py_dir = out / "py" / "stellaris_guide"
             self.assertTrue((py_dir / "dlcs.py").is_file())
+            self.assertTrue((py_dir / "traditions_data.py").is_file())
             self.assertTrue((py_dir / "web_bridge.py").is_file())
             self.assertTrue((py_dir / "tech_graph.json").is_file())
             self.assertTrue((out / "art.js").is_file())
