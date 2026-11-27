@@ -17,6 +17,10 @@ def make_advice(snapshot: dict, history: list[dict], plan: dict | None = None) -
     return make_plan(snapshot, history, plan)
 
 
+def _dict(value: object) -> dict:
+    return value if isinstance(value, dict) else {}
+
+
 def _num(value: object) -> float | None:
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         return float(value)
@@ -258,6 +262,41 @@ def _general_planet_answer(context: QuestionContext, snapshot: dict) -> str:
     planets = [p for p in (snapshot.get("planets") or []) if isinstance(p, dict) and p.get("name")]
     if context.focus == "revolt":
         return _revolt_answer(None, snapshot)
+    if context.focus == "colonize":
+        player = _dict(snapshot.get("player"))
+        profile = _dict(player.get("profile"))
+        net = _dict(player.get("net"))
+        net_known = _dict(player.get("net_known"))
+        year = _save_year(snapshot)
+        colonies = _colony_count(player, planets)
+        size = _num(player.get("empire_size"))
+        if profile.get("is_nomad"):
+            return ("This save shows a Nomadic empire profile: Nomads expand via Arkships and Waystations rather than standard settled planet colonization. "
+                    "Focus on Wayline coverage, Operational Reserves, and Arkship district upgrades.")
+        status_bits = []
+        if year is not None:
+            status_bits.append(f"Year {year}")
+        if colonies is not None:
+            status_bits.append(_colony_label(colonies))
+        if size is not None:
+            status_bits.append(f"Empire Size {size:g}")
+        lead = f"Saved status ({', '.join(status_bits)}): " if status_bits else ""
+        low_stab_pairs = [(s, p) for p in planets if (s := _num(p.get("stability"))) is not None and s < 40]
+        low_stab = [p for _, p in sorted(low_stab_pairs, key=lambda item: item[0])]
+        deficits = [r.replace("_", " ") for r in ("minerals", "consumer_goods", "energy")
+                    if net_known.get(r, True) is not False and (_num(net.get(r)) or 0) < 0]
+        hab_note = ("As a Machine empire, you can colonize almost any planet class regardless of climate. "
+                    if profile.get("is_machine") else
+                    "Prioritize 70%+ (green) habitability worlds first and avoid <50% (red) worlds early until you have terraforming, migration treaties, gene-modding, or droids (low habitability raises pop upkeep/amenities demand and cuts output and growth). ")
+        pace_note = ("Early game: colonize your 2 guaranteed habitable worlds right away (aiming for ~3–5 colonies by 2220–2230), since every colony grows pops independently. "
+                     "Each colony adds +10 base Empire Size (reduced by Expansion -15% or Imperial Prerogative -25%), so keep colonizing good worlds as long as your Minerals, Consumer Goods, and Stability can support new districts. ")
+        if low_stab:
+            caution = f"Caution for this save: stabilize {low_stab[0]['name']} ({_fmt_metric(low_stab[0].get('stability'), '.0f', '%')} stability) before over-extending."
+        elif deficits:
+            caution = f"Caution for this save: fix your saved {', '.join(deficits)} deficit so new colonies do not strain your economy."
+        else:
+            caution = "Your saved balance looks healthy enough to colonize your next high-habitability worlds now."
+        return lead + pace_note + hab_note + caution
     if not planets:
         return "I could not read colony details from this save. Make a new autosave and try again."
     focus = context.focus
@@ -376,6 +415,65 @@ def ship_answer(snapshot: dict, context: QuestionContext | None = None) -> str:
     player = snapshot.get("player") or {}
     focus = context.focus if context else None
     mode = context.mode if context else "status"
+
+    if focus == "science_ship":
+        year = _save_year(snapshot)
+        net = _dict(player.get("net"))
+        net_known = _dict(player.get("net_known"))
+        alloys = _num(net.get("alloys")) if net_known.get("alloys", True) is not False else None
+        summary = summarize_save_traditions(snapshot)
+        profile = _dict(player.get("profile"))
+        raw_tr = set(profile.get("traditions")) if isinstance(profile.get("traditions"), (list, tuple)) else set()
+        cap = 3
+        cap_sources = []
+        if "tr_discovery_science_division" in raw_tr:
+            cap += 1
+            cap_sources.append("Discovery Science Division +1")
+        if "tr_aptitude_psychological_profiling" in raw_tr:
+            cap += 1
+            cap_sources.append("Aptitude +1")
+        if "transcendent_learning" in summary["perk_keys"]:
+            cap += 2
+            cap_sources.append("Transcendent Learning +2")
+        if "archaeoengineers" in summary["perk_keys"]:
+            cap += 1
+            cap_sources.append("Archaeo-Engineers +1")
+        yr_txt = f"Year {year}" if year else "early game"
+        alloy_txt = f", Alloys {signed(alloys)}/mo" if alloys is not None else ""
+        cap_txt = f" ({', '.join(cap_sources)})" if cap_sources else " (base cap 3; raise with Discovery +1, Transcendent Learning +2, or Aptitude +1)"
+        push_txt = ("Push to 4–5 Science Ships if you raise Scientist cap so you can race to chokepoints and habitable worlds; "
+                    if cap <= 3 else
+                    "Use your extra Scientist cap to race to chokepoints and habitable worlds; ")
+        return (f"For {yr_txt}{alloy_txt}: build up to {cap} Science Ships early to match your estimated Scientist Leader Capacity of {cap}{cap_txt} "
+                "— your Head of Research on the Council can still command a Science Ship, and Eager scientists below level 4 do not count against cap. "
+                f"{push_txt}skip slow high-level anomalies until borders are secured. "
+                "Exceeding Scientist cap multiplies leader upkeep and cuts XP by 0.85^(over cap). Scale down to 1–2 ships in mid/late game for digs, rifts, and debris. "
+                "Confirm your current Science Ship and Scientist count in the Outliner and Leaders screen.")
+
+    if focus == "construction_ship":
+        year = _save_year(snapshot)
+        profile = _dict(player.get("profile"))
+        net = _dict(player.get("net"))
+        net_known = _dict(player.get("net_known"))
+        inf = _num(net.get("influence")) if net_known.get("influence", True) is not False else None
+        yr_txt = f"Year {year}" if year else "early game"
+        inf_txt = f" (saved Influence {signed(inf)}/mo)" if inf is not None else ""
+        if profile.get("is_nomad"):
+            return (f"For a Nomadic empire at {yr_txt}{inf_txt}: 2 Constructors are usually plenty — one placing Waystations along active Waylines and one harvesting or building orbital infrastructure. "
+                    "Watch Influence and Alloy costs before building extra idle constructors.")
+        return (f"For {yr_txt}{inf_txt}: build 2 Construction Ships in the early game — use one to claim star systems toward chokepoints and habitable worlds, "
+                "and the second to follow behind building mining and research stations. "
+                "Add a 3rd only if expanding rapidly on two opposite fronts; Influence (75 base per outpost) is usually the real expansion bottleneck rather than construction ship speed, "
+                "and idle constructors still cost Energy upkeep. In mid/late game, 1–2 constructors are enough for Hyper Relays, Gateways, and Megastructures.")
+
+    if focus == "colony_ship":
+        profile = _dict(player.get("profile"))
+        if profile.get("is_nomad"):
+            return "Nomadic empires expand through Arkships and Waystations rather than standard Colony Ships."
+        colonies = _colony_count(player, [p for p in (snapshot.get("planets") or []) if isinstance(p, dict) and p.get("name")])
+        col_txt = f" (currently {_colony_label(colonies)})" if colonies is not None else ""
+        return (f"Build 1 Colony Ship per target habitable world{col_txt} right as you claim its system — do not stockpile idle Colony Ships, since they cost Alloys, Food/Consumer Goods, and Energy upkeep while sitting unused. "
+                "Prioritize 70%+ (green) habitability worlds first and confirm the target planet's habitability in game.")
 
     if focus == "titan":
         apoc = has_dlc(snapshot, "apocalypse")

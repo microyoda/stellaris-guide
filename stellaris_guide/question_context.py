@@ -136,7 +136,9 @@ _CANONICAL_VOCAB: tuple[str, ...] = (
     "afterburner", "counter", "torpedoes", "missiles", "lasers", "plasma", "kinetic",
     "economy", "economic", "resource", "resources", "energy", "mineral", "minerals",
     "consumer", "goods", "alloy", "alloys", "unity", "deficit", "income", "output", "upkeep",
-    "planet", "planets", "colony", "colonies", "housing", "amenities", "stability", "unstable",
+    "planet", "planets", "colony", "colonies", "colonize", "colonizing", "colonization",
+    "habitability", "housing", "amenities", "stability", "unstable",
+    "construction", "constructor", "constructors",
     "crime", "revolt", "revolts", "rebellion", "uprising", "unrest", "secession",
     "attack", "invade", "rival", "threat", "worried", "priority", "prioritize",
     "increase", "improve",
@@ -147,7 +149,8 @@ _TYPO_STOPWORDS = frozenset({
     "about", "action", "actions", "after", "again", "against", "altitude", "amplitude",
     "arbor", "archeology", "archaeology", "archives", "archivist", "attach", "attitude",
     "before", "being", "better", "between", "build", "building",
-    "choose", "conquer", "conquest", "could", "diplomat", "diplomats", "discover", "discovered",
+    "choose", "colonist", "colonists", "conquer", "conquest", "construct", "constructing",
+    "constructive", "contractor", "contractors", "could", "diplomat", "diplomats", "discover", "discovered",
     "doing", "dominant", "dominating", "during",
     "early", "earlier", "empire", "empires", "enemy", "enough", "entire", "entity", "every",
     "explain", "first", "galaxy", "general", "genetic", "grade", "guide",
@@ -284,8 +287,9 @@ _NON_COLONY_PHRASES = {
     "my overall", "overall economy", "my empire", "the empire", "empire",
     "my colony", "the colony", "my new colony", "new colony", "my colonies",
     "colonies", "all colonies", "my planets", "planets", "all planets", "my worlds", "worlds",
-    "the game", "stellaris", "general", "now", "early", "early game", "earlier game",
-    "ealier game", "mid game", "late game", "endgame", "midgame", "this save",
+    "the game", "stellaris", "general", "now", "early", "early game", "the early game",
+    "earlier game", "ealier game", "mid game", "the mid game", "late game", "the late game",
+    "endgame", "the endgame", "midgame", "the midgame", "this save",
     "beginners", "beginner", "starting out", "new players", "the crisis", "crises",
     "energy", "energy credits", "minerals", "food", "consumer goods", "alloys",
     "unity", "influence", "trade", "research", "science", "tech", "technology",
@@ -340,6 +344,12 @@ def _detect_focus(topic: str, words: str, tp_mentions: list[tuple[str, str]] | N
                 "research output", "science output", "improve research", "improve science"):
             return "research_output"
     elif topic == "ships":
+        if _has(words, "science ship", "science ships", "survey ship", "survey ships"):
+            return "science_ship"
+        if _has(words, "construction ship", "construction ships", "constructor", "constructors"):
+            return "construction_ship"
+        if _has(words, "colony ship", "colony ships"):
+            return "colony_ship"
         if _has(words, "titan", "titans", "titan cap", "titan aura", "titan build"):
             return "titan"
         if _has(words, "starbase cap", "starbase capacity", "more starbases", "starbases", "starbase"):
@@ -364,6 +374,9 @@ def _detect_focus(topic: str, words: str, tp_mentions: list[tuple[str, str]] | N
     elif topic == "planet":
         if _has(words, "revolt", "revolts", "rebellion", "uprising", "unrest", "secession"):
             return "revolt"
+        if _has(words, "colonize", "colonizing", "colonization", "habitability",
+                "how many planet", "how many planets", "how many colony", "how many colonies"):
+            return "colonize"
         if _has(words, "amenities", "amenity"):
             return "amenities"
         if _has(words, "housing", "overcrowded", "overcrowding"):
@@ -455,6 +468,10 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
     elif _has(words, "population", "populations", "pop growth", "pops", "migration",
               "immigration", "assembly", "grow pops", "grow population"):
         topic = "population"
+    elif _has(words, "science ship", "science ships", "survey ship", "survey ships",
+              "construction ship", "construction ships", "constructor", "constructors",
+              "colony ship", "colony ships"):
+        topic = "ships"
     elif _has(words, "tech", "technology", "research", "science", "physics", "society", "engineering",
               "which branch", "research branch", "tech branch"):
         topic = "technology"
@@ -479,7 +496,8 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
     elif _has(words, "next move", "next moves", "what should i do", "goal", "goals",
               "prioritize", "priority"):
         topic = "next_move"
-    elif _has(words, "planet", "planets", "colony", "colonies", "housing", "amenities",
+    elif _has(words, "planet", "planets", "colony", "colonies", "colonize", "colonizing",
+              "colonization", "habitability", "housing", "amenities",
               "amenity", "stability", "unstable", "crime", "jobs",
               "revolt", "revolts", "rebellion", "uprising", "unrest", "secession") or planet:
         topic = "planet"

@@ -554,6 +554,77 @@ class QuestionRegressionTests(unittest.TestCase):
         self.assertNotIn(": .", full_tr_ans)
         self.assertIn("already hold", full_tr_ans)
 
+    def test_civilian_ships_and_colonization_questions_route_accurately(self):
+        save = snapshot()
+        save["date"] = "2207.04.01"
+        save["version"] = "Corona Borealis v4.6.0 (3d1a)"
+        save["player"]["colonies"] = 1
+        save["player"]["empire_size"] = 51
+        save["player"]["net"] = {"energy": 85.2, "minerals": 30.0, "food": 12.0, "consumer_goods": 8.0, "alloys": 11.0, "influence": 3.5}
+        save["player"]["profile"] = {"authority": "auth_democratic", "traditions": [], "ascension_perks": []}
+        save["planets"][0]["stability"] = 75.0
+        save["technology"] = {
+            "branches": {
+                "physics": {"current": "Blue Lasers", "recommendation": "Lasers 2"},
+                "society": {"current": "Food Processing", "recommendation": "Doctrine Navy Size 1"},
+                "engineering": {"current": "Mineral Purification", "recommendation": "Mass Drivers 2"},
+            }
+        }
+        save["ship_builds"] = {
+            "recommendation": {"title": "Review Caldwell I for reinforcement", "quantity": "1", "reason": "Owned", "caveat": "Check"}
+        }
+
+        # Exact screenshot questions: science ship, construction ship, and how many planets to colonize.
+        sci_ship = answer_question("how many science ship should we build in early game?", save, ADVICE)
+        self.assertEqual(classify_question("how many science ship should we build in early game?", save).focus, "science_ship")
+        self.assertIn("3 Science Ships", sci_ship)
+        self.assertIn("Scientist Leader Capacity", sci_ship)
+        self.assertNotIn("Lasers 2", sci_ship)
+
+        con_ship = answer_question("how many construction ship shall we build in early game?", save, ADVICE)
+        self.assertEqual(classify_question("how many construction ship shall we build in early game?", save).focus, "construction_ship")
+        self.assertIn("2 Construction Ships", con_ship)
+        self.assertIn("Influence", con_ship)
+        self.assertNotIn("Caldwell I", con_ship)
+
+        col_q = answer_question("how many planet shall we colonize?", save, ADVICE)
+        self.assertEqual(classify_question("how many planet shall we colonize?", save).focus, "colonize")
+        self.assertIn("1 colony", col_q)
+        self.assertIn("70%+", col_q)
+        self.assertIn("guaranteed habitable worlds", col_q)
+        self.assertNotIn("Which colony do you mean?", col_q)
+
+        # Colony ship + Machine / Nomad tailoring + existing vague colony check still intact.
+        col_ship = answer_question("how many colony ships should I build?", save, ADVICE)
+        self.assertIn("1 Colony Ship per target", col_ship)
+        self.assertIn("Which colony do you mean?", answer_question("How is my colony?", save, ADVICE))
+
+        # Discovery + Transcendent Learning raises estimated Scientist cap cleanly without contradicting itself.
+        save["player"]["profile"]["traditions"] = ["tr_discovery_adopt", "tr_discovery_science_division"]
+        save["player"]["profile"]["ascension_perks"] = ["ap_transcendent_learning"]
+        high_cap = answer_question("how many science ships early game?", save, ADVICE)
+        self.assertIn("6 Science Ships", high_cap)
+        self.assertNotIn("Push to 4–5", high_cap)
+
+        # Review regressions: "construct" does not hijack to construction_ship; "in the early game" does not trigger missing_name; malformed profile/net safe.
+        self.assertEqual(classify_question("What should I construct on my planets?", save).topic, "planet")
+        col_early = answer_question("how many planets should I colonize in the early game?", save, ADVICE)
+        self.assertNotIn("could not match", col_early)
+        self.assertIn("guaranteed habitable worlds", col_early)
+        bad_save = snapshot()
+        bad_save["player"]["profile"] = "invalid"
+        bad_save["player"]["net"] = "invalid"
+        self.assertIn("2 Construction Ships", answer_question("how many construction ships?", bad_save, ADVICE))
+        self.assertIn("70%+", answer_question("how many planets should I colonize?", bad_save, ADVICE))
+
+        # Unstable colony triggers colonization caution; Nomad with 0 planets still gets Arkship/Waystation guidance.
+        save["planets"][0]["stability"] = 22.0
+        self.assertIn("Alpha Centauri Prime", answer_question("should I colonize more planets?", save, ADVICE))
+        save["player"]["profile"]["is_nomad"] = True
+        save["planets"] = []
+        self.assertIn("Arkships", answer_question("how many planets should I colonize?", save, ADVICE))
+        self.assertIn("Waystations", answer_question("how many construction ships?", save, ADVICE))
+
 
 if __name__ == "__main__":
     unittest.main()
