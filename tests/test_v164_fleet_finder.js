@@ -96,6 +96,18 @@ const colossusBlue = context.fleetBuildBlueprint('colossus', 'balanced', 'shield
 assert.match(colossusBlue.weapons, /Planet-killer/);
 const frigateNoFc = context.fleetBuildBlueprint('frigate', 'damage', 'unknown', 'unknown', {activeDlcs: new Set(['apocalypse'])});
 assert.doesNotMatch(frigateNoFc.auxComputer, /Cloaking/);
+const prethorynBlue = context.fleetBuildBlueprint('battleship', 'balanced', 'unknown', 'unknown', {crisisPreset: 'prethoryn', isNomad: true});
+assert.match(prethorynBlue.defenses, /100% Armor/);
+assert.match(prethorynBlue.weapons, /Tachyon Lance/);
+assert.match(prethorynBlue.note, /Arkships/);
+const unbiddenBlue = context.fleetBuildBlueprint('battleship', 'balanced', 'unknown', 'unknown', {crisisPreset: 'unbidden'});
+assert.match(unbiddenBlue.defenses, /Maximum Shields/);
+assert.match(unbiddenBlue.weapons, /Giga Cannon/);
+const contingencyBlue = context.fleetBuildBlueprint('battleship', 'balanced', 'unknown', 'unknown', {crisisPreset: 'contingency'});
+assert.match(contingencyBlue.weapons, /Focused Arc Emitters/);
+const cetanaBlue = context.fleetBuildBlueprint('frigate', 'balanced', 'unknown', 'unknown', {crisisPreset: 'cetana', activeDlcs: new Set(['apocalypse'])});
+assert.match(cetanaBlue.weapons, /Devastator Torpedoes/);
+assert.match(cetanaBlue.note, /The Machine Age DLC is not listed/);
 let focused = 0;
 const goalButton = {dataset: {fleetGoal: 'damage'}, addEventListener: (name, fn) => {
   if (name === 'click') goalButton.click = fn;

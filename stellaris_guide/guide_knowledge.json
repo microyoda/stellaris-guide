@@ -88,12 +88,98 @@
     "min_release": "4.6.0",
     "rule_status": "conditional",
     "required_dlc": ["Willpower"],
-    "sources": ["Stellaris 4.6 Corona Borealis & Willpower expansion notes — verify exact save fields in a 4.6 save"],
+    "sources": ["Stellaris Wiki Ideology & Patch 4.6 (verified 4.6.0) — confirm exact save fields in game"],
     "steps": [
-      "Check your Fanatic Faction's approval, Ideological Momentum, and ongoing Influence cost before adopting or pushing an Ideology.",
-      "Expand Ideological Reach using Starbases, Ideological Beacons (and Hyper Relays if Overlord is active), and position Galactic Halls over key colonies.",
-      "For Gestalt empires with Willpower, review Gestalt Directives rather than standard pop factions."
+      "Creating, adopting (via a Fanatic Faction), or abandoning an Ideology costs 100 Influence + 1,000 Unity, with 0.75 Influence/month upkeep (abandoning adds -5 Stability and a 10-year lock).",
+      "Build Ideological Strength (0-1,000): 250 unlocks Galactic Halls tech, 500 unlocks Ideological Projection, 750 unlocks Absolute Ethic, and 1,000 unlocks Ideological Leverage.",
+      "Watch foreign-ideology pops: 30% foreign-ideology pops convert a Planetary Revolt into an Ideological Revolt, and Momentum events check every 10 years once >=25% follow an adopted ideology.",
+      "For Gestalt empires (Instincts / Directives), adopt via a 2,000 Society project or agenda after encountering an ideology."
     ],
-    "check": "Confirm Ideologies are enabled in this campaign's galaxy settings and verify current Momentum, Tenets, and Influence upkeep in game."
+    "check": "Confirm Ideologies are enabled in galaxy settings and verify Strength, Momentum, Tenets, and Influence upkeep in game."
+  },
+  {
+    "id": "crisis-readiness",
+    "topic": "crisis",
+    "release": "4.6.0",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["Stellaris Wiki Crisis (4.5/4.6) and Steam Guide 3843091177 (Axoral, Nov 2026) — verify crisis ship loadouts in game"],
+    "steps": [
+      "Prepare for Midgame crises (Great Khan, Gray Tempest, Voidworm Plague, Crystal Rift) and War in Heaven before Endgame crises (Prethoryn, Unbidden, Contingency, Cetana).",
+      "Stack crisis damage modifiers when threatened: Defender of the Galaxy (+50%), Galactic Threats Committee (+20%), and federation crisis bonuses.",
+      "Refit fleets to counter the active crisis using Fleet -> Design Finder Crisis presets rather than fighting with a generic loadout.",
+      "For Nomadic empires, note that crisis fleets destroy Arkships outright rather than disabling them."
+    ],
+    "check": "Check your Mid-Game / End-Game year settings, Crisis Strength, and active Situation Log before committing fleets."
+  },
+  {
+    "id": "council-mechanics",
+    "topic": "council",
+    "release": "4.6.0",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["Stellaris Wiki Council & Patch 4.6 (verified 4.6.0)"],
+    "steps": [
+      "Keep starting minister seats filled: leaving Minister of Defense, Head of Research, or Minister of State empty imposes -25% Naval Cap, Research Speed, or Diplomatic Weight.",
+      "Unlock 2 extra council seats via the Expand The Council agenda (in 4.6+, the 5th Council seat requires Galactic Administration tech rather than a 3rd civic).",
+      "Agenda cost is 7,000 progress (+0.1% per Empire Size above 100), scaled by Council Legitimacy; launch effects last 10 years with a 30-year cooldown and can be rushed with Unity."
+    ],
+    "check": "Inspect your Council seats, Legitimacy, and Agenda progress in the Government -> Council screen."
+  },
+  {
+    "id": "leaders-and-scientists",
+    "topic": "leaders",
+    "release": "4.6.0",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["Stellaris Wiki Leaders & Scientist traits (verified 4.6.0)"],
+    "steps": [
+      "Default Leader Capacity is 3 per class: exceeding it multiplies upkeep by count/cap and cuts XP gain by 0.85^(leaders over cap) (Legendary Paragons and Eager leaders below level 4 are exempt).",
+      "Match Scientist veteran classes to roles: Statisticians on Council (+15% speed / +25% tech weight via Expertise), Analysts governing research worlds (+10%), Scholars for anomalies/digs, Explorers for surveying.",
+      "Leader ethics add pop ethic attraction (+10% on Council, +25% Sector, +50% governed Planet); in 4.6, rulers assigned to non-council posts also earn post XP."
+    ],
+    "check": "Check each leader class cap, upkeep multiplier, and veteran trait options in the Leaders screen."
+  },
+  {
+    "id": "subject-empires",
+    "topic": "subjects",
+    "release": "4.6.0",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["Stellaris Wiki Subject empire (verified 4.6.0)"],
+    "steps": [
+      "Watch Subject Loyalty (-100 to +100): below 0 turns Disloyal and blocks diplomatic agreements; Pledge of Loyalty adds +1.5/month (+2.5/month at >=150 opinion).",
+      "Multiple subjects trigger Divided Patronage monthly loyalty drag—balance holdings, terms, and shared diplomacy before vassalizing another empire.",
+      "Resource taxes adjust in 15% increments and block normal diplomatic trading of any taxed resource; subjects take -50% Diplomatic Weight (except Satrapies)."
+    ],
+    "check": "Verify subject agreement terms, Loyalty trend, and Overlord holdings in the Agreements screen."
+  },
+  {
+    "id": "megastructures-and-citadels",
+    "topic": "megastructures",
+    "release": "4.6.0",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["Stellaris Wiki Megastructures & Deep space citadel (verified 4.6.0)"],
+    "steps": [
+      "Base concurrent multi-stage megastructure build limit is 1; clear anomalies on the target body first, and note that repaired ruined or conquered megastructures do not count against build caps.",
+      "Dyson Swarms scale by stage on star deposits (base cap 3, rising up to 5 with Mega-Engineering/Galactic Wonders); Deep Space Citadels (BioGenesis) cap at 1/system and hold up to 4 buildings like Crew Quarters (-25% docked upkeep).",
+      "Nomadic empires cannot build Habitats, Deep Space Citadels, Orbital Rings, or most multi-stage megastructures (only Quantum Catapult, Arc Furnace, and Ambition megastructures)."
+    ],
+    "check": "Confirm unlocked technologies, DLC eligibility, alloy/unity costs, and build cap in the Construction Ship menu."
+  },
+  {
+    "id": "government-and-reforms",
+    "topic": "government",
+    "release": "4.6.0",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["Stellaris Wiki Government & Patch 4.6 (verified 4.6.0)"],
+    "steps": [
+      "Reforming government has a 20-year cooldown and costs 10 Unity per point of Empire Size (Democratic 10-year elections reset policy and reform cooldowns on ruler change).",
+      "Account for authority trade-offs: Corporate increases Empire Size from colonies (and in 4.6+ allows Fanatic Authoritarian/Egalitarian); Hive Mind gives -25% Empire Size Effect; Machine gives +1 Nexus District on colonize.",
+      "In 4.6+, colony ascension Empire Size reduction caps at -90%, and Suppress/Promote Faction costs 1,000 Unity with a 15-25 year respawn lock if destroyed."
+    ],
+    "check": "Confirm reform Unity cost, cooldown, and civic/ethic eligibility in the Government screen before reforming."
   }
 ]

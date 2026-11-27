@@ -237,7 +237,10 @@ def public_snapshot(snapshot: dict | None, *, spoilers_active: bool = False) -> 
     visible["contacts"] = sorted(
         [
             {**{k: v for k, v in contact.items()
-                if k not in ("military", "economy", "technology", "hidden", "wars")},
+                if k not in ("military", "economy", "technology", "hidden", "wars")
+                and not (k == "personality" and not (isinstance(contact.get("intel"), (int, float))
+                                                     and not isinstance(contact.get("intel"), bool)
+                                                     and contact["intel"] >= 10))},
              "wars": [war for war in contact.get("wars", []) if war.get("against_player")]}
             for contact in snapshot.get("contacts", [])
         ],
@@ -357,11 +360,11 @@ def _demo_presets() -> dict[str, dict]:
                     },
                 },
                 "contacts": [
-                    {"id": 2, "name": "Commonwealth of Man", "kind": "default", "military": 4100,
+                    {"id": 2, "name": "Commonwealth of Man", "kind": "default", "personality": "hegemonic_imperialists", "military": 4100,
                      "economy": 1380, "technology": 920, "opinion": -78, "intel": 42.0,
                      "spy_network": True, "wars": [], "relation": {"hostile": True, "embassy": False},
                      "hidden": {"stock": {"alloys": 1450}, "net": {"alloys": 48.0}}},
-                    {"id": 3, "name": "Tzynn Star Hegemony", "kind": "default", "military": 2200,
+                    {"id": 3, "name": "Tzynn Star Hegemony", "kind": "default", "personality": "slaving_despots", "military": 2200,
                      "economy": 1100, "technology": 790, "opinion": 35, "intel": 55.0,
                      "spy_network": False, "wars": [], "relation": {"hostile": False, "embassy": True},
                      "hidden": {"stock": {"alloys": 600}, "net": {"alloys": 19.0}}},

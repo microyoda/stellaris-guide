@@ -280,6 +280,69 @@ class QuestionRegressionTests(unittest.TestCase):
         ship_cfg_verb = answer_question("How should I configure my ships?", save, ADVICE)
         self.assertIn("Armor-heavy", ship_cfg_verb)
 
+    def test_v46_crisis_council_leaders_subjects_megastructures_government_and_personality(self):
+        save46 = snapshot()
+        save46["version"] = "Corona Borealis v4.6.0 (3d1a)"
+        save46["campaign"] = {"save_version": "Corona Borealis v4.6.0 (3d1a)",
+                              "required_dlcs": ["Willpower", "Overlord", "Galactic Paragons", "BioGenesis", "Nomads"],
+                              "mods": [], "installed": {"version_match": "match"}}
+        save46["player"]["empire_size"] = 250
+        save46["player"]["profile"] = {"authority": "democratic", "is_nomad": True}
+        save46["contacts"] = [
+            {"id": 12, "name": "Blorg Commonality", "opinion": 100, "intel": 35,
+             "personality": "fanatical_befrienders", "spy_network": False},
+        ]
+
+        # 4.6 Willpower Ideologies include verified 4.6 numbers; 4.5.2 save stays gated.
+        ideo46 = answer_question("How do ideologies work?", save46, ADVICE)
+        self.assertIn("0.75 Influence", ideo46)
+        self.assertIn("750 unlocks Absolute Ethic", ideo46)
+        self.assertIn("30% foreign-ideology", ideo46)
+        self.assertIn("predates Stellaris 4.6", answer_question("How do ideologies work?", snapshot(), ADVICE))
+
+        # Crisis counters (all 4 endgame crises + Nomad Arkship warning).
+        self.assertIn("100% Armor", answer_question("How to counter Prethoryn Scourge?", save46, ADVICE))
+        self.assertIn("Maximum Shields", answer_question("How to fight the Unbidden?", save46, ADVICE))
+        self.assertIn("Focused Arc Emitters", answer_question("How to beat the Contingency?", save46, ADVICE))
+        self.assertIn("Devastator Torpedo Frigates", answer_question("How to defeat Cetana?", save46, ADVICE))
+        self.assertIn("destroy Arkships", answer_question("How to prepare for a crisis?", save46, ADVICE))
+
+        # Council, Leaders, Subjects, Megastructures, Government.
+        council46 = answer_question("How does the council work?", save46, ADVICE)
+        self.assertIn("Galactic Administration", council46)
+        self.assertIn("-25%", council46)
+        self.assertIn("pre-4.6", answer_question("How does the council work?", snapshot(), ADVICE))
+
+        leaders = answer_question("What happens if I go over leader capacity?", save46, ADVICE)
+        self.assertIn("0.85^", leaders)
+        self.assertIn("Galactic Paragons active", leaders)
+
+        subjects = answer_question("Why is my vassal loyalty dropping?", save46, ADVICE)
+        self.assertIn("Divided Patronage", subjects)
+        self.assertIn("Overlord DLC is active", subjects)
+
+        megas = answer_question("Can I build megastructures or a deep space citadel?", save46, ADVICE)
+        self.assertIn("Nomadic profile", megas)
+        self.assertIn("Deep Space Citadels", megas)
+
+        save46["player"]["profile"] = {"authority": "auth_democratic", "is_nomad": True}
+        gov = answer_question("How much does it cost to reform government?", save46, ADVICE)
+        self.assertIn("Saved authority: democratic.", gov)
+        self.assertIn("2,500 Unity", gov)
+        self.assertIn("20-year cooldown", gov)
+
+        # Routing collision regressions: bare citadel/megacorp/democratic/official do not hijack unrelated topics.
+        self.assertEqual(classify_question("Should I upgrade my starbase to a Citadel?", save46).topic, "ships")
+        self.assertEqual(classify_question("How to increase alloys as a megacorp?", save46).topic, "economy")
+        self.assertEqual(classify_question("How to attack Democratic Crusaders?", save46).topic, "war")
+        self.assertEqual(classify_question("What is the official counter to shields?", save46).topic, "ships")
+
+        # AI personality threat warning catches +100 opinion Fanatical Befrienders.
+        threat = answer_question("Who should I be worried about?", save46, ADVICE)
+        self.assertIn("Blorg Commonality", threat)
+        self.assertIn("Fanatical Befrienders", threat)
+        self.assertIn("2x Aggressiveness", threat)
+
 
 if __name__ == "__main__":
     unittest.main()

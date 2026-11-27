@@ -27,6 +27,7 @@ from stellaris_guide.web_bridge import (
     analyze_save_archive,
     ask_builtin,
     build_demo_state,
+    public_snapshot,
     reproject_current_save,
     web_route_for_target,
     web_route_targets,
@@ -398,6 +399,37 @@ class WebBridgeAndBuildTests(unittest.TestCase):
             rec = reconcile_save(sav_path)
             self.assertEqual(rec["empire"], "Machine Collective")
             self.assertTrue(rec["profile"]["is_machine"])
+
+
+        # Public snapshot fails closed: hides low-intel (<10) AND unknown-intel (None) personality unless spoilers are enabled.
+        from stellaris_guide import server
+        low_intel_snap = {
+            "_save_fingerprint": "fp-test-intel",
+            "contacts": [
+                {"id": 1, "name": "Alpha", "intel": 5, "personality": "fanatical_befrienders", "military": 900, "wars": []},
+                {"id": 2, "name": "Beta", "intel": 25, "personality": "hegemonic_imperialists", "military": 400, "wars": []},
+                {"id": 3, "name": "Gamma", "intel": None, "personality": "fanatic_purifiers", "military": 700, "wars": []},
+            ]
+        }
+        redacted = public_snapshot(low_intel_snap, spoilers_active=False)
+        by_name = {c["name"]: c for c in redacted["contacts"]}
+        self.assertNotIn("personality", by_name["Alpha"])
+        self.assertNotIn("personality", by_name["Gamma"])
+        self.assertEqual(by_name["Beta"]["personality"], "hegemonic_imperialists")
+        revealed = public_snapshot(low_intel_snap, spoilers_active=True)
+        self.assertEqual(revealed["contacts"][0]["personality"], "fanatical_befrienders")
+
+        srv_redacted = server.public_snapshot(low_intel_snap)
+        srv_by_name = {c["name"]: c for c in srv_redacted["contacts"]}
+        self.assertNotIn("personality", srv_by_name["Alpha"])
+        self.assertNotIn("personality", srv_by_name["Gamma"])
+        self.assertEqual(srv_by_name["Beta"]["personality"], "hegemonic_imperialists")
+
+        # Defense-in-depth: threat_answer does not leak personality when intel is None or <10.
+        hidden_threat = answer_question("Who should I be worried about?", {
+            "contacts": [{"id": 3, "name": "Gamma", "opinion": 50, "intel": None, "personality": "fanatical_befrienders"}],
+        })
+        self.assertNotIn("Fanatical Befrienders", hidden_threat)
 
 
 if __name__ == "__main__":

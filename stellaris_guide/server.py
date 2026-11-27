@@ -91,7 +91,10 @@ def public_snapshot(snapshot: dict | None) -> dict | None:
     visible["contacts"] = sorted(
         [
             {**{key: value for key, value in contact.items()
-                if key not in ("military", "economy", "technology", "hidden", "wars")},
+                if key not in ("military", "economy", "technology", "hidden", "wars")
+                and not (key == "personality" and not (isinstance(contact.get("intel"), (int, float))
+                                                       and not isinstance(contact.get("intel"), bool)
+                                                       and contact["intel"] >= 10))},
              "wars": [war for war in contact.get("wars", []) if war.get("against_player")]}
             for contact in snapshot.get("contacts", [])
         ],

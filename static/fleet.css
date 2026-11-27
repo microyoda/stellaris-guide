@@ -61,7 +61,7 @@
 .fleet-compare[hidden]{display:none!important}.fleet-compare{max-height:62vh;overflow:auto;border-color:#2b7580}
 .fleet-compare-close{float:right;margin-left:10px}
 .fleet-finder{gap:8px;padding:12px}
-.fleet-finder-controls{display:grid;grid-template-columns:minmax(0,1fr) 150px 150px;gap:7px;align-items:end}
+.fleet-finder-controls{display:grid;grid-template-columns:minmax(0,1fr) 140px 140px 155px;gap:7px;align-items:end}
 .fleet-finder-controls fieldset{display:flex;gap:4px;align-content:start;min-width:0}
 .fleet-finder-controls fieldset button{padding:4px 8px;margin-top:4px;font-size:11px}
 .fleet-finder-controls label{min-width:0}.fleet-finder-controls select{width:100%;min-width:0;padding:6px}

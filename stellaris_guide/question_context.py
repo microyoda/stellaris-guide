@@ -102,6 +102,16 @@ def _detect_focus(topic: str, words: str) -> str | None:
                 "configuration", "configure", "config", "equip", "outfit", "fitting",
                 "hull", "afterburner", "counter"):
             return "ship_config"
+    elif topic == "crisis":
+        for key, phrases in (
+            ("prethoryn", ("prethoryn", "scourge")),
+            ("unbidden", ("unbidden", "extradimensional", "aberrant", "vehement")),
+            ("contingency", ("contingency", "sterilization hub")),
+            ("cetana", ("cetana", "synthetic queen")),
+            ("midgame", ("great khan", "khan", "gray tempest", "tempest", "voidworm", "crystal rift", "formless", "war in heaven")),
+        ):
+            if _has(words, *phrases):
+                return key
     elif topic == "planet":
         if _has(words, "amenities", "amenity"):
             return "amenities"
@@ -139,6 +149,30 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
         topic = "nomads"
     elif _has(words, "trade", "storage cap", "storage", "market fee", "overflow", "influence cap"):
         topic = "trade_storage"
+    elif _has(words, "crisis", "crises", "prethoryn", "scourge", "unbidden", "extradimensional",
+              "contingency", "cetana", "synthetic queen", "great khan", "gray tempest",
+              "voidworm", "war in heaven", "defender of the galaxy"):
+        topic = "crisis"
+    elif _has(words, "council", "councilor", "councilors", "agenda", "agendas",
+              "expand the council", "legitimacy", "minister of defense", "head of research"):
+        topic = "council"
+    elif _has(words, "leader", "leaders", "leader cap", "leader capacity", "scientist", "scientists",
+              "commander", "commanders", "official leader", "officials",
+              "statistician", "analyst", "scholar", "paragon", "paragons"):
+        topic = "leaders"
+    elif _has(words, "subject", "subjects", "vassal", "vassals", "overlord", "loyalty",
+              "divided patronage", "tributary", "bulwark", "scholarium", "prospectorium", "satrapy"):
+        topic = "subjects"
+    elif _has(words, "megastructure", "megastructures", "dyson swarm", "dyson sphere",
+              "arc furnace", "matter decompressor", "ring world", "gateway", "gateways",
+              "deep space citadel", "deep space citadels", "orbital ring", "quantum catapult"):
+        topic = "megastructures"
+    elif _has(words, "government", "reform government", "reform my government", "government reform",
+              "authority", "change authority", "democratic authority", "oligarchic authority",
+              "dictatorial authority", "imperial authority", "corporate authority",
+              "faction", "factions", "suppress faction", "promote faction",
+              "colony ascension", "planetary ascension"):
+        topic = "government"
     elif _has(words, "policy", "policies", "planetary decision", "planetary decisions"):
         topic = "policy"
     elif _has(words, "population", "populations", "pop growth", "pops", "migration",

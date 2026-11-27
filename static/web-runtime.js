@@ -18,6 +18,7 @@
     feedback: 'sg_web_feedback_v1',
     plan: 'sg_web_plan_v1',
     config: 'sg_web_config_v1',
+    watchlist: 'sg_web_tech_watchlist_v1',
   };
   const readStore = (key, fallback) => {
     try { return JSON.parse(localStorage.getItem(key) || 'null') ?? fallback; }
@@ -41,6 +42,24 @@
   let currentDemoPreset = 'une-452';
   let currentDemoDlcs = null;
   let routeRequestSeq = 0;
+  let routeAreaFilter = 'all';
+  let routeSearchQuery = '';
+  let routeTargetsCache = [];
+  let routeCurrentTarget = '';
+
+  function getWatchlist() {
+    const cid = campaignIdOf(currentState?.snapshot) || 'default';
+    const all = readStore(STORAGE.watchlist, {});
+    return Array.isArray(all[cid]) ? all[cid].filter(id => typeof id === 'string') : [];
+  }
+
+  function setWatchlist(items) {
+    const cid = campaignIdOf(currentState?.snapshot) || 'default';
+    const all = readStore(STORAGE.watchlist, {});
+    all[cid] = [...new Set(items.filter(id => typeof id === 'string'))].slice(0, 24);
+    writeStore(STORAGE.watchlist, all);
+    return all[cid];
+  }
 
   const config = Object.assign(
     {save_folder: 'Browser local (.sav drop or folder watch)', game_folder: '', provider: 'off', model: ''},
@@ -411,6 +430,67 @@
     },
     async openTechRouteModal(targetId) {
       await ensureDemoLoaded();
+      const badgeLabel = state => ({
+        researched: 'Researched', researching: 'Researching',
+        saved_option: 'On your cards', unmet: 'Unmet',
+      }[state] || state);
+      const artFor = (area, id) => window.StellarisArt?.techSvg ? window.StellarisArt.techSvg(area, id) : '';
+
+      const renderRouteExplorerControls = (overlay) => {
+        const listEl = overlay.querySelector('#web-route-browser');
+        const watchEl = overlay.querySelector('#web-route-watchlist');
+        const toggleBtn = overlay.querySelector('#web-route-watch-toggle');
+        const countEl = overlay.querySelector('#web-route-match-count');
+        const watched = getWatchlist();
+        const byId = new Map(routeTargetsCache.map(t => [t.id, t]));
+
+        if (toggleBtn && routeCurrentTarget) {
+          const isWatched = watched.includes(routeCurrentTarget);
+          toggleBtn.hidden = false;
+          toggleBtn.classList.toggle('active', isWatched);
+          toggleBtn.textContent = isWatched ? '★ Watching' : '+ Watchlist';
+        }
+        if (watchEl) {
+          if (!watched.length) {
+            watchEl.innerHTML = '<span class="web-route-watch-empty">Watchlist empty — click “+ Watchlist” on any tech to track your planned research order.</span>';
+          } else {
+            watchEl.innerHTML = `<span class="web-route-watch-label">Research Watchlist (${watched.length}):</span>` +
+              watched.map(id => {
+                const info = byId.get(id);
+                const state = info?.state || 'unmet';
+                const mark = state === 'researched' ? '✓' : state === 'researching' ? '●' : state === 'saved_option' ? '★' : '○';
+                return `<span class="web-watch-chip state-${esc(state)}"><button type="button" data-route-jump="${esc(id)}">${mark} ${esc(info?.name || id)}</button><button type="button" class="web-watch-remove" data-watch-remove="${esc(id)}" aria-label="Remove ${esc(info?.name || id)}">×</button></span>`;
+              }).join('') +
+              '<button type="button" class="web-watch-clear" data-watch-clear>Clear</button>';
+          }
+        }
+        overlay.querySelectorAll('[data-route-area]').forEach(btn => {
+          const active = btn.dataset.routeArea === routeAreaFilter;
+          btn.classList.toggle('active', active);
+          btn.setAttribute('aria-pressed', String(active));
+        });
+        if (!listEl) return;
+        const q = routeSearchQuery.trim().toLowerCase();
+        const filtered = routeTargetsCache.filter(t =>
+          (routeAreaFilter === 'all' || t.area === routeAreaFilter) &&
+          (!q || t.name.toLowerCase().includes(q) || t.id.toLowerCase().includes(q))
+        );
+        if (countEl) countEl.textContent = `${filtered.length} of ${routeTargetsCache.length} technologies`;
+        const detailsEl = overlay.querySelector('#web-route-browser-details');
+        if (detailsEl && (q || routeAreaFilter !== 'all')) detailsEl.open = true;
+        listEl.innerHTML = filtered.slice(0, 48).map(t => {
+          const dlcs = (t.required_dlc || []).slice(0, 2).map(d => `<em class="route-mini-dlc">${esc(d.replaceAll('_', ' '))}</em>`).join('');
+          const tierTag = t.tier != null ? `<em class="route-tier tier-${esc(Math.min(5, Math.max(0, Number(t.tier) || 0)))}">T${esc(t.tier)}</em>` : '';
+          return `<button type="button" class="web-route-card area-${esc(t.area || 'other')} state-${esc(t.state)} ${t.id === routeCurrentTarget ? 'target' : ''}" data-route-jump="${esc(t.id)}">
+            <span class="web-route-icon">${artFor(t.area, t.id)}</span>
+            <span><strong>${esc(t.name)}</strong><small>${tierTag} ${esc(badgeLabel(t.state))} ${dlcs}</small></span>
+          </button>`;
+        }).join('') || '<p class="web-route-note">No technologies match that filter.</p>';
+        if (filtered.length > 48) {
+          listEl.insertAdjacentHTML('beforeend', `<p class="web-route-note web-route-more">Showing first 48 of ${filtered.length} matches — type in search to narrow.</p>`);
+        }
+      };
+
       let overlay = document.getElementById('web-tech-route-overlay');
       if (!overlay) {
         overlay = document.createElement('div');
@@ -421,20 +501,35 @@
           <div class="web-route-dialog" role="dialog" aria-modal="true" aria-labelledby="web-route-title">
             <div class="drawer-head">
               <div><span class="eyebrow">TECH ROUTE EXPLORER · IN-BROWSER</span><h2 id="web-route-title">Loading technology route…</h2></div>
-              <button id="close-web-route" class="icon-button" type="button" aria-label="Close technology route">×</button>
-            </div>
-            <div class="web-route-toolbar">
-              <div class="web-route-shortcuts">
-                <button type="button" data-route-jump="tech_cruisers">Cruisers</button>
-                <button type="button" data-route-jump="tech_battleships">Battleships</button>
-                <button type="button" data-route-jump="tech_mega_engineering">Mega Engineering</button>
-                <button type="button" data-route-jump="tech_galactic_administration">Galactic Admin</button>
-                <button type="button" data-route-jump="tech_hyper_relays">Hyper Relays</button>
-                <button type="button" data-route-jump="tech_arkship_tier_3">Arkship Tier 3</button>
-                <button type="button" data-route-jump="tech_galactic_halls">Galactic Halls</button>
+              <div class="web-route-head-actions">
+                <button id="web-route-watch-toggle" class="web-btn" type="button" hidden>+ Watchlist</button>
+                <button id="close-web-route" class="icon-button" type="button" aria-label="Close technology route">×</button>
               </div>
+            </div>
+            <div id="web-route-watchlist" class="web-route-watchlist"></div>
+            <div class="web-route-toolbar">
+              <div class="web-route-tabs" role="group" aria-label="Filter by research discipline">
+                <button type="button" data-route-area="all" class="active" aria-pressed="true">All</button>
+                <button type="button" data-route-area="physics" class="area-physics" aria-pressed="false">Physics</button>
+                <button type="button" data-route-area="society" class="area-society" aria-pressed="false">Society</button>
+                <button type="button" data-route-area="engineering" class="area-engineering" aria-pressed="false">Engineering</button>
+              </div>
+              <input id="web-route-search" class="web-route-search" type="search" placeholder="Search technologies (e.g. Mega, Cruisers, Halls)…" aria-label="Search technologies">
               <select id="web-route-select" class="web-select" aria-label="Choose target technology"></select>
             </div>
+            <div class="web-route-shortcuts">
+              <button type="button" data-route-jump="tech_cruisers">Cruisers</button>
+              <button type="button" data-route-jump="tech_battleships">Battleships</button>
+              <button type="button" data-route-jump="tech_mega_engineering">Mega Engineering</button>
+              <button type="button" data-route-jump="tech_galactic_administration">Galactic Admin</button>
+              <button type="button" data-route-jump="tech_hyper_relays">Hyper Relays</button>
+              <button type="button" data-route-jump="tech_arkship_tier_3">Arkship Tier 3</button>
+              <button type="button" data-route-jump="tech_galactic_halls">Galactic Halls</button>
+            </div>
+            <details id="web-route-browser-details" class="web-route-browser-details">
+              <summary>Browse tech tree (<span id="web-route-match-count">loading…</span>)</summary>
+              <div id="web-route-browser" class="web-route-browser"></div>
+            </details>
             <div id="web-route-body" class="web-route-body">Loading…</div>
           </div>`;
         document.body.appendChild(overlay);
@@ -443,8 +538,37 @@
         overlay.addEventListener('click', ev => { if (ev.target === overlay) close(); });
         window.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !overlay.hidden) close(); });
         overlay.addEventListener('click', ev => {
+          const removeBtn = ev.target.closest('[data-watch-remove]');
+          if (removeBtn) {
+            setWatchlist(getWatchlist().filter(id => id !== removeBtn.dataset.watchRemove));
+            renderRouteExplorerControls(overlay);
+            return;
+          }
+          if (ev.target.closest('[data-watch-clear]')) {
+            setWatchlist([]);
+            renderRouteExplorerControls(overlay);
+            return;
+          }
+          const areaBtn = ev.target.closest('[data-route-area]');
+          if (areaBtn) {
+            routeAreaFilter = areaBtn.dataset.routeArea;
+            renderRouteExplorerControls(overlay);
+            return;
+          }
           const jump = ev.target.closest('[data-route-jump]');
           if (jump) window.STELLARIS_API.openTechRouteModal(jump.dataset.routeJump);
+        });
+        overlay.querySelector('#web-route-watch-toggle').addEventListener('click', () => {
+          if (!routeCurrentTarget) return;
+          const watched = getWatchlist();
+          setWatchlist(watched.includes(routeCurrentTarget)
+            ? watched.filter(id => id !== routeCurrentTarget)
+            : [...watched, routeCurrentTarget]);
+          renderRouteExplorerControls(overlay);
+        });
+        overlay.querySelector('#web-route-search').addEventListener('input', ev => {
+          routeSearchQuery = ev.target.value || '';
+          renderRouteExplorerControls(overlay);
         });
         overlay.querySelector('#web-route-select').addEventListener('change', ev => {
           if (ev.target.value) window.STELLARIS_API.openTechRouteModal(ev.target.value);
@@ -460,17 +584,15 @@
       try {
         const {route, targets} = await window.STELLARIS_API.post('/api/tech-route', {target: targetId});
         if (seq !== routeRequestSeq || overlay.hidden) return;
-        titleEl.textContent = `${route.name}${route.tier != null ? ` · Tier ${route.tier}` : ''}`;
+        routeCurrentTarget = route.target_id || targetId;
         if (Array.isArray(targets) && targets.length) {
+          routeTargetsCache = targets;
           selectEl.innerHTML = '<option value="">Jump to technology…</option>' + targets.map(t =>
             `<option value="${esc(t.id)}" ${t.id === route.target_id ? 'selected' : ''}>${esc(t.name)} (${esc(t.area || 'other')} · ${esc(t.state.replaceAll('_', ' '))})</option>`
           ).join('');
         }
-        const badgeLabel = state => ({
-          researched: 'Researched', researching: 'Researching',
-          saved_option: 'On your cards', unmet: 'Unmet',
-        }[state] || state);
-        const artFor = (area, id) => window.StellarisArt?.techSvg ? window.StellarisArt.techSvg(area, id) : '';
+        titleEl.textContent = `${route.name}${route.tier != null ? ` · Tier ${route.tier}` : ''}`;
+        renderRouteExplorerControls(overlay);
         const dlcChips = (items) => (items || []).length
           ? `<div class="web-route-dlcs">${items.map(d => `<span class="route-dlc ${esc(d.status)}">${esc(d.name)} · ${esc(d.base_game ? 'base game' : d.status.replaceAll('_', ' '))}</span>`).join('')}</div>`
           : '';
@@ -508,6 +630,7 @@
           ${unlocksHtml}
           <p class="web-route-note">${esc(route.reason || '')}</p>`;
       } catch (err) {
+        if (seq !== routeRequestSeq || overlay.hidden) return;
         titleEl.textContent = 'Route unavailable';
         bodyEl.innerHTML = `<p class="web-route-note">${esc(err.message)}</p>`;
       }

@@ -9,6 +9,50 @@ let fleetCampaign = null;
 let fleetGoal = 'balanced';
 let fleetEnemyDefense = 'unknown';
 let fleetEnemyWeapons = 'unknown';
+let fleetCrisisPreset = 'none';
+
+const fleetCrisisBlueprints = {
+  prethoryn: {
+    label: 'Prethoryn Scourge',
+    enemyDefense: 'armor',
+    enemyWeapons: 'explosive',
+    sections: 'Tachyon Lance Battleships (X + L) + Plasma/Carrier Cruisers + Picket/Flak Destroyers',
+    weapons: 'Energy weapons (Tachyon Lance, Plasma, Lasers) + Strike Craft — Prethoryn have zero shields and massive armor + hull; skip Kinetic.',
+    defenses: '100% Armor (skip shields entirely) + Flak & Point-Defense screens to intercept biological missiles and strike craft.',
+    auxComputer: 'Aux: Auxiliary Fire-Control / Regenerative Hull / Afterburners · Computer: Artillery or Carrier (Picket on PD escorts)',
+    note: 'Crisis preset (Prethoryn Scourge): stack Defender of the Galaxy (+50%) & Galactic Threats Committee (+20%) if available. Confirm unlocked tiers & upkeep in Ship Designer.',
+  },
+  unbidden: {
+    label: 'The Unbidden',
+    enemyDefense: 'shield',
+    enemyWeapons: 'energy',
+    sections: 'Spinal Mount Artillery Battleships (X + L) + Titans (Perdition Beam + 6 L) built to kite slow Unbidden fleets',
+    weapons: 'Pure Kinetic (Giga Cannon + Kinetic Artillery) to shred massive shields — avoid pure bypass (Arc Emitters) inside Dimensional Anchor systems where shield hardening spikes.',
+    defenses: 'Maximum Shields (skip armor entirely) — Unbidden Matter Disintegrators melt armor and hull but deal reduced damage to shields.',
+    auxComputer: 'Aux: Shield Capacitors + Afterburners (to stay at max range) · Computer: Artillery',
+    note: 'Crisis preset (The Unbidden / Extradimensional Invaders): destroy Dimensional Anchors before hitting the Portal. Confirm unlocked tiers & power in Ship Designer.',
+  },
+  contingency: {
+    label: 'The Contingency',
+    enemyDefense: 'shield',
+    enemyWeapons: 'energy',
+    sections: 'Focused Arc Emitter Carrier Battleships (X + H + M) + Disruptor/Missile Cruisers',
+    weapons: 'Bypass weapons (Focused Arc Emitters, Disruptors, Missiles, Strike Craft) — exploits the Contingency’s 1:4:4 Hull/Armor/Shield ratio and low hardening.',
+    defenses: 'Balanced ~50% Shields / ~50% Armor — Contingency weapons deal heavy mixed damage across shields and armor.',
+    auxComputer: 'Aux: Shield Capacitors or Afterburners · Computer: Carrier or Artillery (pair with Juggernaut range aura if available)',
+    note: 'Crisis preset (The Contingency): clear Sterilization Hubs and check machine/synth pop events. Confirm unlocked tiers & upkeep in Ship Designer.',
+  },
+  cetana: {
+    label: 'Cetana (Synthetic Queen)',
+    enemyDefense: 'armor',
+    enemyWeapons: 'unknown',
+    sections: 'Massed Torpedo Frigates (1 G + 1 S) for the flagship DPS check + Artillery/Carrier Battleships to clear patrol fleets',
+    weapons: 'Devastator Torpedoes (high raw damage vs huge flagship health pool) — penetration/bypass builds (Arc Emitters) underperform against Cetana’s flagship.',
+    defenses: 'High-tier mixed Armor & Shields on escorts; keep Torpedo Frigates lean and fast so alloys scale fleet numbers.',
+    auxComputer: 'Aux: Afterburners (closing speed on Frigates) · Computer: Torpedo on Frigates, Artillery/Carrier on escort fleets',
+    note: 'Crisis preset (Cetana — The Machine Age DLC): manage her Situation timeline carefully. Confirm unlocked tiers, power, and alloy upkeep in Ship Designer.',
+  },
+};
 
 const fleetOrder = [
   'corvette', 'frigate', 'destroyer', 'cruiser', 'battleship', 'titan', 'juggernaut', 'colossus',
@@ -164,6 +208,21 @@ function fleetBuildBlueprint(size, goal, enemyDefense, enemyWeapons, context = {
   const activeDlcs = context.activeDlcs;
   const researched = context.researched || {};
   const hasTech = prefix => Object.keys(researched).some(id => id.startsWith(prefix));
+  const crisis = context.crisisPreset && fleetCrisisBlueprints[context.crisisPreset];
+  if (crisis) {
+    const dlcNote = context.crisisPreset === 'cetana' && activeDlcs && !activeDlcs.has('machine_age')
+      ? ' Note: The Machine Age DLC is not listed in this save.' : '';
+    const nomadNote = context.isNomad
+      ? ' Nomad warning: crisis fleets destroy Arkships outright rather than disabling them.' : '';
+    return {
+      title: `${crisis.label} counter blueprint (viewing ${fleetClassName(hull)})`,
+      sections: crisis.sections,
+      weapons: crisis.weapons,
+      defenses: crisis.defenses,
+      auxComputer: crisis.auxComputer,
+      note: `${crisis.note}${dlcNote}${nomadNote}`,
+    };
+  }
   const isBioHull = ['mauler', 'weaver', 'harbinger', 'stinger'].includes(hull);
   const canCloak = !activeDlcs || activeDlcs.has('first_contact');
 
@@ -431,7 +490,7 @@ function renderFleet(snapshot, config = {}) {
   if (fleetCampaign !== campaign) {
     fleetCampaign = campaign; fleetClass = null; fleetDesignId = null;
     fleetTargetId = null; fleetPlan = {}; fleetCompare = [];
-    fleetGoal = 'balanced'; fleetEnemyDefense = 'unknown'; fleetEnemyWeapons = 'unknown';
+    fleetGoal = 'balanced'; fleetEnemyDefense = 'unknown'; fleetEnemyWeapons = 'unknown'; fleetCrisisPreset = 'none';
   }
   const manualLimit = fleetManualLimit(config);
   const verdict = fleetVerdict(snapshot, manualLimit);
@@ -461,11 +520,15 @@ function renderFleet(snapshot, config = {}) {
   const mixTotal = Object.values(mix).reduce((sum, value) => sum + value, 0);
   const policyDetails = data.policy_details || [];
   const totals = fleetPlanTotals(designs, fleetPlan, used, manualLimit, target);
-  const finder = fleetFinder(designs, fleetClass, fleetGoal, fleetEnemyDefense, fleetEnemyWeapons,
+  const activeCrisis = fleetCrisisBlueprints[fleetCrisisPreset] || null;
+  const effectiveDefense = activeCrisis ? activeCrisis.enemyDefense : fleetEnemyDefense;
+  const effectiveWeapons = activeCrisis ? activeCrisis.enemyWeapons : fleetEnemyWeapons;
+  const finder = fleetFinder(designs, fleetClass, fleetGoal, effectiveDefense, effectiveWeapons,
     {version: snapshot.version, mods: snapshot.campaign?.mods || [], policies: policyDetails});
   const finderTop = finder.top;
   const blueprint = fleetBuildBlueprint(fleetClass, fleetGoal, fleetEnemyDefense, fleetEnemyWeapons,
-    {activeDlcs, shipsetKind: profile.shipset_kind, researched: snapshot.technology?.researched || {}});
+    {activeDlcs, shipsetKind: profile.shipset_kind, researched: snapshot.technology?.researched || {},
+      crisisPreset: fleetCrisisPreset, isNomad: Boolean(profile.is_nomad)});
   const blueprintHtml = `
     <div class="fleet-blueprint" aria-label="Recommended ship configuration">
       <div class="fleet-blueprint-head"><span class="eyebrow">SUGGESTED SHIP DESIGNER CONFIGURATION · CONDITIONAL</span><strong>${esc(blueprint.title)}</strong></div>
@@ -488,7 +551,8 @@ function renderFleet(snapshot, config = {}) {
       <div class="fleet-class-tabs" role="group" aria-label="Choose hull">${allClasses.map(size => `<button type="button" aria-pressed="${size === fleetClass}" class="${size === fleetClass ? 'active' : ''}" data-fleet-class="${esc(size)}">${fleetArt(size)}${esc(fleetClassName(size))} <small>${designs.filter(d => d.size_key === size).length} saved</small></button>`).join('')}</div>
       <div class="fleet-finder-controls"><fieldset><legend>Your goal</legend>${[['balanced','Balanced'],['damage','Damage'],['survival','Survival'],['screening','Screening'],['low-cost','Low cost'],['mobility','Mobility']].map(([value,label]) => `<button type="button" data-fleet-goal="${value}" aria-pressed="${fleetGoal === value}" class="${fleetGoal === value ? 'active' : ''}">${label}</button>`).join('')}</fieldset>
       <label>Enemy defenses you saw<select id="fleet-enemy-defense"><option value="unknown">Unknown</option><option value="shield" ${fleetEnemyDefense === 'shield' ? 'selected' : ''}>Mostly shields</option><option value="armor" ${fleetEnemyDefense === 'armor' ? 'selected' : ''}>Mostly armor</option></select></label>
-      <label>Enemy weapons you saw<select id="fleet-enemy-weapons"><option value="unknown">Unknown</option><option value="kinetic" ${fleetEnemyWeapons === 'kinetic' ? 'selected' : ''}>Kinetic</option><option value="energy" ${fleetEnemyWeapons === 'energy' ? 'selected' : ''}>Energy</option><option value="explosive" ${fleetEnemyWeapons === 'explosive' ? 'selected' : ''}>Missiles or torpedoes</option></select></label></div>
+      <label>Enemy weapons you saw<select id="fleet-enemy-weapons"><option value="unknown">Unknown</option><option value="kinetic" ${fleetEnemyWeapons === 'kinetic' ? 'selected' : ''}>Kinetic</option><option value="energy" ${fleetEnemyWeapons === 'energy' ? 'selected' : ''}>Energy</option><option value="explosive" ${fleetEnemyWeapons === 'explosive' ? 'selected' : ''}>Missiles or torpedoes</option></select></label>
+      <label>Crisis counter preset<select id="fleet-crisis-preset"><option value="none" ${fleetCrisisPreset === 'none' ? 'selected' : ''}>None (custom)</option><option value="prethoryn" ${fleetCrisisPreset === 'prethoryn' ? 'selected' : ''}>Prethoryn Scourge</option><option value="unbidden" ${fleetCrisisPreset === 'unbidden' ? 'selected' : ''}>The Unbidden</option><option value="contingency" ${fleetCrisisPreset === 'contingency' ? 'selected' : ''}>The Contingency</option><option value="cetana" ${fleetCrisisPreset === 'cetana' ? 'selected' : ''}>Cetana (Synthetic Queen)</option></select></label></div>
       <div class="fleet-finder-result">${finderTop ? `${fleetArt(fleetClass)}<div class="fleet-finder-body"><span class="eyebrow">${esc(finder.decision)} · ${esc(finderTop.source)} · ${esc(finderTop.status)}</span><h3>${esc(finderTop.design.name)}</h3><p>${esc(finderTop.why)}</p><small class="fleet-loadout-summary">Saved loadout: ${topCounts.weapons} weapon · ${topCounts.shields} shield · ${topCounts.armor} armor · ${topCounts.aux} aux slot(s)</small>${fleetSlots(finderTop.design)}<small>${esc(finderTop.reasons.join(' '))}</small>${finder.tied ? '<small>Several designs are equally suitable from available evidence; names set display order only.</small>' : ''}</div>` : `${fleetArt(fleetClass)}<div class="fleet-finder-body"><span class="eyebrow">${esc(finder.decision)} · Guide concept only</span><h3>${esc(fleetClassName(fleetClass))} design guide</h3><p>No single saved design is verified as the best match yet. Use the suggested Ship Designer configuration below, or compare your saved ${esc(fleetClassName(fleetClass))} loadouts.</p></div>`}</div>
       ${blueprintHtml}
       <details class="fleet-finder-choices" open><summary>Compare ${finder.candidates.length} saved ${esc(fleetClassName(fleetClass))} designs</summary><div>${finder.candidates.slice(0, 5).map(item => { const c = fleetLoadoutCounts(item.design); return `<article>${fleetArt(item.design.size_key)}<div><strong>${esc(item.design.name)}</strong><small>${esc(item.source)} · ${esc(item.status)} · ${esc(item.fit === 'insufficient' ? 'insufficient data' : item.fit === 'fitting' ? 'suitable from known evidence' : 'trade-off or baseline')}</small><p>${esc(item.why)}</p><small>Attack ${esc(item.offense)} (${c.weapons}w) · Shields ${c.shields} · Armor ${c.armor} · Naval use ${Number.isFinite(item.design.naval_usage) ? fleetNumber(item.design.naval_usage) : 'unknown'}</small>${fleetSlots(item.design)}</div><button type="button" data-fleet-design="${item.design.id}">Inspect</button></article>`; }).join('') || '<p>No saved design for this hull. Check Ship Designer for available sections and parts.</p>'}</div></details>
@@ -574,12 +638,16 @@ function renderFleet(snapshot, config = {}) {
     root.querySelector(`[data-fleet-goal="${fleetGoal}"]`)?.focus();
   }));
   root.querySelector('#fleet-enemy-defense')?.addEventListener('change', event => {
-    fleetEnemyDefense = event.target.value; renderFleet(snapshot, config);
+    fleetEnemyDefense = event.target.value; fleetCrisisPreset = 'none'; renderFleet(snapshot, config);
     root.querySelector('#fleet-enemy-defense')?.focus();
   });
   root.querySelector('#fleet-enemy-weapons')?.addEventListener('change', event => {
-    fleetEnemyWeapons = event.target.value; renderFleet(snapshot, config);
+    fleetEnemyWeapons = event.target.value; fleetCrisisPreset = 'none'; renderFleet(snapshot, config);
     root.querySelector('#fleet-enemy-weapons')?.focus();
+  });
+  root.querySelector('#fleet-crisis-preset')?.addEventListener('change', event => {
+    fleetCrisisPreset = event.target.value; renderFleet(snapshot, config);
+    root.querySelector('#fleet-crisis-preset')?.focus();
   });
   root.querySelectorAll('[data-fleet-design]').forEach(button => button.addEventListener('click', () => {
     const fromFinder = Boolean(button.closest?.('.fleet-finder-choices'));

@@ -236,3 +236,153 @@
   font-size: 0.8rem;
   color: #b4cde0;
 }
+.web-route-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#web-route-watch-toggle.active {
+  border-color: #e6ae4b;
+  background: rgba(230, 174, 75, 0.16);
+  color: #f6cf7f;
+}
+.web-route-watchlist {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: rgba(16, 38, 58, 0.72);
+  border: 1px solid rgba(154, 198, 226, 0.18);
+  font-size: 0.78rem;
+}
+.web-route-watch-label, .web-route-watch-empty {
+  color: #9bb5c9;
+}
+.web-watch-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(154, 198, 226, 0.28);
+  background: #0d2133;
+  overflow: hidden;
+}
+.web-watch-chip.state-researched {
+  border-color: rgba(69, 211, 142, 0.55);
+}
+.web-watch-chip button {
+  border: 0;
+  background: transparent;
+  color: #e6f2fa;
+  padding: 4px 8px;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+.web-watch-chip .web-watch-remove {
+  color: #93abc0;
+  padding: 4px 7px 4px 2px;
+}
+.web-watch-clear {
+  border: 1px solid rgba(154, 198, 226, 0.25);
+  background: transparent;
+  color: #93abc0;
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 0.74rem;
+  cursor: pointer;
+}
+.web-route-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.web-route-tabs button {
+  border: 1px solid rgba(154, 198, 226, 0.25);
+  background: #102538;
+  color: #c7dfef;
+  border-radius: 8px;
+  padding: 6px 11px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.web-route-tabs button.active {
+  border-color: #58ded7;
+  background: rgba(88, 222, 215, 0.16);
+  color: #ffffff;
+  font-weight: 600;
+}
+.web-route-tabs button.area-physics.active { border-color: #5aaeff; background: rgba(90, 174, 255, 0.18); }
+.web-route-tabs button.area-society.active { border-color: #45d38e; background: rgba(69, 211, 142, 0.18); }
+.web-route-tabs button.area-engineering.active { border-color: #e6ae4b; background: rgba(230, 174, 75, 0.18); }
+.web-route-search {
+  flex: 1 1 210px;
+  min-width: 170px;
+  border: 1px solid rgba(154, 198, 226, 0.28);
+  background: #081624;
+  color: #e6f2fa;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: 0.84rem;
+}
+.web-route-browser-details {
+  border: 1px solid rgba(154, 198, 226, 0.18);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: rgba(11, 27, 44, 0.65);
+}
+.web-route-browser-details summary {
+  cursor: pointer;
+  color: #58ded7;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.web-route-browser {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 7px;
+  margin-top: 9px;
+  max-height: 240px;
+  overflow: auto;
+}
+.web-route-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 9px;
+  border: 1px solid rgba(154, 198, 226, 0.2);
+  background: #102538;
+  color: #e6f2fa;
+  text-align: left;
+  cursor: pointer;
+}
+.web-route-card.area-physics { border-left: 3px solid #5aaeff; }
+.web-route-card.area-society { border-left: 3px solid #45d38e; }
+.web-route-card.area-engineering { border-left: 3px solid #e6ae4b; }
+.web-route-card.state-researched { background: rgba(26, 70, 52, 0.4); }
+.web-route-card.target { border-color: #58ded7; }
+.web-route-card strong { display: block; font-size: 0.8rem; }
+.web-route-card small { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 0.72rem; color: #9bb5c9; margin-top: 2px; }
+.route-tier {
+  font-style: normal;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(154, 198, 226, 0.16);
+  color: #dceef9;
+}
+.route-tier.tier-3 { background: rgba(90, 174, 255, 0.22); color: #a7d5ff; }
+.route-tier.tier-4, .route-tier.tier-5 { background: rgba(230, 174, 75, 0.24); color: #f6d186; }
+.route-mini-dlc {
+  font-style: normal;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(88, 222, 215, 0.14);
+  color: #9ee7e2;
+  text-transform: capitalize;
+}
+.web-route-more {
+  grid-column: 1 / -1;
+}

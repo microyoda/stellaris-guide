@@ -398,17 +398,45 @@ def ship_answer(snapshot: dict, context: QuestionContext | None = None) -> str:
     return f"{rec['title']}. {rec['quantity']}. {rec['reason']} {rec['caveat']}"
 
 
+AI_PERSONALITY_WARNINGS = {
+    "fanatical_befrienders": "Fanatical Befrienders (+100 base opinion masks 2x Aggressiveness and 1.5x Bravery—willing to attack Superior empires)",
+    "fanatic_purifiers": "Fanatic Purifiers (total-war genocidal AI; diplomacy is disabled)",
+    "devouring_swarm": "Devouring Swarm (total-war Hive Mind; diplomacy is disabled)",
+    "exterminators": "Determined Exterminators (total-war Machine Intelligence toward organics)",
+    "metalhead": "Metalheads (extreme aggression and bravery; hostile toward almost everyone)",
+    "hegemonic_imperialists": "Hegemonic Imperialists (aggressive conqueror/subjugator)",
+    "democratic_crusaders": "Democratic Crusaders (aggressive toward non-democratic empires)",
+    "slaving_despots": "Slaving Despots (expansionist conqueror/raider)",
+    "honorbound_warriors": "Honorbound Warriors (high bravery; willing to challenge stronger fleets)",
+}
+
+
 def threat_answer(snapshot: dict) -> str:
     contacts = snapshot.get("contacts", [])
     if not contacts:
         return "No contacted empires were readable. Check the in-game diplomacy screen."
+    spoilers = snapshot.get("_spoilers_active") is True
+    risky = []
+    for item in contacts:
+        intel = _num(item.get("intel"))
+        if not spoilers and (intel is None or intel < 10):
+            continue
+        pers = str(item.get("personality") or "").lower()
+        if pers in AI_PERSONALITY_WARNINGS:
+            risky.append((item["name"], AI_PERSONALITY_WARNINGS[pers]))
     known = [item for item in contacts if item.get("opinion") is not None]
-    if not known:
+    if not known and not risky:
         return "Contacts exist, but their opinions were not readable. Check in-game intel before naming a threat."
-    top = min(known, key=lambda item: item["opinion"])
-    return (f"Review {top['name']} first: recorded opinion {top['opinion']:+d}. "
-            "Check borders, visible naval strength, treaties and intentions in game. "
-            "A save can contain foreign power your empire has not discovered.")
+    parts = []
+    if known:
+        top = min(known, key=lambda item: item["opinion"])
+        parts.append(f"Review {top['name']} first: recorded opinion {top['opinion']:+d}.")
+    if risky:
+        flagged = "; ".join(f"{name}: {note}" for name, note in risky[:2])
+        parts.append(f"High-risk AI personalities recorded: {flagged}.")
+    parts.append("Check borders, visible naval strength, treaties and intentions in game. "
+                 "A save can contain foreign power your empire has not discovered.")
+    return " ".join(parts)
 
 
 def _guide_steps(topic: str, snapshot: dict) -> str:
@@ -528,6 +556,99 @@ def _trade_storage_answer(snapshot: dict) -> str:
     return prefix + _guide_steps("trade_storage", snapshot)
 
 
+def _crisis_answer(context: QuestionContext, snapshot: dict) -> str:
+    counters = {
+        "prethoryn": (
+            "Prethoryn Scourge counter: Prethoryn use zero shields (all armor + huge hull) with biological missiles and strike craft. "
+            "Fit 100% Armor (skip shields) + Flak/Point-Defense escorts, and arm fleets with Energy weapons (Tachyon Lances, Plasma, Lasers) and Strike Craft. "
+        ),
+        "unbidden": (
+            "The Unbidden (Extradimensional Invaders) counter: Unbidden use massive shields and zero armor, with anti-armor weapons and slow sublight speed. "
+            "Fit Maximum Shields + Shield Capacitors (skip armor) and pure long-range Kinetic weapons (Giga Cannons, Kinetic Artillery) to kite them; "
+            "avoid pure bypass weapons inside Dimensional Anchor systems where shield hardening spikes. "
+        ),
+        "contingency": (
+            "The Contingency counter: Contingency ships use balanced 1:4:4 Hull/Armor/Shields with low hardening and heavy mixed weapons. "
+            "Fit balanced Shields + Armor with Shield Capacitors/Afterburners, and use shield/armor bypass weapons (Focused Arc Emitters, Disruptors, Missiles, Strike Craft). "
+        ),
+        "cetana": (
+            "Cetana (The Synthetic Queen, The Machine Age DLC) counter: her flagship structures have huge health pools and resist penetration/bypass builds. "
+            "Field massed Devastator Torpedo Frigates with Afterburners for raw DPS against the flagship, supported by artillery/carrier fleets to clear patrols. "
+        ),
+        "midgame": (
+            "Midgame crises include the Great Khan (Apocalypse — can surrender as Satrapy or kill the flagship twice), Gray Tempest (Distant Stars — destroy Central Factory in the L-Cluster), "
+            "Voidworm Plague (Grand Archive — clear Nests before population surges), Crystal Rift / The Formless (Astral Planes), and War in Heaven (Leviathans). "
+        ),
+    }
+    prefix = counters.get(context.focus or "", "")
+    profile = (snapshot.get("player") or {}).get("profile") or {}
+    nomad_note = "Nomad warning: crisis fleets destroy Arkships outright rather than disabling them. " if profile.get("is_nomad") else ""
+    return prefix + nomad_note + _guide_steps("crisis", snapshot)
+
+
+def _council_answer(snapshot: dict) -> str:
+    version = (snapshot.get("campaign") or {}).get("save_version") or snapshot.get("version")
+    release = parse_release_tuple(version)
+    size = _num((snapshot.get("player") or {}).get("empire_size"))
+    parts = []
+    if size is not None:
+        agenda_cost = round(7000 * (1 + max(0.0, size - 100) * 0.001))
+        parts.append(f"At saved Empire Size {size:g}, estimated base Agenda progress cost is ~{agenda_cost:,}.")
+    if release and release < (4, 6, 0):
+        parts.append(f"This save is {version} (pre-4.6): the 5th Council seat still follows 4.5 civic unlock rules rather than 4.6's Galactic Administration tech.")
+    elif release and release >= (4, 6, 0):
+        parts.append("In 4.6 Corona Borealis, the 5th Council seat unlocks via Galactic Administration tech rather than a 3rd civic.")
+    prefix = (" ".join(parts) + " ") if parts else ""
+    return prefix + _guide_steps("council", snapshot)
+
+
+def _leaders_answer(snapshot: dict) -> str:
+    paragons = has_dlc(snapshot, "galactic_paragons")
+    prefix = ("With Galactic Paragons active, you manually pick traits, Veteran classes unlock at level 4 (Tier 3 cap), and Destiny traits at level 8. "
+              if paragons is True else
+              "Without Galactic Paragons listed, traits auto-roll and Veteran traits cap at Tier 2. "
+              if paragons is False else "")
+    return prefix + _guide_steps("leaders", snapshot)
+
+
+def _subjects_answer(snapshot: dict) -> str:
+    overlord = has_dlc(snapshot, "overlord")
+    prefix = ("Overlord DLC is active, enabling negotiable Agreement terms, Specialist Subjects (Bulwark/Scholarium/Prospectorium), and Overlord Holdings. "
+              if overlord is True else
+              "Overlord DLC is not recorded in this save, so specialized subject types and custom holdings are unavailable. "
+              if overlord is False else "")
+    return prefix + _guide_steps("subjects", snapshot)
+
+
+def _megastructures_answer(snapshot: dict) -> str:
+    profile = (snapshot.get("player") or {}).get("profile") or {}
+    parts = []
+    if profile.get("is_nomad"):
+        parts.append("This empire has a Nomadic profile: Habitats, Deep Space Citadels, Orbital Rings, and most multi-stage megastructures are blocked (only Quantum Catapult, Arc Furnace, and Ambition megastructures).")
+    if has_dlc(snapshot, "biogenesis") is True:
+        parts.append("BioGenesis DLC enables Deep Space Citadels (1/system cap, +1 with Eternal Vigilance or Starlit Citadel).")
+    prefix = (" ".join(parts) + " ") if parts else ""
+    return prefix + _guide_steps("megastructures", snapshot)
+
+
+def _government_answer(snapshot: dict) -> str:
+    player = snapshot.get("player") or {}
+    profile = player.get("profile") or {}
+    version = (snapshot.get("campaign") or {}).get("save_version") or snapshot.get("version")
+    release = parse_release_tuple(version)
+    parts = []
+    if profile.get("authority"):
+        auth_label = str(profile["authority"]).removeprefix("auth_").replace("_", " ")
+        parts.append(f"Saved authority: {auth_label}.")
+    size = _num(player.get("empire_size"))
+    if size is not None:
+        parts.append(f"At saved Empire Size {size:g}, reforming government costs about {int(round(size * 10)):,} Unity (20-year cooldown).")
+    if release and release < (4, 6, 0):
+        parts.append(f"Note: this save is {version} (4.5 rules), where Corporate empires still cannot take Fanatic Authoritarian/Egalitarian.")
+    prefix = (" ".join(parts) + " ") if parts else ""
+    return prefix + _guide_steps("government", snapshot)
+
+
 def answer_question(question: str, snapshot: dict, advice: dict | None = None) -> str:
     context = classify_question(question, snapshot)
     if not context.text:
@@ -543,6 +664,18 @@ def answer_question(question: str, snapshot: dict, advice: dict | None = None) -
         return _nomads_answer(snapshot)
     if context.topic == "trade_storage":
         return _trade_storage_answer(snapshot)
+    if context.topic == "crisis":
+        return _crisis_answer(context, snapshot)
+    if context.topic == "council":
+        return _council_answer(snapshot)
+    if context.topic == "leaders":
+        return _leaders_answer(snapshot)
+    if context.topic == "subjects":
+        return _subjects_answer(snapshot)
+    if context.topic == "megastructures":
+        return _megastructures_answer(snapshot)
+    if context.topic == "government":
+        return _government_answer(snapshot)
     if context.topic == "policy":
         return _policy_answer(context, snapshot)
     if context.topic == "population":

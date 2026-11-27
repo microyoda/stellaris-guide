@@ -974,6 +974,7 @@ def _parse_save_texts(meta: str, game: str, *, path: Path | None, filename: str,
         other_expenses = resource_totals(block(other_budget, "expenses"))
         contacts.append({"id": country_id, "name": display_name(block(other, "name"), country_id),
                          "kind": direct_scalar(other, "type", default="default"),
+                         "personality": direct_scalar(other, "personality", default=None),
                          "military": round(float(direct_scalar(other, "military_power", default=0) or 0)),
                          "economy": round(float(direct_scalar(other, "economy_power", default=0) or 0)),
                          "technology": round(float(direct_scalar(other, "tech_power", default=0) or 0)),

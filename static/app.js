@@ -289,7 +289,16 @@ function renderEmpiresView(snapshot) {
     if (empireCategory === 'military' && empire.wars?.length) categoryHtml += `<div class="job-advice"><h3>Wars</h3>${empire.wars.map(war => `<p>${war.against_player ? 'At war with you' : 'Recorded war · spoiler'} · ${esc(war.side)} side · war exhaustion ${war.exhaustion == null ? 'unknown' : `${number(war.exhaustion)}%`}</p>`).join('')}<small>Exhaustion belongs to a war side, not an empire's overall strength.</small></div>`;
     if (empireCategory === 'economy' && empire.hidden) categoryHtml += `<details class="spoiler-details"><summary>Hidden stockpiles and monthly balances</summary>${Object.entries(empire.hidden.stock || {}).filter(([key]) => ['energy','minerals','food','consumer_goods','alloys'].includes(key)).map(([key,value]) => `<p>${esc(key.replaceAll('_',' '))}: ${number(value)} stock · ${signed(empire.hidden.net?.[key])}/mo</p>`).join('') || '<p>Not recorded in this save.</p>'}<small>From save · hidden in game</small></details>`;
   } else if (empireCategory === 'diplomacy') {
-    categoryHtml = `<div class="detail-stats"><div><span>Opinion of you</span><strong>${empire.opinion == null ? 'Unknown' : signed(empire.opinion)}</strong></div><div><span>Known stance</span><strong>${empire.relation?.hostile ? 'Hostile' : 'Not verified'}</strong></div><div><span>Embassy</span><strong>${empire.relation?.embassy ? 'Yes' : 'No record'}</strong></div></div><p class="detail-note">Subject ties, claims, treaties and diplomatic weight need validated save fields. Opinion alone does not predict war.</p>`;
+    const persKey = String(empire.personality || '').toLowerCase();
+    const persLabel = persKey ? persKey.replaceAll('_', ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Unknown at current intel';
+    const persHint = persKey === 'fanatical_befrienders'
+      ? ' Warning: Fanatical Befrienders have +100 base opinion yet 2× Aggressiveness and 1.5× Bravery (willing to attack Superior empires).'
+      : ['fanatic_purifiers', 'devouring_swarm', 'exterminators', 'metalhead'].includes(persKey)
+      ? ' Warning: Total-war / extreme-aggression AI personality; friendly diplomacy is restricted or unreliable.'
+      : ['hegemonic_imperialists', 'democratic_crusaders', 'slaving_despots', 'honorbound_warriors'].includes(persKey)
+      ? ' Note: Expansionist / aggressive AI personality; check borders and defensive pacts even if opinion is neutral.'
+      : '';
+    categoryHtml = `<div class="detail-stats"><div><span>Opinion of you</span><strong>${empire.opinion == null ? 'Unknown' : signed(empire.opinion)}</strong></div><div><span>AI personality</span><strong>${esc(persLabel)}</strong></div><div><span>Known stance</span><strong>${empire.relation?.hostile ? 'Hostile' : 'Not verified'}</strong></div><div><span>Embassy</span><strong>${empire.relation?.embassy ? 'Yes' : 'No record'}</strong></div></div><p class="detail-note">Subject ties, claims, treaties and diplomatic weight need validated save fields. Opinion alone does not predict war.${esc(persHint)}</p>`;
   } else {
     categoryHtml = `<div class="detail-stats"><div><span>Intel</span><strong>${empire.intel == null ? 'Unknown' : number(empire.intel)}</strong></div><div><span>Your spy network</span><strong>${empire.spy_network ? 'Recorded' : 'No record'}</strong></div></div><p class="detail-note">Unknown figures are not zero. Further espionage details will appear after their save fields have been verified.</p>`;
   }

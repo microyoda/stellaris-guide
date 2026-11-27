@@ -13,6 +13,7 @@ KNOWLEDGE_FILE = Path(__file__).with_name("guide_knowledge.json")
 TOPICS = {
     "espionage", "population", "policy", "planet_economy",
     "trade_storage", "nomads", "ideologies",
+    "crisis", "council", "leaders", "subjects", "megastructures", "government",
 }
 
 
