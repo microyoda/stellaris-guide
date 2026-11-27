@@ -46,18 +46,102 @@ function criticalResources(snapshot) {
 
 const viewCopy = {
   main: ['Your command center', 'Clear priorities from your latest autosave.'],
-  planets: ['Your planets', 'See which colony needs attention and what to consider building.'],
+  planets: ['Your colonies', 'See which colony needs attention and what to consider building.'],
   empires: ['Known empires', 'Compare your position and what your intelligence actually reveals.'],
   tech: ['Your research path', 'Compare visible choices with the bottleneck in your empire.'],
   ships: ['Your fleet', 'See your saved fleets, compare designs, and plan the next build.']
 };
 const quickQuestions = {
-  main: ["What's my economy looking like?", 'Who should I be worried about?', 'Should I attack the fallen empire?'],
-  planets: ['Which planet needs attention first?', 'What should I build on my colonies?', 'Do I have an amenities problem?'],
-  empires: ['Who should I be worried about?', 'What do I know about this empire?', 'How does my fleet compare?'],
-  tech: ['What technology should I choose next?', 'How is my current research?', 'Which branch needs attention?'],
-  ships: ['What ships should I build now?', 'Which owned design should I use?', 'Can my economy support a fleet build?']
+  main: ["What's my economy looking like?", 'Am I on track for this year?', 'Who should I be worried about?', 'Should I attack the fallen empire?'],
+  planets: ['Which colony needs attention first?', 'What should I build on my colonies?', 'Do I have an amenities problem?', 'Why is planetary automation idle?'],
+  empires: ['Who should I be worried about?', 'Why is my vassal loyalty dropping?', 'How does my fleet compare?'],
+  tech: ['What technology should I choose next?', 'Which branch needs attention?', 'How can I increase research output?', 'What are the Dangerous Technology risks?'],
+  ships: ['What armor or shield configuration should I build on my ships?', 'How to increase naval capacity?', 'How to increase starbase capacity?', 'What ships should I build now?']
 };
+
+function dynamicQuickQuestions(snapshot, advice, view) {
+  const items = [];
+  const seen = new Set();
+  const push = (text, urgent = false) => {
+    const key = String(text || '').trim().toLowerCase();
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    items.push({text, urgent});
+  };
+  if (snapshot) {
+    const player = snapshot.player || {};
+    const profile = player.profile || {};
+    const net = player.net || {};
+    const netKnown = player.net_known || {};
+    const planets = snapshot.planets || [];
+    const contacts = snapshot.contacts || [];
+    const bench = advice?.benchmark || {};
+    const year = Number(bench.year || String(snapshot.date || '').split('.')[0] || 0);
+
+    // 1. Contacted active crisis (spoiler-safe: only from visible contacts).
+    for (const crisis of (bench.contacted_crises || []).slice(0, 1)) {
+      if (crisis?.label) push(`How to counter ${crisis.label}?`, true);
+    }
+
+    // 2. Revolt risk or urgent unstable colony.
+    const unstable = planets
+      .filter(p => p && p.name && typeof p.stability === 'number' && Number.isFinite(p.stability) && p.stability < 40)
+      .sort((a, b) => a.stability - b.stability);
+    if (unstable.length) {
+      const worst = unstable[0];
+      if (worst.stability < 25) push(`How do I stop ${worst.name} revolt?`, true);
+      else if (view === 'main' || view === 'planets') push(`How do I fix stability on ${worst.name}?`, true);
+    }
+
+    // 3. Largest tracked resource deficit.
+    const deficits = ['consumer_goods', 'trade', 'energy', 'minerals', 'alloys', 'food']
+      .filter(k => typeof net[k] === 'number' && Number.isFinite(net[k]) && netKnown[k] !== false && net[k] < 0)
+      .sort((a, b) => net[a] - net[b]);
+    if (deficits.length && (view === 'main' || view === 'planets' || view === 'ships')) {
+      const resLabel = deficits[0].replaceAll('_', ' ');
+      push(`How to increase ${resLabel}?`, true);
+    }
+
+    // 4. Starbase overcap.
+    if (typeof player.starbase_used === 'number' && typeof player.starbase_capacity === 'number' &&
+        player.starbase_capacity > 0 && player.starbase_used > player.starbase_capacity) {
+      push('How to increase starbase capacity?', true);
+    }
+
+    // 5. Active war against the player.
+    const atWar = contacts.some(c => c && (c.wars || []).some(w => w && w.against_player));
+    if (atWar && (view === 'main' || view === 'ships' || view === 'empires')) {
+      push('What armor or shield configuration should I build on my ships?', true);
+    }
+
+    // 6. Tab-specific live cues.
+    if (view === 'tech') {
+      const research = player.research || {};
+      const branches = ['physics', 'society', 'engineering'].filter(b => typeof research[b] === 'number');
+      if (branches.length) {
+        const weakest = branches.sort((a, b) => research[a] - research[b])[0];
+        push(`How is my ${weakest} research?`, false);
+      }
+      if (year >= 2280) push('What are the Dangerous Technology risks?', false);
+    }
+
+    // 7. Year & DLC milestones.
+    if (view === 'main') {
+      if (year >= 2400) push('How to prepare for the endgame crisis?', false);
+      else if (year >= 2300) push('How to prepare for a midgame crisis?', false);
+      if (profile.is_nomad) push('How do Nomad Arkships and Waylines work?', false);
+      const versionStr = String(snapshot.campaign?.save_version || snapshot.version || '');
+      const dlcs = snapshot.campaign?.dlc_summary?.active_ids || [];
+      if (/4\.6\./.test(versionStr) && dlcs.includes('willpower')) {
+        push('How do Ideologies and Galactic Halls work?', false);
+      }
+    }
+  }
+  for (const fallback of (quickQuestions[view] || quickQuestions.main)) {
+    push(fallback, false);
+  }
+  return items.slice(0, 5);
+}
 
 function number(value) { return Number(value || 0).toLocaleString(undefined, {maximumFractionDigits: 1}); }
 function signed(value) { const n = Number(value || 0); return `${n >= 0 ? '+' : ''}${number(n)}`; }
@@ -163,9 +247,51 @@ function renderMain(snapshot, advice) {
         </div></details>` : ''}</div><time>BY ${esc(goal.due)}</time></div>`;
   }).join('') : '<div class="empty">No plan is available from this save yet.</div>';
   watchlistItems = advice?.alerts || [];
+  renderBenchmark(snapshot, advice);
   renderWatchlist();
   renderChart(state.history || []);
   renderEmpires(snapshot);
+}
+
+function renderBenchmark(snapshot, advice) {
+  const card = $('campaign-benchmark');
+  const body = $('benchmark-body');
+  if (!card || !body) return;
+  const bench = advice?.benchmark;
+  if (!bench) { card.hidden = true; return; }
+  card.hidden = false;
+  const stageLabel = `STAGE ${bench.stage} OF 4 · ${String(bench.stage_name || '').toUpperCase()}`;
+  const eyebrow = $('benchmark-stage-eyebrow');
+  const title = $('benchmark-title');
+  const preview = $('benchmark-preview');
+  if (eyebrow) eyebrow.textContent = stageLabel;
+  if (title) title.textContent = bench.before_first
+    ? `Year ${bench.year} · Building toward Year ${bench.current_year}`
+    : `Year ${bench.year || '—'} · Checkpoint Year ${bench.current_year}`;
+  const metrics = bench.metrics || [];
+  const onTrack = metrics.filter(m => m.status === 'on_track').length;
+  const warnCount = (bench.checks || []).filter(c => !c.ok).length;
+  if (preview) {
+    const nextText = bench.next ? ` · Next: Year ${bench.next.year}` : '';
+    const warnText = warnCount ? ` · ${warnCount} readiness warning(s)` : ' · Checks healthy';
+    preview.textContent = `${onTrack}/${metrics.length} baseline ranges met${warnText}${nextText} · expand`;
+  }
+  const statusLabel = s => ({on_track: 'On track', building: 'Building', behind: 'Behind', unknown: 'Unknown'}[s] || s);
+  const metricsHtml = metrics.map(m => {
+    const val = typeof m.current === 'number' ? `${number(m.current)}${m.unit}` : 'Unknown';
+    return `<div class="benchmark-metric status-${esc(m.status)}"><span>${esc(m.label)}</span><strong>${esc(val)}</strong><small>1× target: ${number(m.target_low)}–${number(m.target_high)}${esc(m.unit)} · ${esc(statusLabel(m.status))}</small></div>`;
+  }).join('');
+  const checksHtml = (bench.checks || []).map(c =>
+    `<li class="${c.ok ? 'ok' : 'warn'}"><b>${c.ok ? '✓' : '!'}</b><span><strong>${esc(c.label)}:</strong> ${esc(c.detail)}</span></li>`
+  ).join('');
+  const nextHtml = bench.next
+    ? `<div class="benchmark-next"><span class="eyebrow">NEXT MILESTONE · YEAR ${esc(bench.next.year)} (${esc(bench.next.stage_name)})</span><p>${esc(bench.next.focus)}</p></div>`
+    : '';
+  body.innerHTML = `<p class="benchmark-focus">${esc(bench.focus || '')}${bench.is_nomad ? ' (Nomads: focus on Arkship modules & Waylines rather than fixed colonies.)' : ''}</p>`
+    + `<div class="benchmark-metrics">${metricsHtml}</div>`
+    + `<ul class="benchmark-checks">${checksHtml}</ul>`
+    + nextHtml
+    + `<small class="benchmark-caveat">${esc(bench.caveat || '')}</small>`;
 }
 
 function renderWatchlist() {
@@ -355,8 +481,15 @@ function renderShips(snapshot) {
 }
 
 function renderQuickActions() {
-  $('quick-actions').innerHTML = quickQuestions[activeView].map(question => `<button data-quick="${esc(question)}">${esc(question)}</button>`).join('');
-  document.querySelectorAll('[data-quick]').forEach(button => button.addEventListener('click', () => { $('question').value = `/ask ${button.dataset.quick}`; $('question').focus(); updateCommandMenu(); }));
+  const items = dynamicQuickQuestions(state?.snapshot, state?.advice, activeView);
+  $('quick-actions').innerHTML = items.map(item =>
+    `<button type="button" class="${item.urgent ? 'quick-urgent' : ''}" data-quick="${esc(item.text)}">${esc(item.text)}</button>`
+  ).join('');
+  document.querySelectorAll('[data-quick]').forEach(button => button.addEventListener('click', () => {
+    $('question').value = `/ask ${button.dataset.quick}`;
+    $('question').focus();
+    updateCommandMenu();
+  }));
 }
 
 function renderSignature(data) {
@@ -387,6 +520,7 @@ function render(data, force = false) {
     $('critical-risk').hidden = true;
     $('pin-notice').hidden = true;
     $('watchlist-ticker').hidden = true;
+    if ($('campaign-benchmark')) $('campaign-benchmark').hidden = true;
     showNotice(data.error || 'Start Stellaris or choose the correct save folder in Settings.');
     return;
   }

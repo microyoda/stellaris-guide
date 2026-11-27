@@ -56,14 +56,14 @@
   {
     "id": "trade-and-storage",
     "topic": "trade_storage",
-    "release": "4.5.2",
+    "release": "4.6.0",
     "rule_status": "conditional",
     "required_dlc": [],
-    "sources": ["Steam Guide 3829341385 (RedEye, 29 Oct 2026, 4.5.2) — verify exact caps and fees in installed defines"],
+    "sources": ["Steam Guide 3829341385 (RedEye, 4.5.2) & GamerOfPassion 4.6 Beginner Guide — verify caps and fees in game"],
     "steps": [
-      "Keep monthly Trade positive before expanding; Trade pays logistics upkeep, covers local colony resource deficits, and funds Market purchases.",
-      "Treat Market purchases as a short-term runway bridge because the base Market fee starts at 30%.",
-      "Watch storage caps (15,000 base per material resource, 50,000 Trade, 1,000 Influence) so surplus production is not wasted."
+      "Keep monthly Trade and Consumer Goods positive: running out of Trade cuts Job Efficiency by 25%, and a Consumer Goods shortage halves Research and Unity from jobs.",
+      "Local colony deficits cost Trade upkeep empire-wide; keep early colonies mixed until Trade surplus supports full specialization, and park idle fleets at Crew Quarters starbases to save Trade logistics upkeep.",
+      "Treat Market purchases as a short-term bridge (30% base Market fee) and watch storage caps (15,000 material, 50,000 Trade, 1,000 Influence) so surplus is not wasted."
     ],
     "check": "Confirm your current Market fee, storage caps, and local colony deficits in the in-game Economy and Market screens."
   },
@@ -103,12 +103,12 @@
     "release": "4.6.0",
     "rule_status": "conditional",
     "required_dlc": [],
-    "sources": ["Stellaris Wiki Crisis (4.5/4.6) and Steam Guide 3843091177 (Axoral, Nov 2026) — verify crisis ship loadouts in game"],
+    "sources": ["Stellaris Wiki Crisis (4.5/4.6), Steam Guide 3843091177, and GamerOfPassion 4.6 Crisis Guide — verify loadouts in game"],
     "steps": [
-      "Prepare for Midgame crises (Great Khan, Gray Tempest, Voidworm Plague, Crystal Rift) and War in Heaven before Endgame crises (Prethoryn, Unbidden, Contingency, Cetana).",
-      "Stack crisis damage modifiers when threatened: Defender of the Galaxy (+50%), Galactic Threats Committee (+20%), and federation crisis bonuses.",
-      "Refit fleets to counter the active crisis using Fleet -> Design Finder Crisis presets rather than fighting with a generic loadout.",
-      "For Nomadic empires, note that crisis fleets destroy Arkships outright rather than disabling them."
+      "Default Endgame Crisis first roll is 2450 (2425 with Jump Drives, no Fallen Empires, War in Heaven finished, or crisis resolution; 2400 only via Ultima Vigilis or both resolutions).",
+      "Stack crisis damage bonuses when threatened: Defender of the Galaxy (+50%), Galactic Threats Committee (+20%), and federation bonuses.",
+      "Refit fleets to counter the active crisis via Fleet -> Design Finder Crisis presets, and swap off Sapient Combat Computers if fighting the Contingency.",
+      "For Nomadic empires, crisis fleets destroy Arkships outright rather than disabling them."
     ],
     "check": "Check your Mid-Game / End-Game year settings, Crisis Strength, and active Situation Log before committing fleets."
   },
@@ -146,13 +146,13 @@
     "release": "4.6.0",
     "rule_status": "conditional",
     "required_dlc": [],
-    "sources": ["Stellaris Wiki Subject empire (verified 4.6.0)"],
+    "sources": ["Stellaris Wiki Subject empire & GamerOfPassion 4.6 Vassals Guide (verified 4.6.0)"],
     "steps": [
-      "Watch Subject Loyalty (-100 to +100): below 0 turns Disloyal and blocks diplomatic agreements; Pledge of Loyalty adds +1.5/month (+2.5/month at >=150 opinion).",
-      "Multiple subjects trigger Divided Patronage monthly loyalty drag—balance holdings, terms, and shared diplomacy before vassalizing another empire.",
-      "Resource taxes adjust in 15% increments and block normal diplomatic trading of any taxed resource; subjects take -50% Diplomatic Weight (except Satrapies)."
+      "Watch Subject Loyalty (-100 to +100): below 0 turns Disloyal and blocks agreements; Pledge of Loyalty adds +1.5/month (+2.5/month at >=150 opinion), while multiple subjects trigger Divided Patronage drag.",
+      "Resource taxes adjust in 15% increments and block normal diplomatic trading of any taxed resource; subjects take -50% Diplomatic Weight (except Satrapies).",
+      "Do not place full system claims on a target if you want the Vassalize Casus Belli (full claims can disable it); Scholarium is typically the strongest Overlord specialist for research."
     ],
-    "check": "Verify subject agreement terms, Loyalty trend, and Overlord holdings in the Agreements screen."
+    "check": "Verify subject agreement terms, Loyalty trend, Casus Belli eligibility, and Overlord holdings in game."
   },
   {
     "id": "megastructures-and-citadels",
@@ -181,5 +181,62 @@
       "In 4.6+, colony ascension Empire Size reduction caps at -90%, and Suppress/Promote Faction costs 1,000 Unity with a 15-25 year respawn lock if destroyed."
     ],
     "check": "Confirm reform Unity cost, cooldown, and civic/ethic eligibility in the Government screen before reforming."
+  },
+  {
+    "id": "revolt-and-stability-recovery",
+    "topic": "revolt",
+    "release": "4.6.0",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["Steam Guide 3829341385 (RedEye, 4.5.2) & Stellaris Wiki Ideology (4.6.0)"],
+    "steps": [
+      "Colony Stability below 25% risks a Planetary Revolt: first prioritize Entertainer or Maintenance Drone jobs (or build a Holo-Theatre) to fix negative Amenities.",
+      "Check Crime and fill Enforcer / Hunter-Seeker jobs (or use Anti-Crime Campaign / Precinct House), and confirm Housing and Living Standards are not crushing pop happiness.",
+      "For an active revolt Situation, inspect Planetary Decisions (Distribute Luxury Goods or Declare Martial Law / Compliance Protocols) and land assault armies or move pops to stabilize quickly.",
+      "In 4.6 Willpower campaigns, check whether >=30% foreign-ideology pops are turning the uprising into an Ideological Revolt."
+    ],
+    "check": "Open the unstable colony's Stability tooltip and Situation Log in game immediately to see the exact happiness/crime drivers."
+  },
+  {
+    "id": "colony-automation-guide",
+    "topic": "automation",
+    "release": "4.6.0",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["GamerOfPassion 4.6 Automation Building Guide & r/Stellaris 4.x planetary automation notes"],
+    "steps": [
+      "Planetary Automation looks idle because it waits for available pops and builds one item at a time to avoid empty-district upkeep; use it for basic worlds and crime/enforcer slots (avoid on your Capital).",
+      "Automation Buildings (25%, Assembly Patterns) and Optimization Buildings (50%, Construction Templates) automate matching basic jobs planet-wide (1 per basic resource type, placed in matching resource zones).",
+      "Upkeep is 8 Energy (25%) or 10 Energy (50%) plus 4 Energy per 100 automated jobs (Technician break-even ~1,600/1,000 jobs base, ~640/400 at +50%); dial the slider down as pops grow."
+    ],
+    "check": "Confirm your Energy balance, district specialization slots, and automation slider in the colony UI before enabling."
+  },
+  {
+    "id": "dangerous-technology-risks",
+    "topic": "dangerous_tech",
+    "release": "4.6.0",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["GamerOfPassion 4.6 Dangerous Technology Guide (verified against 4.6.0 game files)"],
+    "steps": [
+      "Red (Dangerous) technologies do not pick which Endgame Crisis spawns—Jump Drives only move the first crisis roll earlier from 2450 to 2425.",
+      "To avoid a Machine Uprising when researching Synthetics/Sapient AI, grant AI Citizen Rights (or outlaw robots) before ~2290.",
+      "Keep a non-Sapient Combat Computer backup ship design in case the Contingency spawns, and avoid the Restrictions Imposed policy unless needed because it applies a -20% rare tech draw penalty."
+    ],
+    "check": "Verify your Artificial Intelligence policy, Research Restrictions policy, and ship computer designs in game."
+  },
+  {
+    "id": "ascension-perks-guide",
+    "topic": "ascension_perks",
+    "release": "4.6.0",
+    "rule_status": "conditional",
+    "required_dlc": [],
+    "sources": ["GamerOfPassion 4.6 Ascension Perks Guide (verified against 4.6.0 game files)"],
+    "steps": [
+      "Reserve an open Tradition tree slot before adopting your 7th Tradition so you have room for your chosen Ascension Path tree.",
+      "Strong early no-DLC openings include Technological Ascendancy, Transcendent Learning, and Imperial Prerogative (-25% Empire Size from colonies).",
+      "For late-game security or 4.6 builds, consider Defender of the Galaxy (+50% crisis damage), Galactic Force Projection (+150 naval cap), or 4.6 Willpower's Force of Will ambition."
+    ],
+    "check": "Confirm perk prerequisites, open Tradition slots, and DLC/ethics eligibility in the Traditions & Relics screen."
   }
 ]

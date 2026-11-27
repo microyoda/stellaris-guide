@@ -15,8 +15,11 @@ def _has(text: str, *phrases: str) -> bool:
                          r"(?!\w)", text) for phrase in phrases)
 
 
-def _entity(text: str, items: list[dict]) -> tuple[dict | None, bool]:
-    """Prefer full-name matches; allow one clear multiword spelling correction."""
+_COLONY_SUFFIX_RE = re.compile(r"\s+(?:prime|ii|iii|iv|v|vi|habitat|station)$", re.I)
+
+
+def _entity(text: str, items: list[dict], *, allow_suffix_strip: bool = False) -> tuple[dict | None, bool]:
+    """Prefer full-name matches; allow suffix-stripped colony names and clear multiword typo corrections."""
     normalized = _words(text)
     records = [(item, _words(str(item.get("name") or ""))) for item in items
                if isinstance(item, dict) and item.get("name")]
@@ -26,16 +29,36 @@ def _entity(text: str, items: list[dict]) -> tuple[dict | None, bool]:
         winners = [item for item, name in exact if len(name) == longest]
         return (winners[0], False) if len(winners) == 1 else (None, True)
 
+    if allow_suffix_strip:
+        stripped_exact = []
+        for item, name in records:
+            base = _COLONY_SUFFIX_RE.sub("", name).strip()
+            if base and base != name and len(base.split()) >= 2 and base not in _NON_COLONY_PHRASES and _has(normalized, base):
+                stripped_exact.append((item, base))
+        if stripped_exact:
+            longest = max(len(base) for _, base in stripped_exact)
+            winners = [item for item, base in stripped_exact if len(base) == longest]
+            return (winners[0], False) if len(winners) == 1 else (None, True)
+
     tokens = normalized.split()
     scored: list[tuple[float, dict]] = []
     for item, name in records:
-        parts = name.split()
-        if len(parts) < 2 or len(tokens) < len(parts):
-            continue
-        score = max(SequenceMatcher(None, name, " ".join(tokens[i:i + len(parts)])).ratio()
-                    for i in range(len(tokens) - len(parts) + 1))
-        if score >= 0.87:
-            scored.append((score, item))
+        candidates = [name]
+        if allow_suffix_strip:
+            base = _COLONY_SUFFIX_RE.sub("", name).strip()
+            if base and base != name and len(base.split()) >= 2 and base not in _NON_COLONY_PHRASES:
+                candidates.append(base)
+        best_for_item = 0.0
+        for cand in candidates:
+            parts = cand.split()
+            if len(parts) < 2 or len(tokens) < len(parts):
+                continue
+            score = max(SequenceMatcher(None, cand, " ".join(tokens[i:i + len(parts)])).ratio()
+                        for i in range(len(tokens) - len(parts) + 1))
+            if score >= 0.87 and score > best_for_item:
+                best_for_item = score
+        if best_for_item > 0.0:
+            scored.append((best_for_item, item))
     scored.sort(key=lambda pair: pair[0], reverse=True)
     if not scored:
         return None, False
@@ -94,6 +117,8 @@ def _detect_focus(topic: str, words: str) -> str | None:
                 "research output", "science output", "improve research", "improve science"):
             return "research_output"
     elif topic == "ships":
+        if _has(words, "titan", "titans", "titan cap", "titan aura", "titan build"):
+            return "titan"
         if _has(words, "starbase cap", "starbase capacity", "more starbases", "starbases", "starbase"):
             return "starbase_capacity"
         if _has(words, "naval capacity", "naval cap", "fleet capacity", "fleet cap"):
@@ -113,11 +138,13 @@ def _detect_focus(topic: str, words: str) -> str | None:
             if _has(words, *phrases):
                 return key
     elif topic == "planet":
+        if _has(words, "revolt", "revolts", "rebellion", "uprising", "unrest", "secession"):
+            return "revolt"
         if _has(words, "amenities", "amenity"):
             return "amenities"
         if _has(words, "housing", "overcrowded", "overcrowding"):
             return "housing"
-        if _has(words, "stability", "unstable", "revolt", "crime"):
+        if _has(words, "stability", "unstable", "crime"):
             return "stability"
         if _has(words, "which planet", "which colony", "needs attention", "attention first",
                 "worst planet", "worst colony", "fix first"):
@@ -132,7 +159,7 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
     if re.match(r"(?i)^/ask(?:\s|$)", text):
         text = re.sub(r"(?i)^/ask\s*", "", text, count=1).strip()
     words = _words(text)
-    planet, planet_ambiguous = _entity(text, snapshot.get("planets") or [])
+    planet, planet_ambiguous = _entity(text, snapshot.get("planets") or [], allow_suffix_strip=True)
     contact, contact_ambiguous = _entity(text, snapshot.get("contacts") or [])
 
     # A named place takes precedence over broad words such as "economy".
@@ -149,6 +176,18 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
         topic = "nomads"
     elif _has(words, "trade", "storage cap", "storage", "market fee", "overflow", "influence cap"):
         topic = "trade_storage"
+    elif _has(words, "dangerous tech", "dangerous technology", "dangerous technologies",
+              "red tech", "red techs", "machine uprising", "sapient combat", "research restrictions"):
+        topic = "dangerous_tech"
+    elif _has(words, "ascension perk", "ascension perks", "ascension path", "tradition slot",
+              "technological ascendancy", "imperial prerogative", "galactic force projection"):
+        topic = "ascension_perks"
+    elif _has(words, "automation", "automate", "planetary automation", "automation building",
+              "optimization building"):
+        topic = "automation"
+    elif _has(words, "benchmark", "benchmarks", "on track", "milestone", "milestones",
+              "campaign stage", "decade target", "where should i be", "year target"):
+        topic = "benchmark"
     elif _has(words, "crisis", "crises", "prethoryn", "scourge", "unbidden", "extradimensional",
               "contingency", "cetana", "synthetic queen", "great khan", "gray tempest",
               "voidworm", "war in heaven", "defender of the galaxy"):
@@ -187,7 +226,7 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
           and not _has(words, "naval capacity", "naval cap", "fleet capacity", "fleet cap", "starbase", "starbases")):
         topic = "economy"
     elif _has(words, "ship", "ships", "design", "fleet", "fleets", "corvette", "frigate",
-              "destroyer", "cruiser", "battleship", "naval capacity", "naval cap",
+              "destroyer", "cruiser", "battleship", "titan", "titans", "naval capacity", "naval cap",
               "fleet capacity", "fleet cap", "starbase", "starbases",
               "armor", "shield", "shields", "loadout"):
         topic = "ships"
@@ -203,7 +242,8 @@ def classify_question(question: str, snapshot: dict) -> QuestionContext:
               "prioritize", "priority"):
         topic = "next_move"
     elif _has(words, "planet", "planets", "colony", "colonies", "housing", "amenities",
-              "amenity", "stability", "crime", "jobs") or planet:
+              "amenity", "stability", "unstable", "crime", "jobs",
+              "revolt", "revolts", "rebellion", "uprising", "unrest", "secession") or planet:
         topic = "planet"
     elif contact:
         topic = "contact"

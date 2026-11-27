@@ -308,6 +308,205 @@ def enrich_goal(item, snapshot):
     return item
 
 
+CONTACTED_CRISIS_KINDS = {
+    "swarm": ("prethoryn", "Prethoryn Scourge"),
+    "extradimensional": ("unbidden", "The Unbidden"),
+    "extradimensional_2": ("unbidden", "The Aberrant"),
+    "extradimensional_3": ("unbidden", "The Vehement"),
+    "ai_empire": ("contingency", "The Contingency"),
+    "synth_queen": ("cetana", "Cetana (Synthetic Queen)"),
+    "awakened_marauders": ("midgame", "The Great Khan"),
+    "gray_goo": ("midgame", "Gray Tempest"),
+}
+
+CAMPAIGN_CHECKPOINTS = (
+    {
+        "year": 2210, "stage": 1, "stage_name": "Early Expansion",
+        "focus": "Survey systems, claim chokepoints, and settle guaranteed colonies without overbuilding empty districts.",
+        "targets": {"colonies": (2, 3), "alloys": (15, 30), "research": (40, 80)},
+        "checklist": ["Keep Trade positive and avoid unaddressed deficits", "Settle initial habitable worlds and lock down hyperlane chokepoints"],
+    },
+    {
+        "year": 2220, "stage": 1, "stage_name": "Early Expansion",
+        "focus": "Start specializing your first Tech and Forge/Factory colonies while keeping stability above 50%.",
+        "targets": {"colonies": (3, 5), "alloys": (25, 50), "research": (80, 150), "fleet": (1000, 2500)},
+        "checklist": ["Keep all colonies >= 50% stability (below 25% risks revolt)", "Finish your first Tradition tree and scout neighbor AI personalities"],
+    },
+    {
+        "year": 2230, "stage": 1, "stage_name": "Early Expansion",
+        "focus": "Stabilize Consumer Goods and Trade, and build a standing deterrent fleet.",
+        "targets": {"colonies": (4, 7), "alloys": (40, 80), "research": (150, 250), "fleet": (2500, 6000)},
+        "checklist": ["Keep Consumer Goods and Trade positive (shortages cut Research/Unity and Job Efficiency)", "Build a standing fleet for deterrence and Power Projection"],
+    },
+    {
+        "year": 2250, "stage": 2, "stage_name": "Specialization & Scaling",
+        "focus": "Run dedicated worlds (Forge, Factory, Tech, Basic), unlock Cruisers, and choose an Ascension Path.",
+        "targets": {"colonies": (6, 10), "alloys": (80, 150), "research": (300, 500), "fleet": (8000, 20000)},
+        "checklist": ["Reserve an open Tradition slot for your Ascension Path", "Keep Starbases and Leaders within capacity caps"],
+    },
+    {
+        "year": 2275, "stage": 2, "stage_name": "Specialization & Scaling",
+        "focus": "Transition to Battleships and Kilostructures (Dyson Swarm / Arc Furnace) and prep for Dangerous Techs.",
+        "targets": {"colonies": (8, 14), "alloys": (150, 300), "research": (600, 1000), "fleet": (20000, 50000)},
+        "checklist": ["Set AI Citizen Rights (or outlaw robots) before ~2290 if researching Synthetics", "Establish Vassals, Federations, or defensive pacts"],
+    },
+    {
+        "year": 2300, "stage": 3, "stage_name": "Midgame & Power Projection",
+        "focus": "Be ready for Midgame Crises (Great Khan, Gray Tempest, Voidworm Plague) and War in Heaven.",
+        "targets": {"alloys": (250, 500), "research": (1000, 1800), "fleet": (40000, 100000)},
+        "checklist": ["Scale Naval Capacity with Anchorage starbases or Fortresses", "Ensure zero colonies are below 50% stability"],
+    },
+    {
+        "year": 2350, "stage": 3, "stage_name": "Midgame & Power Projection",
+        "focus": "Push Mega-Engineering, Titans, and Galactic Community / 4.6 Ideologies leverage.",
+        "targets": {"alloys": (500, 900), "research": (2000, 3500), "fleet": (100000, 250000)},
+        "checklist": ["Start your first Megastructure or Galactic Hall (4.6 Willpower)", "Save counter-fitted ship designs in Fleet Designer"],
+    },
+    {
+        "year": 2400, "stage": 4, "stage_name": "Endgame & Crisis",
+        "focus": "Build full Endgame Crisis readiness across alloys, naval capacity, gateways, and shipyards.",
+        "targets": {"alloys": (800, 1500), "research": (3500, 6000), "fleet": (250000, 500000)},
+        "checklist": ["Link Mega Shipyards and Gateways for fast reinforcement", "Consider Defender of the Galaxy (+50% crisis damage)"],
+    },
+    {
+        "year": 2450, "stage": 4, "stage_name": "Endgame & Crisis",
+        "focus": "Counter-refit fleets for the active Endgame Crisis and sustain wartime Alloys, Energy, and Trade.",
+        "targets": {"alloys": (1200, 2000), "research": (5000, 8000), "fleet": (400000, 800000)},
+        "checklist": ["Use Fleet -> Design Finder Crisis presets for the active crisis", "Swap off Sapient Combat Computers if facing the Contingency"],
+    },
+)
+
+
+def detect_contacted_crises(snapshot: dict) -> list[dict]:
+    """Return contacted active crisis factions from visible contacts (sorted deterministically, never by military power)."""
+    found = []
+    seen = set()
+    for contact in snapshot.get("contacts") or []:
+        if not isinstance(contact, dict):
+            continue
+        kind = str(contact.get("kind") or "").lower()
+        if kind in CONTACTED_CRISIS_KINDS and kind not in seen:
+            seen.add(kind)
+            preset, label = CONTACTED_CRISIS_KINDS[kind]
+            found.append({"kind": kind, "preset": preset, "label": label, "name": contact.get("name") or label})
+    found.sort(key=lambda item: (item["label"].casefold(), item["kind"]))
+    return found
+
+
+def build_campaign_benchmark(snapshot: dict) -> dict:
+    """Compare saved empire metrics against 4-stage decade checkpoints (post-4.3 1x-settings baseline)."""
+    player = snapshot.get("player") or {}
+    profile = player.get("profile") or {}
+    net = player.get("net") or {}
+    net_known = player.get("net_known") or {}
+    research_map = player.get("research") or {}
+    try:
+        year = int(str(snapshot.get("date") or "").split(".")[0])
+    except (ValueError, TypeError):
+        year = 0
+
+    current_cp = CAMPAIGN_CHECKPOINTS[0]
+    for cp in CAMPAIGN_CHECKPOINTS:
+        if year >= cp["year"]:
+            current_cp = cp
+    next_cp = next((cp for cp in CAMPAIGN_CHECKPOINTS if cp["year"] > year), None)
+    before_first = year > 0 and year < CAMPAIGN_CHECKPOINTS[0]["year"]
+    eval_cp = next_cp if before_first and next_cp else current_cp
+
+    def rate_metric(label: str, key: str, value: float | None, bounds: tuple[int, int] | None, unit: str = "") -> dict | None:
+        if bounds is None:
+            return None
+        low, high = bounds
+        if value is None:
+            status = "unknown"
+        elif value >= low:
+            status = "on_track"
+        elif value >= low * 0.5:
+            status = "building"
+        else:
+            status = "behind"
+        return {
+            "key": key, "label": label, "current": value,
+            "target_low": low, "target_high": high, "unit": unit, "status": status,
+        }
+
+    is_nomad = bool(profile.get("is_nomad"))
+    alloys_val = finite_number(net.get("alloys")) if net_known.get("alloys", True) is not False else None
+    research_vals = [val for b in ("physics", "society", "engineering")
+                     if (val := finite_number(research_map.get(b))) is not None]
+    research_total = round(sum(research_vals), 1) if len(research_vals) == 3 else None
+    colonies_val = finite_number(player.get("colonies"))
+    fleet_val = finite_number(player.get("military"))
+
+    targets = eval_cp["targets"]
+    metrics = []
+    if not is_nomad and "colonies" in targets:
+        metrics.append(rate_metric("Colonies", "colonies", colonies_val, targets.get("colonies")))
+    metrics.append(rate_metric("Alloys / mo", "alloys", alloys_val, targets.get("alloys"), "/mo"))
+    metrics.append(rate_metric("Total research / mo", "research", research_total, targets.get("research"), "/mo"))
+    if "fleet" in targets:
+        metrics.append(rate_metric("Fleet power", "fleet", fleet_val, targets.get("fleet")))
+    metrics = [m for m in metrics if m is not None]
+
+    # Universal readiness checks (valid regardless of difficulty or galaxy sliders).
+    checks = []
+    deficits = [k.replace("_", " ") for k in ("energy", "minerals", "food", "consumer_goods", "alloys", "trade")
+                if net_known.get(k, True) is not False and (v := finite_number(net.get(k))) is not None and v < 0]
+    checks.append({
+        "label": "Economy flow",
+        "ok": not deficits,
+        "detail": "No tracked monthly resource deficits." if not deficits else f"Active deficit(s): {', '.join(deficits)}.",
+    })
+    planets = [p for p in (snapshot.get("planets") or []) if isinstance(p, dict)]
+    unstable = [(stab, p) for p in planets if (stab := finite_number(p.get("stability"))) is not None and stab < 50]
+    revolt_risk = [(stab, p) for stab, p in unstable if stab < 25]
+    if revolt_risk:
+        worst_stab, worst = min(revolt_risk, key=lambda item: item[0])
+        worst_name = worst.get("name") or "an unnamed colony"
+        checks.append({"label": "Colony stability", "ok": False,
+                       "detail": f"Revolt risk on {worst_name} ({worst_stab:.0f}% stability — below 25%)."})
+    elif unstable:
+        worst_stab, worst = min(unstable, key=lambda item: item[0])
+        worst_name = worst.get("name") or "an unnamed colony"
+        checks.append({"label": "Colony stability", "ok": False,
+                       "detail": f"{len(unstable)} colony(ies) below 50% stability (lowest: {worst_name} at {worst_stab:.0f}%)."})
+    elif planets:
+        checks.append({"label": "Colony stability", "ok": True, "detail": "All saved colonies are at >= 50% stability."})
+
+    sb_used = finite_number(player.get("starbase_used"))
+    sb_cap = finite_number(player.get("starbase_capacity"))
+    if sb_used is not None and sb_cap is not None and sb_cap > 0:
+        over_sb = sb_used > sb_cap
+        checks.append({
+            "label": "Starbase capacity",
+            "ok": not over_sb,
+            "detail": (f"Over cap ({sb_used:g}/{sb_cap:g}) — steep Energy upkeep penalty."
+                       if over_sb else f"Within cap ({sb_used:g}/{sb_cap:g})."),
+        })
+
+    return {
+        "year": year,
+        "stage": eval_cp["stage"],
+        "stage_name": eval_cp["stage_name"],
+        "before_first": before_first,
+        "current_year": eval_cp["year"],
+        "focus": eval_cp["focus"],
+        "checklist": list(eval_cp["checklist"]),
+        "metrics": metrics,
+        "checks": checks,
+        "next": ({
+            "year": next_cp["year"],
+            "stage": next_cp["stage"],
+            "stage_name": next_cp["stage_name"],
+            "focus": next_cp["focus"],
+            "targets": {k: list(v) for k, v in next_cp["targets"].items() if not (is_nomad and k == "colonies")},
+        } if next_cp and next_cp["year"] != eval_cp["year"] else None),
+        "is_nomad": is_nomad,
+        "contacted_crises": detect_contacted_crises(snapshot),
+        "caveat": "Conditional post-4.3 baseline for standard 1x settings; adjust for difficulty, tech cost, habitable worlds, and empire origin.",
+    }
+
+
 def make_plan(snapshot, history, stored=None):
     player = snapshot["player"]
     profile = player.get("profile") or {}
@@ -468,4 +667,5 @@ def make_plan(snapshot, history, stored=None):
                                       if item["metric"].startswith("net:") else
                                       f"{item['current']:,.0f} / {item['target']:,.0f}")}
     return {"goals": goals[:5], "goal_catalog": goals, "alerts": alerts[:4],
-            "window": f"{year + 5}–{year + 10}" if year else "Next 5–10 years"}
+            "window": f"{year + 5}–{year + 10}" if year else "Next 5–10 years",
+            "benchmark": build_campaign_benchmark(snapshot)}

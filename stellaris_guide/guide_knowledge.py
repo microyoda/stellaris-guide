@@ -14,6 +14,7 @@ TOPICS = {
     "espionage", "population", "policy", "planet_economy",
     "trade_storage", "nomads", "ideologies",
     "crisis", "council", "leaders", "subjects", "megastructures", "government",
+    "revolt", "automation", "dangerous_tech", "ascension_perks",
 }
 
 

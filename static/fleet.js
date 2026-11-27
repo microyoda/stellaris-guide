@@ -39,8 +39,8 @@ const fleetCrisisBlueprints = {
     sections: 'Focused Arc Emitter Carrier Battleships (X + H + M) + Disruptor/Missile Cruisers',
     weapons: 'Bypass weapons (Focused Arc Emitters, Disruptors, Missiles, Strike Craft) — exploits the Contingency’s 1:4:4 Hull/Armor/Shield ratio and low hardening.',
     defenses: 'Balanced ~50% Shields / ~50% Armor — Contingency weapons deal heavy mixed damage across shields and armor.',
-    auxComputer: 'Aux: Shield Capacitors or Afterburners · Computer: Carrier or Artillery (pair with Juggernaut range aura if available)',
-    note: 'Crisis preset (The Contingency): clear Sterilization Hubs and check machine/synth pop events. Confirm unlocked tiers & upkeep in Ship Designer.',
+    auxComputer: 'Aux: Shield Capacitors or Afterburners · Computer: Carrier or Artillery (SWAP OFF Sapient Combat Computers — Contingency disrupts them!)',
+    note: 'Crisis preset (The Contingency): avoid Sapient Combat Computers, clear Sterilization Hubs, and check synth/machine events. Confirm unlocked tiers & upkeep in Ship Designer.',
   },
   cetana: {
     label: 'Cetana (Synthetic Queen)',
@@ -245,7 +245,7 @@ function fleetBuildBlueprint(size, goal, enemyDefense, enemyWeapons, context = {
       : 'Hangar Core (Carrier) or Broadside/Missile Core (versatile mid-late hull)',
     battleship: goal === 'screening' ? 'Spinal Mount Bow + Carrier Core + Broadside Stern'
       : 'Spinal Mount Bow (X) + Artillery or Carrier Core + Broadside/Artillery Stern',
-    titan: 'Perdition Beam (T) + 6 Large Artillery slots + Fleet Aura (e.g., Shield Dampener or Inspiring Presence)',
+    titan: 'Perdition Beam (T) + 6 Large Artillery slots + 1 Fleet Aura (post-4.3 cap: 1 + 1 per 800 naval cap, max 13; hostile auras apply once per battle, support auras per fleet)',
     juggernaut: 'Mobile Shipyard + 2 Spinal X + 6 Strike Craft Hangars + 5 M slots + Empire Aura',
     colossus: 'Planet-killer weapon slot only (no standard combat weapons — always escort with combat fleets)',
     arkship: 'Nomads Arkship modules (verify Weapon & Defense Preferences in Policies)',

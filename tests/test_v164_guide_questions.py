@@ -343,6 +343,82 @@ class QuestionRegressionTests(unittest.TestCase):
         self.assertIn("Fanatical Befrienders", threat)
         self.assertIn("2x Aggressiveness", threat)
 
+    def test_revolt_fuzzy_colony_automation_dangerous_tech_titan_and_benchmark(self):
+        from stellaris_guide.strategy import build_campaign_benchmark, detect_contacted_crises
+
+        save = snapshot()
+        save["date"] = "2225.10.01"
+        save["version"] = "Corona Borealis v4.6.0 (3d1a)"
+        save["planets"][0]["stability"] = 22.0
+        save["planets"][0]["crime"] = 34.0
+        save["player"]["colonies"] = 4
+        save["player"]["military"] = 1800
+        save["player"]["research"] = {"physics": 60.0, "society": 40.0, "engineering": 35.0}
+        save["player"]["starbase_used"] = 5
+        save["player"]["starbase_capacity"] = 6
+
+        # Exact screenshot questions: typo + omitted "Prime" matches Alpha Centauri Prime and gives revolt steps.
+        revolt_typo = answer_question("/ask how to do with aplha centauri revolt?", save, ADVICE)
+        self.assertIn("Alpha Centauri Prime", revolt_typo)
+        self.assertIn("22%", revolt_typo)
+        self.assertIn("Holo-Theatre", revolt_typo)
+        self.assertIn("Martial Law", revolt_typo)
+
+        colony_typo = answer_question("/ask alpha centuries", save, ADVICE)
+        self.assertIn("Alpha Centauri Prime", colony_typo)
+
+        # General revolt question without a colony name still highlights the unstable colony.
+        revolt_gen = answer_question("How do I stop a revolt?", save, ADVICE)
+        self.assertIn("Alpha Centauri Prime", revolt_gen)
+        self.assertIn("Planetary Revolt", revolt_gen)
+
+        # Automation, Dangerous Tech, Ascension Perks, Titan Cap/Auras, CG/Trade shortage penalties.
+        auto = answer_question("Why is planetary automation idle and how do automation buildings work?", save, ADVICE)
+        self.assertIn("waits for available pops", auto)
+        self.assertIn("1,600/1,000", auto)
+
+        danger = answer_question("What are the Dangerous Technology risks?", save, ADVICE)
+        self.assertIn("2450 to 2425", danger)
+        self.assertIn("Citizen Rights", danger)
+
+        perks = answer_question("Which Ascension Perks should I take first?", save, ADVICE)
+        self.assertIn("open Tradition tree slot", perks)
+        self.assertIn("Imperial Prerogative", perks)
+
+        titan = answer_question("What is the Titan cap and best build?", save, ADVICE)
+        self.assertIn("1 + 1 per 800", titan)
+        self.assertIn("13 Titans", titan)
+        self.assertIn("hostile auras", titan)
+
+        cg_fix = answer_question("How to increase consumer goods?", save, ADVICE)
+        self.assertIn("halves Research and Unity", cg_fix)
+
+        # 4-stage Campaign Benchmark engine & /ask benchmark answer.
+        bench = build_campaign_benchmark(save)
+        self.assertEqual(bench["stage"], 1)
+        self.assertEqual(bench["current_year"], 2220)
+        self.assertEqual(bench["next"]["year"], 2230)
+        self.assertTrue(any("Revolt risk on Alpha Centauri Prime" in c["detail"] for c in bench["checks"]))
+        bench_ans = answer_question("Am I on track for this year?", save, ADVICE)
+        self.assertIn("Stage 1", bench_ans)
+        self.assertIn("Year 2230", bench_ans)
+
+        # 0% stability colony is still picked (0.0 is falsy in Python) and early-game year says "building toward".
+        save["planets"][0]["stability"] = 0.0
+        revolt_zero = answer_question("How do I stop a revolt?", save, ADVICE)
+        self.assertIn("Alpha Centauri Prime", revolt_zero)
+        self.assertIn("0%", revolt_zero)
+        save["date"] = "2203.10.01"
+        self.assertIn("building toward Year 2210", answer_question("Am I on track for this year?", save, ADVICE))
+
+        # Nomad benchmark skips fixed Colony count metric; contacted crises sort deterministically.
+        save["player"]["profile"] = {"is_nomad": True}
+        save["contacts"].append({"id": 99, "name": "Prethoryn Vanguard", "kind": "swarm", "opinion": -1000})
+        save["contacts"].insert(0, {"id": 98, "name": "Gray Tempest", "kind": "gray_goo", "opinion": -1000})
+        nomad_bench = build_campaign_benchmark(save)
+        self.assertFalse(any(m["key"] == "colonies" for m in nomad_bench["metrics"]))
+        self.assertEqual([c["kind"] for c in detect_contacted_crises(save)], ["gray_goo", "swarm"])
+
 
 if __name__ == "__main__":
     unittest.main()

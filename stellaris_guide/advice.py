@@ -101,7 +101,7 @@ def _resource_levers(resource: str, snapshot: dict) -> str:
         worker = "Artisan Drones" if is_gestalt else "Artisan jobs"
         econ_policy = policies.get("economic_policy")
         policy_note = f" Saved economic policy is {str(econ_policy).replace('_', ' ')}." if econ_policy else ""
-        return (f"Designate a Factory World and fill {worker} (Industrial/Factory districts and Civilian Industries), or pause new Research Labs/Unity buildings until your monthly balance is positive.{policy_note} "
+        return (f"Designate a Factory World and fill {worker} (Industrial/Factory districts and Civilian Industries), or pause new Research Labs/Unity buildings until positive—a Consumer Goods shortage halves Research and Unity from jobs.{policy_note} "
                 "You can also review your Economic Policy (Civilian vs Mixed vs Militarized Economy) and Trade Policy in game.")
 
     if resource == "alloys":
@@ -119,10 +119,10 @@ def _resource_levers(resource: str, snapshot: dict) -> str:
 
     if resource == "trade":
         if is_nomad:
-            return ("Connect Waystations along active Waylines, cut unnecessary recurring Market purchases (base 30% Market fee), and watch logistics upkeep across Arkships.")
+            return ("Connect Waystations along active Waylines, cut unnecessary recurring Market purchases (base 30% Market fee), and watch logistics upkeep across Arkships (running out of Trade cuts Job Efficiency by 25%).")
         worker = "Logistics Drones" if is_gestalt else "Trader / Commercial jobs"
-        return (f"Add {worker} on a Trade-focused colony, reduce local planet resource deficits that consume logistics Trade, "
-                "and pause recurring Market purchases (base Market fee starts at 30%) until monthly Trade is positive.")
+        return (f"Add {worker} on a Trade-focused colony, reduce local colony resource deficits that consume logistics Trade, park idle fleets at Crew Quarters starbases, "
+                "and pause recurring Market purchases (30% base fee)—running out of Trade cuts Job Efficiency by 25%.")
 
     if resource == "unity":
         size = _num(player.get("empire_size"))
@@ -233,8 +233,30 @@ def planet_answer(question: str, snapshot: dict) -> str:
             f"{_fmt_metric(selected.get('free_amenities'), '+.1f')} free amenities. {rec['title']}: {rec['action']} {rec['reason']}")
 
 
+def _revolt_answer(planet: dict | None, snapshot: dict) -> str:
+    planets = [p for p in (snapshot.get("planets") or []) if isinstance(p, dict) and p.get("name")]
+    target = planet
+    if target is None and planets:
+        low = sorted(
+            [(stab, p) for p in planets if (stab := _num(p.get("stability"))) is not None and stab < 40],
+            key=lambda pair: pair[0],
+        )
+        target = low[0][1] if low else None
+    prefix = ""
+    if target:
+        stab = _fmt_metric(target.get("stability"), ".0f", "%")
+        amen = _fmt_metric(target.get("free_amenities"), "+.1f")
+        hous = _fmt_metric(target.get("free_housing"), "+.1f")
+        crime = _fmt_metric(target.get("crime"), ".0f", "%")
+        prefix = (f"For {target['name']} (saved stability {stab}, free amenities {amen}, "
+                  f"free housing {hous}, crime {crime}): ")
+    return prefix + _guide_steps("revolt", snapshot)
+
+
 def _general_planet_answer(context: QuestionContext, snapshot: dict) -> str:
     planets = [p for p in (snapshot.get("planets") or []) if isinstance(p, dict) and p.get("name")]
+    if context.focus == "revolt":
+        return _revolt_answer(None, snapshot)
     if not planets:
         return "I could not read colony details from this save. Make a new autosave and try again."
     focus = context.focus
@@ -349,6 +371,17 @@ def ship_answer(snapshot: dict, context: QuestionContext | None = None) -> str:
     player = snapshot.get("player") or {}
     focus = context.focus if context else None
     mode = context.mode if context else "status"
+
+    if focus == "titan":
+        apoc = has_dlc(snapshot, "apocalypse")
+        dlc_note = ("Apocalypse DLC is not recorded in this save (required for player Titans). "
+                    if apoc is False else "")
+        return (dlc_note +
+                "Post-4.3 Titan rules: Titan Cap is 1 + 1 per 800 Naval Capacity (capped at 13 Titans at 9,999 naval cap). "
+                "Fixed slots: 1 Titanic Perdition Beam, 6 Large weapons, 12 Large utility, 3 Aux, and 1 Aura. "
+                "Standard build: Perdition Beam + 6x Kinetic Artillery + 3x Auxiliary Fire-Control + Artillery computer. "
+                "Aura stacking: hostile auras (e.g. Shield Dampener) apply once per battle in the main fleet; friendly support auras apply per fleet. "
+                "Confirm unlocked components and alloy upkeep in Ship Designer.")
 
     if focus == "starbase_capacity":
         sb_used = _num(player.get("starbase_used"))
@@ -649,6 +682,26 @@ def _government_answer(snapshot: dict) -> str:
     return prefix + _guide_steps("government", snapshot)
 
 
+def _benchmark_answer(snapshot: dict) -> str:
+    from .strategy import build_campaign_benchmark
+
+    bench = build_campaign_benchmark(snapshot)
+    year = bench.get("year")
+    year_str = f"Year {year}" if year else "this save"
+    metric_bits = []
+    for m in bench.get("metrics") or []:
+        cur = f"{m['current']:,.1f}{m['unit']}" if isinstance(m["current"], (int, float)) else "unknown"
+        metric_bits.append(f"{m['label']}: {cur} (1x target {m['target_low']:,}–{m['target_high']:,}{m['unit']}, {m['status'].replace('_', ' ')})")
+    warn_checks = [c["detail"] for c in (bench.get("checks") or []) if not c.get("ok")]
+    nxt = bench.get("next")
+    nxt_str = f" Next milestone (Year {nxt['year']}): {nxt['focus']}" if nxt else ""
+    warn_str = (" Priority fixes first: " + " ".join(warn_checks)) if warn_checks else " Core readiness checks (economy flow, stability, starbase cap) look healthy."
+    cp_label = (f"building toward Year {bench['current_year']}"
+                if bench.get("before_first") else f"checkpoint Year {bench['current_year']}")
+    return (f"Stage {bench['stage']} ({bench['stage_name']}) at {year_str} — {cp_label}: "
+            f"{'; '.join(metric_bits)}.{warn_str}{nxt_str} {bench['caveat']}")
+
+
 def answer_question(question: str, snapshot: dict, advice: dict | None = None) -> str:
     context = classify_question(question, snapshot)
     if not context.text:
@@ -664,6 +717,14 @@ def answer_question(question: str, snapshot: dict, advice: dict | None = None) -
         return _nomads_answer(snapshot)
     if context.topic == "trade_storage":
         return _trade_storage_answer(snapshot)
+    if context.topic == "dangerous_tech":
+        return _guide_steps("dangerous_tech", snapshot)
+    if context.topic == "ascension_perks":
+        return _guide_steps("ascension_perks", snapshot)
+    if context.topic == "automation":
+        return _guide_steps("automation", snapshot)
+    if context.topic == "benchmark":
+        return _benchmark_answer(snapshot)
     if context.topic == "crisis":
         return _crisis_answer(context, snapshot)
     if context.topic == "council":
@@ -680,6 +741,8 @@ def answer_question(question: str, snapshot: dict, advice: dict | None = None) -
         return _policy_answer(context, snapshot)
     if context.topic == "population":
         return _population_answer(context, snapshot)
+    if context.topic == "planet" and context.planet and context.focus == "revolt":
+        return _revolt_answer(context.planet, snapshot)
     if context.topic == "planet" and context.planet:
         return planet_answer(context.planet["name"], snapshot)
     if context.topic == "planet":
@@ -703,5 +766,5 @@ def answer_question(question: str, snapshot: dict, advice: dict | None = None) -
         if goals:
             return "Your clearest next move is: " + goals[0]["title"] + ". " + goals[0]["detail"]
         return "This selected save has no verified next move yet. Check the Main page after the next autosave."
-    return ("I do not have a reliable answer to that question yet. Ask about a named planet, "
-            "your economy, research, ships, diplomacy or spying; I will say when a detail is unknown.")
+    return ("I do not have a reliable answer to that question yet. Ask about a named colony, "
+            "your economy, benchmark, research, ships, crises, diplomacy or spying; I will say when a detail is unknown.")

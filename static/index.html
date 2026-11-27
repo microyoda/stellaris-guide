@@ -17,7 +17,7 @@
       <div class="brand"><span class="brand-mark"><img src="/assets/stellaris-guide-icon.png" alt=""></span><div><strong>STELLARIS GUIDE</strong><small>The clearer way forward</small><span class="version-tag" aria-label="Stellaris Guide version 1.6.4">v1.6.4</span></div></div>
       <nav class="tabs" aria-label="Dashboard pages">
         <button class="tab active" data-view="main"><span>⌂</span><div><strong>Main</strong><small>Decisions & trends</small></div></button>
-        <button class="tab" data-view="planets"><span>◉</span><div><strong>Planets</strong><small>Colony build guide</small></div><b id="planet-badge"></b></button>
+        <button class="tab" data-view="planets"><span>◉</span><div><strong>Colonies</strong><small>Colony build guide</small></div><b id="planet-badge"></b></button>
         <button class="tab" data-view="empires"><span>◎</span><div><strong>Empires</strong><small>Rivals & intel</small></div></button>
         <button class="tab" data-view="tech"><span>⌬</span><div><strong>Tech Tree</strong><small>Research choices</small></div></button>
         <button class="tab" data-view="ships"><span>◇</span><div><strong>Fleet</strong><small>Ships &amp; designs</small></div></button>
@@ -55,6 +55,10 @@
 
       <section id="view-main" class="view active">
         <article class="panel priority-panel"><div class="panel-head"><div><span class="eyebrow">NEXT 5–10 YEARS</span><h2>Your next moves</h2></div><span id="plan-window" class="tag"></span></div><div id="critical-risk" class="critical-risk" role="alert" hidden></div><div id="pin-notice" class="pin-notice" hidden></div><div id="goals" class="goal-list"></div></article>
+        <details id="campaign-benchmark" class="campaign-benchmark panel" aria-label="Campaign stage and decade benchmark">
+          <summary class="panel-head"><div><span id="benchmark-stage-eyebrow" class="eyebrow">CAMPAIGN BENCHMARK</span><h2 id="benchmark-title">Stage &amp; decade checkpoints</h2></div><span id="benchmark-preview" class="health-preview"></span></summary>
+          <div id="benchmark-body" class="benchmark-body"></div>
+        </details>
         <div class="grid two lower-grid">
           <article class="panel chart-panel"><div class="panel-head"><div><span class="eyebrow">YOUR MOMENTUM</span><h2>Campaign trend</h2></div><div id="trend-switch" class="segmented"><button class="active" data-metric="military">Fleet</button><button data-metric="economy">Economy</button><button data-metric="technology">Science</button></div></div><svg id="trend-chart" viewBox="0 0 700 260" role="img" aria-label="Campaign trend chart"></svg><small>Based on saved snapshots. This does not predict the future.</small></article>
           <article class="panel galaxy-panel"><div class="panel-head"><div><span class="eyebrow violet">KNOWN GALAXY</span><h2>Other empires</h2></div></div>
