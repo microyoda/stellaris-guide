@@ -6,7 +6,8 @@ Stellaris Guide is a read-only Windows campaign companion for **Stellaris 4.5 Cy
 
 ## Start here
 
-Open the [nontechnical installation guide](docs/INSTALL.md). The v1.6.4 portable release is `dist/StellarisGuide-Windows-1.6.4.zip`. Extract it and double-click `StellarisGuide.exe`; no mod, Node, terminal, or AI account is required.
+- **Online Web Companion (zero install, saves stay in your browser):** https://microyoda.github.io/stellaris-guide/
+- **Windows Desktop App (`.exe`):** Download `StellarisGuide-Windows-1.6.4.zip` or `StellarisGuide.exe` from [GitHub Releases](https://github.com/microyoda/stellaris-guide/releases/latest). Extract the zip and double-click `StellarisGuide.exe`; no mod, Node, terminal, or AI account is required. See the [nontechnical installation guide](docs/INSTALL.md).
 
 ## What's new in 1.6.4
 

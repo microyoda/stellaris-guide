@@ -24,6 +24,8 @@ def release_entries() -> dict[str, Path]:
     entries = dict(FILES)
     python_license = Path(sys.executable).parent / "LICENSE.txt"
     if not python_license.is_file():
+        python_license = Path(sys.base_prefix) / "LICENSE.txt"
+    if not python_license.is_file():
         raise FileNotFoundError("Python runtime license text missing")
     entries["licenses/Python-LICENSE.txt"] = python_license
     for package in DEPENDENCIES:
